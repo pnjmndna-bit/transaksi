@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<title>Orange Finance</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link rel="stylesheet"
+href="style.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ========================= -->
+<!-- HEADER -->
+<!-- ========================= -->
+<section id="homePage" class="page active">
+<header class="header">
+
+<div>
+
+<span class="hello">
+
+Selamat Datang 👋
+
+</span>
+
+<h2>
+
+April Saputra
+
+</h2>
+
+</div>
+
+<div class="header-right">
+
+<i class="fa-regular fa-bell"></i>
+
+<img src="assets/avatar.png">
+
+</div>
+
+</header>
+
+<!-- ========================= -->
+<!-- CARD SALDO -->
+<!-- ========================= -->
+
+<section class="balance-card">
+
+<div class="balance-head">
+
+<span>Total Saldo</span>
+
+<i id="toggleBalance" class="fa-regular fa-eye"></i>
+
+</div>
+
+<h1 id="totalBalance">
+
+Rp0
+
+</h1>
+
+<small id="lastUpdate">
+
+Belum ada transaksi
+
+</small>
+
+<div class="bank-list" id="bankList">
+
+</div>
+
+</section>
+
+<!-- ========================= -->
+<!-- RINGKASAN -->
+<!-- ========================= -->
+
+<section class="summary">
+
+    <div class="summary-header">
+
+        <div>
+
+            <h3>Ringkasan Keuangan</h3>
+
+            <span>30 Juli 2026</span>
+
+        </div>
+
+        <div class="summary-filter">
+
+            <button id="todayBtn" class="active">
+    Hari Ini
+</button>
+
+            <button id="monthBtn">
+    Bulan Ini
+</button>
+
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <!-- Card Pemasukan -->
+
+        <div class="income">
+
+            <h4>Pemasukan</h4>
+
+            <h2 id="incomeTotal">
+
+Rp0
+
+</h2>
+
+            <button
+id="incomeCategoryBtn"
+class="category-btn">
+
+    Semua
+
+    <i class="fa-solid fa-chevron-down"></i>
+
+</button>
+
+            <div
+id="incomeCategoryMenu"
+class="category-dropdown">
+
+                <button
+data-id="all"
+class="active">
+
+Semua
+
+</button>
+
+            </div>
+
+        </div>
+
+        <!-- Card Pengeluaran -->
+
+        <div class="expense">
+
+            <h4>Pengeluaran</h4>
+
+            <h2 id="expenseTotal">
+
+Rp0
+
+</h2>
+
+            <button
+id="expenseCategoryBtn"
+class="category-btn">
+
+                Semua
+
+                <i class="fa-solid fa-chevron-down"></i>
+
+            </button>
+
+            <div
+id="expenseCategoryMenu"
+class="category-dropdown">
+
+                <button
+data-id="all"
+class="active">
+
+Semua
+
+</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+  
+<!-- ========================= -->
+<!-- TRANSAKSI TERBARU -->
+<!-- ========================= -->
+
+<section class="transaction">
+
+<div class="section-title">
+
+<h3>
+
+Transaksi Terbaru
+
+</h3>
+
+<a href="#">
+
+Lihat Semua
+
+</a>
+
+</div>
+
+<div class="transaction-list" id="homeTransactionList">
+
+</div>
+
+</section>
+
+<!-- ========================= -->
+<!-- ANALISIS PEMASUKAN -->
+<!-- ========================= -->
+
+<section class="analysis">
+
+<h3>
+
+Pemasukan Bulan Ini
+
+</h3>
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>Narik</span>
+
+<b>Rp1.200.000</b>
+
+</div>
+
+<div class="progress">
+
+<div class="bar"
+style="width:65%">
+
+</div>
+
+</div>
+
+<small>
+
+65%
+
+</small>
+
+</div>
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>Gaji</span>
+
+<b>Rp650.000</b>
+
+</div>
+
+<div class="progress">
+
+<div class="bar"
+style="width:35%">
+
+</div>
+
+</div>
+
+<small>
+
+35%
+
+</small>
+
+</div>
+
+</section>
+
+<!-- ========================= -->
+<!-- ANALISIS PENGELUARAN -->
+<!-- ========================= -->
+
+<section class="analysis">
+
+<h3>
+
+Pengeluaran Bulan Ini
+
+</h3>
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>Makan & Minum</span>
+
+<b>Rp850.000</b>
+
+</div>
+
+<div class="progress">
+
+<div class="bar"
+style="width:45%">
+
+</div>
+
+</div>
+
+<small>
+
+45%
+
+</small>
+
+</div>
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>Transport</span>
+
+<b>Rp500.000</b>
+
+</div>
+
+<div class="progress">
+
+<div class="bar"
+style="width:27%">
+
+</div>
+
+</div>
+
+<small>
+
+27%
+
+</small>
+
+</div>
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>Belanja</span>
+
+<b>Rp350.000</b>
+
+</div>
+
+<div class="progress">
+
+<div class="bar"
+style="width:18%">
+
+</div>
+
+</div>
+
+<small>
+
+18%
+
+</small>
+
+</div>
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>Tagihan</span>
+
+<b>Rp200.000</b>
+
+</div>
+
+<div class="progress">
+
+<div class="bar"
+style="width:10%">
+
+</div>
+
+</div>
+
+<small>
+
+10%
+
+</small>
+
+</div>
+
+</section>
+
+<div style="height:120px"></div>
+
+</section>
+
+<!-- ========================= -->
+<!-- PREMIUM MODAL -->
+<!-- ========================= -->
+
+<div class="modal-overlay" id="modalOverlay">
+
+    <div class="modal-sheet">
+
+        <div class="modal-handle"></div>
+
+        <h3 id="modalTitle">Tambah Bank</h3>
+
+        <div class="modal-body">
+
+    <div class="form-group">
+
+        <label>Nama Bank</label>
+
+        <input
+        id="bankNameInput"
+        type="text"
+        placeholder="Contoh : SeaBank">
+
+    </div>
+
+    <div
+    class="form-group"
+    id="balanceGroup">
+
+        <label>Saldo Awal</label>
+
+        <input
+        id="bankBalanceInput"
+        type="text"
+        placeholder="Rp0">
+
+    </div>
+
+</div>
+
+        <div class="modal-footer">
+
+            <button
+            class="cancel-btn"
+            id="modalCancel">
+
+                Batal
+
+            </button>
+
+            <button
+            class="save-btn"
+            id="modalSave">
+
+                Simpan
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+  <div class="modal-overlay" id="deleteOverlay">
+
+    <div class="modal-sheet">
+
+        <div class="modal-handle"></div>
+
+        <h3>Hapus Bank</h3>
+
+        <p id="deleteText">
+            Apakah kamu yakin ingin menghapus bank ini?
+        </p>
+
+        <div class="modal-footer">
+
+            <button
+            class="cancel-btn"
+            id="deleteCancel">
+
+                Batal
+
+            </button>
+
+            <button
+            class="save-btn"
+            id="deleteConfirm">
+
+                Hapus
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==================================
+        VIEW BANK MODAL
+=================================== -->
+
+<div class="modal-overlay" id="viewOverlay">
+
+    <div class="modal-sheet">
+
+        <div class="modal-handle"></div>
+
+        <h2 id="viewBankName">Cash</h2>
+
+        <div class="view-bank-box">
+
+            <small>Saldo Saat Ini</small>
+
+            <h1 id="viewBankBalance">
+                Rp0
+            </h1>
+
+        </div>
+
+        <div class="view-bank-item">
+
+            <span>Pemasukan</span>
+
+            <strong id="viewIncome">
+                Rp0
+            </strong>
+
+        </div>
+
+        <div class="view-bank-item">
+
+            <span>Pengeluaran</span>
+
+            <strong id="viewExpense">
+                Rp0
+            </strong>
+
+        </div>
+
+        <div class="view-bank-item">
+
+            <span>Total Transaksi</span>
+
+            <strong id="viewTotalTransaction">
+                0
+            </strong>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+            class="save-btn"
+            id="closeView">
+
+                Tutup
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- PAGE TRANSAKSI -->
+<!-- ========================= -->
+
+<section id="transactionPage" class="page">
+
+<div class="transaction-page">
+
+<div class="transaction-header">
+
+<h2>Semua Transaksi</h2>
+
+<div class="search-box">
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+<input
+type="text"
+placeholder="Cari transaksi...">
+
+</div>
+
+<button class="filter-btn">
+
+<i class="fa-regular fa-calendar"></i>
+
+<span>Bulan Ini</span>
+
+<i class="fa-solid fa-chevron-down"></i>
+
+</button>
+
+</div>
+
+<div id="transactionContainer"></div>
+
+</div>
+
+</section>
+
+<!-- ========================= -->
+<!-- PAGE TAMBAH TRANSAKSI -->
+<!-- ========================= -->
+
+<section id="addPage" class="page">
+
+    <div class="add-header">
+
+        <div>
+            <h2>Tambah Data</h2>
+            <p>Kelola seluruh transaksi keuangan</p>
+        </div>
+
+    </div>
+
+    <div class="add-tab">
+
+        <button id="tabTransaction" class="active">
+            Transaksi
+        </button>
+
+        <button id="tabCategory">
+            Kategori
+        </button>
+
+        <button id="tabTransfer">
+            Transfer
+        </button>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- TAB TRANSAKSI -->
+    <!-- ========================= -->
+
+    <div id="transactionTab" class="tab-page active">
+
+        <div class="form-card">
+
+            <h3>Tambah Transaksi</h3>
+
+            <div class="transaction-type">
+
+                <button id="incomeTransaction" class="active">
+                    <i class="fa-solid fa-arrow-down"></i>
+                    Pemasukan
+                </button>
+
+                <button id="expenseTransaction">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    Pengeluaran
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    <i class="fa-regular fa-calendar"></i>
+                    Tanggal / Jam
+                </label>
+
+                <button
+                    type="button"
+                    id="transactionDatePicker"
+                    class="picker-input">
+
+                    <div class="picker-content">
+
+                        <small>Tanggal Transaksi</small>
+
+                        <b id="transactionDateText">
+                            Hari Ini
+                        </b>
+
+                        <span id="transactionTimeText">
+                            30 Juli 2026 • 23:15
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+                <input
+                    type="datetime-local"
+                    id="transactionDate"
+                    hidden>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    <i class="fa-solid fa-wallet"></i>
+                    Nominal
+                </label>
+
+                <input
+                    type="text"
+                    id="transactionAmount"
+                    placeholder="Rp0">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    <i class="fa-solid fa-layer-group"></i>
+                    Kategori
+                </label>
+
+                <button
+                    type="button"
+                    id="transactionCategoryPicker"
+                    class="picker-input">
+
+                    <b>Pilih Kategori</b>
+
+<span id="transactionCategoryText">
+Belum dipilih
+</span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    <i class="fa-solid fa-building-columns"></i>
+                    Bank
+                </label>
+
+                <button
+                    type="button"
+                    id="transactionBankPicker"
+                    class="picker-input">
+
+                    <span>Pilih Bank</span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    <i class="fa-regular fa-note-sticky"></i>
+                    Catatan
+                </label>
+
+                <textarea
+                    id="transactionNote"
+                    placeholder="Opsional"></textarea>
+
+            </div>
+
+            <button
+                id="saveTransaction"
+                class="primary-btn">
+
+                Simpan Transaksi
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- TAB KATEGORI -->
+    <!-- ========================= -->
+
+    <div id="categoryTab" class="tab-page">
+
+        <div class="form-card">
+
+            <h3>Tambah Kategori</h3>
+
+            <div class="category-type">
+
+                <button id="incomeType" class="active">
+                    Pemasukan
+                </button>
+
+                <button id="expenseType">
+                    Pengeluaran
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Nama Kategori</label>
+
+                <input
+                    type="text"
+                    id="categoryName"
+                    placeholder="Contoh : Bonus">
+
+            </div>
+
+            <button
+                id="saveCategory"
+                class="primary-btn">
+
+                Tambah Kategori
+
+            </button>
+
+            <h4 class="list-title">
+                Daftar Kategori
+            </h4>
+
+            <div
+                id="categoryList"
+                class="category-list">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- TAB TRANSFER -->
+    <!-- ========================= -->
+
+    <div id="transferTab" class="tab-page">
+
+        <div class="form-card">
+
+            <h3>Transfer Antar Bank</h3>
+
+            <div class="form-group">
+
+                <label>
+                    Tanggal / Jam
+                </label>
+
+                <button
+                    type="button"
+                    id="transferDatePicker"
+                    class="picker-input">
+
+                    <div class="picker-content">
+
+                        <small>Tanggal Transfer</small>
+
+                        <b id="transferDateText">
+                            Hari Ini
+                        </b>
+
+                        <span id="transferTimeText">
+                            30 Juli 2026 • 23:15
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+                <input
+                    type="datetime-local"
+                    id="transferDate"
+                    hidden>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Dari Bank</label>
+
+                <button
+                    type="button"
+                    id="transferFromPicker"
+                    class="picker-input">
+
+                    <span>Pilih Bank</span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Ke Bank</label>
+
+                <button
+                    type="button"
+                    id="transferToPicker"
+                    class="picker-input">
+
+                    <span>Pilih Bank</span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Nominal</label>
+
+                <input
+                    type="text"
+                    id="transferAmount"
+                    placeholder="Rp0">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Biaya Admin</label>
+
+                <input
+                    type="text"
+                    id="transferFee"
+                    placeholder="Rp0">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Catatan</label>
+
+                <textarea
+                    id="transferNote"
+                    placeholder="Opsional"></textarea>
+
+            </div>
+
+            <button
+                id="saveTransfer"
+                class="primary-btn">
+
+                Transfer Sekarang
+
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- PAGE BUDGET -->
+<!-- ========================= -->
+
+<section id="budgetPage" class="page">
+
+<div class="page-header">
+
+<h2>Budget</h2>
+
+<p>Fitur Budget sedang dikembangkan.</p>
+
+</div>
+
+</section>
+  
+<!-- ========================= -->
+<!-- PAGE PROFIL -->
+<!-- ========================= -->
+
+<section id="profilePage" class="page">
+
+<div class="page-header">
+
+<h2>Profil</h2>
+
+</div>
+
+</section>
+  
+<!-- ========================= -->
+<!-- BOTTOM NAV -->
+<!-- ========================= -->
+
+<nav class="bottom-nav">
+
+<a id="navHome" class="active">
+
+<i class="fa-solid fa-house"></i>
+
+<span>Beranda</span>
+
+</a>
+
+<a id="navTransaction">
+
+<i class="fa-solid fa-money-bill-transfer"></i>
+
+<span>Transaksi</span>
+
+</a>
+
+<a id="navAdd" class="fab">
+
+<i class="fa-solid fa-plus"></i>
+
+</a>
+
+<a id="navBudget">
+
+<i class="fa-solid fa-chart-pie"></i>
+
+<span>Budget</span>
+
+</a>
+
+<a id="navProfile">
+
+<i class="fa-solid fa-user"></i>
+
+<span>Profil</span>
+
+</a>
+
+</nav>
+
+</div>
+
+<!-- ========================= -->
+<!-- PICKER SHEET -->
+<!-- ========================= -->
+
+<div class="picker-overlay" id="pickerOverlay">
+
+    <div class="picker-sheet">
+
+        <div class="picker-handle"></div>
+
+        <div class="picker-header">
+
+            <h3 id="pickerTitle">
+
+Pilih
+
+</h3>
+
+        </div>
+
+        <div
+        class="picker-list"
+        id="pickerList">
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="toast" class="toast">
+    <i id="toastIcon"></i>
+    <div class="toast-content">
+        <h4 id="toastTitle"></h4>
+        <p id="toastMessage"></p>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
