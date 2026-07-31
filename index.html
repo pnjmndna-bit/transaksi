@@ -111,7 +111,7 @@ Belum ada transaksi
 
             <h3>Ringkasan Keuangan</h3>
 
-            <span>30 Juli 2026</span>
+            <span id="summaryDate"></span>
 
         </div>
 
@@ -157,14 +157,6 @@ class="category-btn">
 id="incomeCategoryMenu"
 class="category-dropdown">
 
-                <button
-data-id="all"
-class="active">
-
-Semua
-
-</button>
-
             </div>
 
         </div>
@@ -194,14 +186,6 @@ class="category-btn">
             <div
 id="expenseCategoryMenu"
 class="category-dropdown">
-
-                <button
-data-id="all"
-class="active">
-
-Semua
-
-</button>
 
             </div>
 
@@ -844,10 +828,43 @@ Belum dipilih
 
                 <input
                     type="text"
-                    id="categoryName"
+                    id="categoryNameInput"
                     placeholder="Contoh : Bonus">
 
             </div>
+
+          <!-- ========================= -->
+<!-- ICON -->
+<!-- ========================= -->
+
+<div class="form-group">
+
+<label>Icon</label>
+
+<button
+type="button"
+id="categoryIconButton"
+class="picker-input">
+
+<div class="picker-content">
+
+<small>Icon Kategori</small>
+
+<b>
+
+<i
+id="categoryIconPreview"
+class="fa-solid fa-wallet"></i>
+
+</b>
+
+</div>
+
+<i class="fa-solid fa-chevron-right"></i>
+
+</button>
+
+</div>
 
             <button
                 id="saveCategory"
