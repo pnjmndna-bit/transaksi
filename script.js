@@ -132,6 +132,138 @@ let expenseCategoryFilter = "all";
 const balanceText = document.getElementById("totalBalance");
 const balanceIcon = document.getElementById("toggleBalance");
 
+const summaryDate =
+document.getElementById("summaryDate");
+
+function updateSummaryDate(){
+
+    if(!summaryDate) return;
+
+    const now = new Date();
+
+    summaryDate.textContent =
+    now.toLocaleDateString("id-ID",{
+
+        weekday:"long",
+
+        day:"numeric",
+
+        month:"long",
+
+        year:"numeric"
+
+    });
+
+}
+
+/*======================================
+        DEFAULT ICON LIST
+======================================*/
+
+const categoryIcons = [
+
+/* Keuangan */
+"fa-solid fa-wallet",
+"fa-solid fa-money-bill-wave",
+"fa-solid fa-money-bill",
+"fa-solid fa-sack-dollar",
+"fa-solid fa-piggy-bank",
+"fa-solid fa-coins",
+"fa-solid fa-credit-card",
+"fa-solid fa-building-columns",
+"fa-solid fa-landmark",
+"fa-solid fa-chart-line",
+
+/* Makanan */
+"fa-solid fa-utensils",
+"fa-solid fa-burger",
+"fa-solid fa-pizza-slice",
+"fa-solid fa-bowl-rice",
+"fa-solid fa-mug-hot",
+"fa-solid fa-ice-cream",
+"fa-solid fa-cake-candles",
+"fa-solid fa-fish",
+"fa-solid fa-drumstick-bite",
+"fa-solid fa-pepper-hot",
+
+/* Belanja */
+"fa-solid fa-cart-shopping",
+"fa-solid fa-bag-shopping",
+"fa-solid fa-basket-shopping",
+"fa-solid fa-shirt",
+"fa-solid fa-gem",
+"fa-solid fa-gift",
+
+/* Transport */
+"fa-solid fa-car",
+"fa-solid fa-motorcycle",
+"fa-solid fa-taxi",
+"fa-solid fa-bus",
+"fa-solid fa-train",
+"fa-solid fa-plane",
+"fa-solid fa-ship",
+"fa-solid fa-gas-pump",
+
+/* Rumah */
+"fa-solid fa-house",
+"fa-solid fa-house-chimney",
+"fa-solid fa-bed",
+"fa-solid fa-couch",
+"fa-solid fa-fan",
+"fa-solid fa-lightbulb",
+"fa-solid fa-sink",
+
+/* Teknologi */
+"fa-solid fa-mobile-screen",
+"fa-solid fa-laptop",
+"fa-solid fa-desktop",
+"fa-solid fa-headphones",
+"fa-solid fa-camera",
+"fa-solid fa-gamepad",
+"fa-solid fa-wifi",
+
+/* Kesehatan */
+"fa-solid fa-heart",
+"fa-solid fa-heart-pulse",
+"fa-solid fa-hospital",
+"fa-solid fa-stethoscope",
+"fa-solid fa-pills",
+"fa-solid fa-syringe",
+
+/* Pendidikan */
+"fa-solid fa-book",
+"fa-solid fa-book-open",
+"fa-solid fa-graduation-cap",
+"fa-solid fa-school",
+"fa-solid fa-pencil",
+
+/* Hiburan */
+"fa-solid fa-film",
+"fa-solid fa-music",
+"fa-solid fa-guitar",
+"fa-solid fa-football",
+"fa-solid fa-volleyball",
+"fa-solid fa-dumbbell",
+
+/* Lainnya */
+"fa-solid fa-star",
+"fa-solid fa-fire",
+"fa-solid fa-bolt",
+"fa-solid fa-leaf",
+"fa-solid fa-tree",
+"fa-solid fa-paw",
+"fa-solid fa-dog",
+"fa-solid fa-cat",
+"fa-solid fa-baby",
+"fa-solid fa-briefcase",
+"fa-solid fa-toolbox",
+"fa-solid fa-wrench",
+"fa-solid fa-location-dot",
+"fa-solid fa-globe",
+"fa-solid fa-calendar-days"
+
+];
+
 /*======================================
             ID GENERATOR
 ======================================*/
@@ -178,7 +310,7 @@ function createTransaction({
 
 }){
 
-    const now=new Date();
+    const now = selectedTransactionDate;
 
     return{
 
@@ -334,6 +466,65 @@ function updateTotalBalance(){
     balanceText.textContent = balanceHidden
         ? "••••••"
         : formatRupiah(total);
+
+}
+
+/*======================================
+        LAST UPDATE
+======================================*/
+
+function updateLastUpdate(){
+
+    const text =
+    document.getElementById("lastUpdate");
+
+    if(!text) return;
+
+    if(transactions.length===0){
+
+        text.innerHTML=`
+Belum ada transaksi<br>
+Hari ini ${new Date().toLocaleTimeString("id-ID",{
+hour:"2-digit",
+minute:"2-digit"
+})}
+`;
+
+        return;
+
+    }
+
+    const last=transactions[0];
+
+    const date=new Date(last.createdAt);
+
+    text.innerHTML=`
+
+Terakhir diperbarui<br>
+
+${date.toLocaleDateString("id-ID",{
+
+weekday:"long",
+
+day:"numeric",
+
+month:"long",
+
+year:"numeric"
+
+})}
+
+•
+
+${date.toLocaleTimeString("id-ID",{
+
+hour:"2-digit",
+
+minute:"2-digit"
+
+})}
+
+`;
 
 }
 
@@ -605,9 +796,15 @@ function viewBank(id){
 
     if(!bank) return;
 
-    const list = transactions.filter(
-        tr=>tr.bankId===id
-    );
+    const list = transactions.filter(tr=>
+
+    tr.bankId===id ||
+
+    tr.fromBank===id ||
+
+    tr.toBank===id
+
+);
 
     let income = 0;
 
@@ -934,22 +1131,24 @@ const todayBtn = document.getElementById("todayBtn");
 
 const monthBtn = document.getElementById("monthBtn");
 
-todayBtn.onclick = function(){
+todayBtn.onclick=function(){
 
-    summaryFilter = "today";
+    summaryFilter="today";
 
     todayBtn.classList.add("active");
+
     monthBtn.classList.remove("active");
 
     renderSummary();
 
 };
 
-monthBtn.onclick = function(){
+monthBtn.onclick=function(){
 
-    summaryFilter = "month";
+    summaryFilter="month";
 
     monthBtn.classList.add("active");
+
     todayBtn.classList.remove("active");
 
     renderSummary();
@@ -1223,11 +1422,420 @@ tabCategory.onclick=function(){
 
     showAddTab("category");
 
+    renderCategoryList();
+
 };
 
 tabTransfer.onclick=function(){
 
     showAddTab("transfer");
+
+};
+
+/*======================================
+        CATEGORY MANAGER
+======================================*/
+
+let selectedCategoryIcon = "fa-solid fa-wallet";
+
+let editingCategoryId = null;
+
+let editingCategoryType = "income";
+
+const incomeType =
+document.getElementById("incomeType");
+
+const expenseType =
+document.getElementById("expenseType");
+
+incomeType.onclick=function(){
+
+    editingCategoryType="income";
+
+    incomeType.classList.add("active");
+
+    expenseType.classList.remove("active");
+
+  editingCategoryId = null;
+
+document.getElementById(
+"categoryNameInput"
+).value = "";
+
+document.getElementById(
+"saveCategory"
+).textContent =
+"Tambah Kategori";
+
+    renderCategoryList();
+
+};
+
+expenseType.onclick=function(){
+
+    editingCategoryType="expense";
+
+    expenseType.classList.add("active");
+
+    incomeType.classList.remove("active");
+
+  editingCategoryId = null;
+
+document.getElementById(
+"categoryNameInput"
+).value = "";
+
+document.getElementById(
+"saveCategory"
+).textContent =
+"Tambah Kategori";
+
+    renderCategoryList();
+
+};
+
+function createCategory(name, icon){
+
+    return{
+
+        id: generateId(),
+
+        name: name.trim(),
+
+        icon
+
+    };
+
+}
+
+function getCategoryList(){
+
+    return categories[editingCategoryType];
+
+}
+
+function saveCategory(){
+
+    const input =
+    document.getElementById("categoryNameInput");
+
+    const name = input.value.trim();
+
+    if(name===""){
+
+        showToast(
+            "warning",
+            "Masukkan nama kategori."
+        );
+
+        return;
+
+    }
+
+    const list = getCategoryList();
+
+    if(editingCategoryId===null){
+
+        list.push(
+
+            createCategory(
+                name,
+                selectedCategoryIcon
+            )
+
+        );
+
+    }else{
+
+        const cat =
+        list.find(c=>c.id===editingCategoryId);
+
+        if(cat){
+
+            cat.name = name;
+
+            cat.icon = selectedCategoryIcon;
+
+        }
+
+    }
+
+    saveData();
+
+    renderCategoryList();
+
+    input.value="";
+
+    document
+
+.getElementById("saveCategory")
+
+.textContent="Tambah Kategori";
+
+    editingCategoryId=null;
+
+    selectedCategoryIcon="fa-solid fa-wallet";
+
+    document.getElementById("categoryIconPreview").className=
+    selectedCategoryIcon;
+
+    showToast(
+        "success",
+        "Kategori berhasil disimpan."
+    );
+
+}
+
+/*======================================
+        CATEGORY ICON PICKER
+======================================*/
+
+function openIconPicker(){
+
+    openPicker("Pilih Icon");
+
+    pickerList.innerHTML="";
+
+    categoryIcons.forEach(icon=>{
+
+        const item=document.createElement("button");
+
+        item.type="button";
+
+        item.className="icon-picker-item";
+
+        item.innerHTML=`
+            <i class="${icon}"></i>
+        `;
+
+        item.onclick=function(){
+
+            selectedCategoryIcon=icon;
+
+            document
+            .getElementById("categoryIconPreview")
+            .className=icon;
+
+            closePicker();
+
+        };
+
+        pickerList.appendChild(item);
+
+    });
+
+}
+
+function filterCategoryIcons(keyword){
+
+    pickerList.innerHTML="";
+
+    categoryIcons
+
+    .filter(icon=>
+
+        icon
+
+        .toLowerCase()
+
+        .includes(
+
+            keyword.toLowerCase()
+
+        )
+
+    )
+
+    .forEach(icon=>{
+
+        const item=document.createElement("button");
+
+        item.type="button";
+
+        item.className="icon-picker-item";
+
+        item.innerHTML=`
+            <i class="${icon}"></i>
+        `;
+
+        item.onclick=function(){
+
+            selectedCategoryIcon=icon;
+
+            document
+            .getElementById("categoryIconPreview")
+            .className=icon;
+
+            closePicker();
+
+        };
+
+        pickerList.appendChild(item);
+
+    });
+
+}
+
+const categoryIconButton =
+document.getElementById("categoryIconButton");
+
+if(categoryIconButton){
+
+    categoryIconButton.onclick=function(){
+
+        openIconPicker();
+
+    };
+
+}
+
+/*======================================
+        CATEGORY RENDER
+======================================*/
+
+function renderCategoryList(){
+
+    const container =
+    document.getElementById("categoryList");
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    categories[editingCategoryType].forEach(cat=>{
+
+        const item=document.createElement("div");
+
+        item.className="category-item";
+
+        item.innerHTML=`
+
+<div class="category-left">
+
+<i class="${cat.icon}"></i>
+
+<span>${cat.name}</span>
+
+</div>
+
+<div class="category-right">
+
+<button
+class="edit-category">
+
+<i class="fa-solid fa-pen"></i>
+
+</button>
+
+<button
+class="delete-category">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</div>
+
+`;
+
+        item.querySelector(".edit-category")
+        .onclick=function(){
+
+            editCategory(cat.id);
+
+        };
+
+        item.querySelector(".delete-category")
+        .onclick=function(){
+
+            deleteCategory(cat.id);
+
+        };
+
+        container.appendChild(item);
+
+    });
+
+}
+
+/*======================================
+        EDIT CATEGORY
+======================================*/
+
+function editCategory(id){
+
+    const list =
+    getCategoryList();
+
+    const cat =
+    list.find(c=>c.id===id);
+
+    if(!cat) return;
+
+    editingCategoryId=id;
+
+    document.getElementById("saveCategory")
+.textContent = "Update Kategori";
+
+    document.getElementById(
+        "categoryNameInput"
+    ).value=cat.name;
+
+    selectedCategoryIcon=cat.icon;
+
+    document.getElementById(
+        "categoryIconPreview"
+    ).className=cat.icon;
+
+}
+
+/*======================================
+        DELETE CATEGORY
+======================================*/
+
+function deleteCategory(id){
+
+    categories[editingCategoryType]=
+    categories[editingCategoryType]
+    .filter(c=>c.id!==id);
+
+    saveData();
+
+    renderCategoryList();
+
+editingCategoryId = null;
+
+document.getElementById(
+"categoryNameInput"
+).value = "";
+
+selectedCategoryIcon =
+"fa-solid fa-wallet";
+
+document.getElementById(
+"categoryIconPreview"
+).className =
+selectedCategoryIcon;
+
+document.getElementById(
+"saveCategory"
+).textContent =
+"Tambah Kategori";
+
+showToast(
+"success",
+"Kategori dihapus."
+);
+
+}
+
+document
+
+.getElementById("saveCategory")
+
+.onclick=function(){
+
+    saveCategory();
 
 };
 
@@ -1411,6 +2019,8 @@ renderSummary();
 
 renderTransactions();
 
+updateLastUpdate();
+
     transactionAmount.value="";
 
     transactionNote.value="";
@@ -1424,14 +2034,31 @@ renderTransactions();
 saveTransaction.textContent = "Simpan Transaksi";
 
     transactionBankPicker
-    .querySelector("span")
-    .textContent="Pilih Bank";
+.querySelector("span")
+.textContent="Pilih Bank";
 
-    document.getElementById(
-        "transactionCategoryText"
-    ).textContent="Belum dipilih";
+document.getElementById(
+    "transactionCategoryText"
+).textContent="Belum dipilih";
 
-    showToast("success","Transaksi berhasil disimpan.");
+selectedTransactionType="income";
+
+incomeTransaction.classList.add("active");
+
+expenseTransaction.classList.remove("active");
+
+selectedTransactionDate = new Date();
+
+updateDateUI(
+    selectedTransactionDate,
+    transactionDateText,
+    transactionTimeText
+);
+
+showToast(
+    "success",
+    "Transaksi berhasil disimpan."
+);
 
 };
 
@@ -1468,6 +2095,14 @@ function editTransaction(id){
     transactionNote.value =
     tr.note;
 
+    selectedTransactionDate = new Date(tr.createdAt);
+
+updateDateUI(
+    selectedTransactionDate,
+    transactionDateText,
+    transactionTimeText
+);
+
     if(tr.type==="income"){
 
         incomeTransaction.classList.add("active");
@@ -1484,9 +2119,17 @@ function editTransaction(id){
 
     saveTransaction.textContent="Update Transaksi";
 
-    showPage("addPage");
+showPage("addPage");
 
-    showAddTab("transaction");
+document
+.querySelectorAll(".bottom-nav a")
+.forEach(nav=>nav.classList.remove("active"));
+
+document
+.getElementById("navAdd")
+.classList.add("active");
+
+showAddTab("transaction");
 
 }
 
@@ -1564,6 +2207,8 @@ function deleteTransaction(id){
 
     renderTransactions();
 
+    updateLastUpdate();
+
 }
 
 /*======================================
@@ -1600,7 +2245,33 @@ Belum ada transaksi.
 
    let lastDate = "";
 
-    transactions.forEach(tr=>{
+    const now = new Date();
+
+const list = transactions.filter(tr=>{
+
+    const date=new Date(tr.createdAt);
+
+    if(summaryFilter==="today"){
+
+        return date.toDateString()===now.toDateString();
+
+    }
+
+    if(summaryFilter==="month"){
+
+        return date.getMonth()===now.getMonth()
+
+        &&
+
+        date.getFullYear()===now.getFullYear();
+
+    }
+
+    return true;
+
+});
+
+list.forEach(tr=>{
 
       const date = new Date(tr.createdAt);
 
@@ -1870,6 +2541,124 @@ homeList.appendChild(homeCard);
 }
 
 /*======================================
+        DATE / TIME PICKER
+======================================*/
+
+const transactionDatePicker =
+document.getElementById("transactionDatePicker");
+
+const transactionDate =
+document.getElementById("transactionDate");
+
+const transactionDateText =
+document.getElementById("transactionDateText");
+
+const transactionTimeText =
+document.getElementById("transactionTimeText");
+
+const transferDatePicker =
+document.getElementById("transferDatePicker");
+
+const transferDate =
+document.getElementById("transferDate");
+
+const transferDateText =
+document.getElementById("transferDateText");
+
+const transferTimeText =
+document.getElementById("transferTimeText");
+
+let selectedTransactionDate =
+new Date();
+
+let selectedTransferDate =
+new Date();
+
+function updateDateUI(date,title,time){
+
+    const today=new Date();
+
+    if(date.toDateString()===today.toDateString()){
+
+        title.textContent="Hari Ini";
+
+    }else{
+
+        title.textContent=
+        date.toLocaleDateString("id-ID",{
+
+            day:"numeric",
+
+            month:"long",
+
+            year:"numeric"
+
+        });
+
+    }
+
+    time.textContent=
+    date.toLocaleTimeString("id-ID",{
+
+        hour:"2-digit",
+
+        minute:"2-digit"
+
+    });
+
+}
+
+updateDateUI(
+selectedTransactionDate,
+transactionDateText,
+transactionTimeText
+);
+
+updateDateUI(
+selectedTransferDate,
+transferDateText,
+transferTimeText
+);
+
+transactionDatePicker.onclick=function(){
+
+    transactionDate.click();
+
+};
+
+transactionDate.onchange=function(){
+
+    selectedTransactionDate=
+    new Date(this.value);
+
+    updateDateUI(
+        selectedTransactionDate,
+        transactionDateText,
+        transactionTimeText
+    );
+
+};
+
+transferDatePicker.onclick=function(){
+
+    transferDate.click();
+
+};
+
+transferDate.onchange=function(){
+
+    selectedTransferDate=
+    new Date(this.value);
+
+    updateDateUI(
+        selectedTransferDate,
+        transferDateText,
+        transferTimeText
+    );
+
+};
+
+/*======================================
         SAVE TRANSFER
 ======================================*/
 
@@ -1949,33 +2738,33 @@ saveTransfer.onclick=function(){
 
     transactions.unshift({
 
-        id:generateId(),
+    id:generateId(),
 
-        type:"transfer",
+    type:"transfer",
 
-        fromBank:selectedTransferFrom,
+    fromBank:selectedTransferFrom,
 
-        toBank:selectedTransferTo,
+    toBank:selectedTransferTo,
 
-        amount,
+    amount,
 
-        fee,
+    fee,
 
-        note:transferNote.value.trim(),
+    note:transferNote.value.trim(),
 
-        createdAt:new Date().toISOString(),
+    createdAt:selectedTransferDate.toISOString(),
 
-        date:new Date().toLocaleDateString("id-ID"),
+    date:selectedTransferDate.toLocaleDateString("id-ID"),
 
-        time:new Date().toLocaleTimeString("id-ID",{
+    time:selectedTransferDate.toLocaleTimeString("id-ID",{
 
-            hour:"2-digit",
+        hour:"2-digit",
 
-            minute:"2-digit"
+        minute:"2-digit"
 
-        })
+    })
 
-    });
+});
 
     saveData();
 
@@ -1986,6 +2775,8 @@ updateTotalBalance();
 renderSummary();
 
 renderTransactions();
+
+updateLastUpdate();
 
 transferAmount.value="";
 
@@ -2006,6 +2797,14 @@ transferToPicker
 .textContent="Bank Tujuan";
 
 showToast("success","Transfer berhasil.");
+
+selectedTransferDate = new Date();
+
+updateDateUI(
+    selectedTransferDate,
+    transferDateText,
+    transferTimeText
+);
 
 };
 
@@ -2124,3 +2923,9 @@ updateTotalBalance();
 renderSummary();
 
 renderTransactions();
+
+renderCategoryList();
+
+updateSummaryDate();
+
+updateLastUpdate();
