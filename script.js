@@ -1,6 +1,24 @@
 const pages = document.querySelectorAll(".page");
 const navs = document.querySelectorAll(".bottom-nav a:not(.fab)");
 
+let dragBankId = null;
+
+let dragElement = null;
+
+let longPressTimer = null;
+
+let isDraggingBank = false;
+
+let dragStartX = 0;
+
+let dragOffsetX = 0;
+
+let currentIndex = -1;
+
+let autoScrollFrame = null;
+
+let autoScrollSpeed = 0;
+
 function showPage(id){
 
 pages.forEach(page=>{
@@ -275,6 +293,314 @@ function generateId(){
 }
 
 /*======================================
+        BANK DRAG
+======================================*/
+
+function initBankDrag(){
+
+    document.querySelectorAll(".bank-item").forEach(card=>{
+
+        card.onpointerdown=function(e){
+
+            if(e.target.closest(".bank-actions")) return;
+
+            clearTimeout(longPressTimer);
+
+            longPressTimer=setTimeout(()=>{
+
+                dragElement=card;
+
+                dragBankId=Number(card.dataset.id);
+
+                currentIndex=[
+                    ...document.querySelectorAll(".bank-item")
+                ].indexOf(card);
+
+                isDraggingBank=true;
+
+                const rect=card.getBoundingClientRect();
+
+                dragStartX=e.clientX;
+
+                dragOffsetX=e.clientX-rect.left;
+
+                card.style.width=rect.width+"px";
+
+                card.style.position="fixed";
+
+                card.style.left=rect.left+"px";
+
+                card.style.top=rect.top+"px";
+
+                card.style.zIndex="9999";
+
+                card.style.transition="none";
+
+                card.classList.add("dragging");
+
+              card.style.transform="scale(1.04)";
+
+card.style.boxShadow=
+"0 18px 45px rgba(0,0,0,.28)";
+
+                if(navigator.vibrate){
+
+                    navigator.vibrate(30);
+
+                }
+
+                card.setPointerCapture(e.pointerId);
+
+            },500);
+
+        };
+
+        card.onpointermove=function(e){
+
+            if(!isDraggingBank) return;
+
+            if(dragElement!==card) return;
+
+            const list=document.getElementById("bankList");
+
+            const x=e.clientX-dragOffsetX;
+
+            card.style.left=x+"px";
+
+            const listRect=list.getBoundingClientRect();
+
+            autoScrollSpeed=0;
+
+if(e.clientX>listRect.right-80){
+
+    autoScrollSpeed=8;
+
+}else if(e.clientX<listRect.left+80){
+
+    autoScrollSpeed=-8;
+
+}
+
+if(!autoScrollFrame){
+
+    const scrollLoop=()=>{
+
+        if(!isDraggingBank){
+
+            cancelAnimationFrame(autoScrollFrame);
+
+            autoScrollFrame=null;
+
+            return;
+
+        }
+
+        if(autoScrollSpeed!==0){
+
+            list.scrollLeft+=autoScrollSpeed;
+
+        }
+
+        autoScrollFrame=requestAnimationFrame(scrollLoop);
+
+    };
+
+    autoScrollFrame=requestAnimationFrame(scrollLoop);
+
+}
+
+            const cards=[
+                ...document.querySelectorAll(".bank-item")
+            ];
+
+            const center=e.clientX;
+
+let targetIndex=currentIndex;
+
+const dragRect=card.getBoundingClientRect();
+
+cards.forEach((item,index)=>{
+
+    if(item===card) return;
+
+    const rect=item.getBoundingClientRect();
+
+    const itemCenter=rect.left+rect.width/2;
+
+    if(
+        center>itemCenter &&
+        dragRect.left<rect.left
+    ){
+
+        targetIndex=index;
+
+    }
+
+    if(
+        center<itemCenter &&
+        dragRect.left>rect.left
+    ){
+
+        targetIndex=index;
+
+    }
+
+});
+
+            if(targetIndex!==currentIndex){
+
+    // ===== FLIP START =====
+
+    const oldRects={};
+
+    document.querySelectorAll(".bank-item").forEach(item=>{
+
+        oldRects[item.dataset.id]=
+        item.getBoundingClientRect();
+
+    });
+
+    // ===== FLIP END =====
+
+    const moved=banks.splice(currentIndex,1)[0];
+
+    banks.splice(targetIndex,0,moved);
+
+    currentIndex=targetIndex;
+
+    renderBanks();
+
+    requestAnimationFrame(()=>{
+
+        // ===== FLIP ANIMATION =====
+
+        document.querySelectorAll(".bank-item").forEach(item=>{
+
+            const oldRect=oldRects[item.dataset.id];
+
+            if(!oldRect) return;
+
+            const newRect=item.getBoundingClientRect();
+
+            const dx=oldRect.left-newRect.left;
+
+            item.style.transition="none";
+
+            item.style.transform=
+            `translateX(${dx}px)`;
+
+            requestAnimationFrame(()=>{
+
+                item.style.transition=
+                "transform .25s ease";
+
+                item.style.transform="";
+
+            });
+
+        });
+
+        // ===== DRAG ELEMENT =====
+
+        dragElement=document.querySelector(
+'.bank-item[data-id="'+dragBankId+'"]'
+);
+
+        if(dragElement){
+
+            dragElement.classList.add("dragging");
+
+            dragElement.style.position="fixed";
+
+            dragElement.style.zIndex="9999";
+
+        }
+
+    });
+
+}
+
+        };
+
+        card.onpointerup=function(){
+
+            clearTimeout(longPressTimer);
+
+            if(!isDraggingBank) return;
+
+            finishBankDrag();
+
+        };
+
+        card.onpointercancel=function(){
+
+            clearTimeout(longPressTimer);
+
+            if(!isDraggingBank) return;
+
+            finishBankDrag();
+
+        };
+
+        card.onpointerleave=function(){
+
+            clearTimeout(longPressTimer);
+
+        };
+
+    });
+
+}
+
+function finishBankDrag(){
+
+    if(!dragElement) return;
+
+    dragElement.classList.remove("dragging");
+
+    
+dragElement.style.transition=
+"all .25s ease";
+
+dragElement.style.transform="";
+
+dragElement.style.boxShadow="";
+
+dragElement.style.left="";
+
+dragElement.style.top="";
+
+dragElement.style.position="";
+
+dragElement.style.width="";
+
+dragElement.style.zIndex="";
+
+    saveData();
+
+isDraggingBank=false;
+
+renderBanks();
+
+if(autoScrollFrame){
+
+    cancelAnimationFrame(autoScrollFrame);
+
+    autoScrollFrame=null;
+
+}
+
+autoScrollSpeed=0;
+
+dragElement=null;
+
+dragBankId=null;
+
+currentIndex=-1;
+
+}
+
+/*======================================
             BANK
 ======================================*/
 
@@ -452,6 +778,214 @@ document.getElementById("expenseTotal").textContent =
 }
 
 /*======================================
+    RENDER INCOME ANALYSIS
+======================================*/
+
+function renderIncomeAnalysis(){
+
+    const container =
+    document.getElementById("incomeAnalysisList");
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    const data={};
+
+    transactions.forEach(tr=>{
+
+        if(tr.type!=="income") return;
+
+        if(!data[tr.categoryId]){
+
+            data[tr.categoryId]=0;
+
+        }
+
+        data[tr.categoryId]+=tr.amount;
+
+    });
+
+    const total=
+    Object.values(data)
+    .reduce((a,b)=>a+b,0);
+
+    if(total===0){
+
+        container.innerHTML=`
+<div class="empty-box">
+Belum ada data pemasukan.
+</div>
+`;
+
+        return;
+
+    }
+
+    Object.entries(data)
+
+    .sort((a,b)=>b[1]-a[1])
+
+    .forEach(([id,amount])=>{
+
+        const category=
+        categories.income.find(c=>c.id==id);
+
+        if(!category) return;
+
+        const percent=
+        amount/total*100;
+
+        container.innerHTML+=`
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>
+
+<i class="${category.icon}"></i>
+
+${category.name}
+
+</span>
+
+<b>
+
+${formatRupiah(amount)}
+
+</b>
+
+</div>
+
+<div class="progress">
+
+<div
+class="bar"
+style="width:${percent}%">
+</div>
+
+</div>
+
+<small>
+
+${percent.toFixed(1)}%
+
+</small>
+
+</div>
+
+`;
+
+    });
+
+}
+
+/*======================================
+        RENDER ANALYSIS
+======================================*/
+
+function renderAnalysis(){
+
+    const container =
+    document.getElementById("analysisList");
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    const data={};
+
+    transactions.forEach(tr=>{
+
+        if(tr.type!=="expense") return;
+
+        if(!data[tr.categoryId]){
+
+            data[tr.categoryId]=0;
+
+        }
+
+        data[tr.categoryId]+=tr.amount;
+
+    });
+
+    const total=
+    Object.values(data)
+    .reduce((a,b)=>a+b,0);
+
+    if(total===0){
+
+        container.innerHTML=`
+<div class="empty-box">
+Belum ada data analisis.
+</div>
+`;
+
+        return;
+
+    }
+
+    Object.entries(data)
+
+    .sort((a,b)=>b[1]-a[1])
+
+    .forEach(([id,amount])=>{
+
+        const category=
+        categories.expense.find(c=>c.id==id);
+
+        if(!category) return;
+
+        const percent=
+        amount/total*100;
+
+        container.innerHTML+=`
+
+<div class="analysis-item">
+
+<div class="top">
+
+<span>
+
+<i class="${category.icon}"></i>
+
+${category.name}
+
+</span>
+
+<b>
+
+${formatRupiah(amount)}
+
+</b>
+
+</div>
+
+<div class="progress">
+
+<div
+class="bar"
+style="width:${percent}%">
+</div>
+
+</div>
+
+<small>
+
+${percent.toFixed(1)}%
+
+</small>
+
+</div>
+
+`;
+
+    });
+
+}
+
+/*======================================
     UPDATE TOTAL BALANCE
 ======================================*/
 
@@ -576,9 +1110,11 @@ function renderBanks(){
 
     const card=document.createElement("div");
 
-        card.className="bank-item";
+card.className="bank-item";
 
-        card.dataset.id=bank.id;
+card.draggable = false;
+
+card.dataset.id=bank.id;
 
         card.innerHTML=`
 
@@ -662,7 +1198,9 @@ card.querySelector(".delete-bank").onclick = () => deleteBank(bank.id);
 
     bankList.appendChild(createAddButton());
 
-    initBankMenu();
+initBankMenu();
+
+initBankDrag();
 
 }
 
@@ -941,6 +1479,8 @@ renderBanks();
 updateTotalBalance();
 
 renderSummary();
+renderIncomeAnalysis();
+renderAnalysis();
 
 closeModal();
   
@@ -960,6 +1500,8 @@ deleteConfirm.onclick = function(){
         renderBanks();
         updateTotalBalance();
         renderSummary();
+        renderIncomeAnalysis();
+        renderAnalysis();
         renderTransactions();
 
     }else if(deleteTransactionId !== null){
@@ -1120,6 +1662,8 @@ function selectSummaryCategory(id,name){
     }
 
     renderSummary();
+    renderIncomeAnalysis();
+    renderAnalysis();
 
 }
 
@@ -1140,6 +1684,8 @@ todayBtn.onclick=function(){
     monthBtn.classList.remove("active");
 
     renderSummary();
+    renderIncomeAnalysis();
+    renderAnalysis();
 
 };
 
@@ -1152,6 +1698,8 @@ monthBtn.onclick=function(){
     todayBtn.classList.remove("active");
 
     renderSummary();
+    renderIncomeAnalysis();
+    renderAnalysis();
 
 };
 
@@ -2016,6 +2564,8 @@ if(editingTransactionId===null){
 updateTotalBalance();
 
 renderSummary();
+renderIncomeAnalysis();
+renderAnalysis();
 
 renderTransactions();
 
@@ -2204,12 +2754,197 @@ function deleteTransaction(id){
     updateTotalBalance();
 
     renderSummary();
+    renderIncomeAnalysis();
+    renderAnalysis();
 
     renderTransactions();
 
     updateLastUpdate();
 
 }
+
+/*======================================
+    TRANSACTION SEARCH & FILTER
+======================================*/
+
+let transactionKeyword="";
+
+const transactionSearch=
+document.getElementById("transactionSearch");
+
+transactionSearch.oninput=function(){
+
+    transactionKeyword=
+    this.value.toLowerCase().trim();
+
+    renderTransactions();
+updateTransactionFilterUI();
+
+};
+
+let transactionTypeFilter="all";
+
+document
+.querySelectorAll(".transaction-filter button")
+.forEach(btn=>{
+
+    btn.onclick=function(){
+
+        document
+        .querySelectorAll(".transaction-filter button")
+        .forEach(b=>b.classList.remove("active"));
+
+        this.classList.add("active");
+
+        transactionTypeFilter=this.dataset.filter;
+
+        renderTransactions();
+updateTransactionFilterUI();
+
+    };
+
+});
+
+/*======================================
+      FILTER TRANSACTION
+======================================*/
+
+const transactionFilterBtn =
+document.getElementById("transactionFilterBtn");
+
+const filterOverlay =
+document.getElementById("filterOverlay");
+
+let transactionDateFilter="all";
+
+transactionFilterBtn.onclick=function(){
+
+    filterOverlay.classList.add("show");
+
+};
+
+filterOverlay.onclick=function(e){
+
+    if(e.target===filterOverlay){
+
+        filterOverlay.classList.remove("show");
+
+    }
+
+};
+
+document
+
+.querySelectorAll(".filter-time")
+
+.forEach(btn=>{
+
+btn.onclick=function(){
+
+transactionDateFilter=
+
+this.dataset.filter;
+
+filterOverlay.classList.remove("show");
+
+renderTransactions();
+updateTransactionFilterUI();
+  
+};
+
+});
+const activeFilterBar =
+document.getElementById("activeTransactionFilter");
+
+const activeFilterText =
+document.getElementById("activeFilterText");
+
+const clearTransactionFilter =
+document.getElementById("clearTransactionFilter");
+
+function updateTransactionFilterUI(){
+
+    let text=[];
+
+    if(transactionTypeFilter!=="all"){
+
+        text.push(
+            "🏷️ "+{
+                income:"Pemasukan",
+                expense:"Pengeluaran",
+                transfer:"Transfer"
+            }[transactionTypeFilter]
+        );
+
+    }
+
+    if(transactionDateFilter!=="all"){
+
+        text.push(
+            "📅 "+{
+
+                today:"Hari Ini",
+
+                yesterday:"Kemarin",
+
+                week:"7 Hari",
+
+                month:"Bulan Ini",
+
+                lastmonth:"Bulan Lalu",
+
+                year:"Tahun Ini"
+
+            }[transactionDateFilter]
+        );
+
+    }
+
+    if(text.length===0){
+
+        activeFilterBar.style.display="none";
+
+        return;
+
+    }
+
+    activeFilterBar.style.display="flex";
+
+    activeFilterText.textContent=
+    text.join(" • ");
+
+}
+
+clearTransactionFilter.onclick=function(){
+
+    transactionTypeFilter="all";
+
+    transactionDateFilter="all";
+
+    transactionKeyword="";
+
+    transactionSearch.value="";
+
+    document
+    .querySelectorAll(".transaction-filter button")
+    .forEach(btn=>{
+
+        btn.classList.remove("active");
+
+        if(btn.dataset.filter==="all"){
+
+            btn.classList.add("active");
+
+        }
+
+    });
+
+    updateTransactionFilterUI();
+
+    renderTransactions();
+
+};
+
 
 /*======================================
         RENDER TRANSACTION
@@ -2245,31 +2980,170 @@ Belum ada transaksi.
 
    let lastDate = "";
 
-    const now = new Date();
+   const list=[...transactions]
 
-const list = transactions.filter(tr=>{
+.filter(tr=>{
 
-    const date=new Date(tr.createdAt);
+    if(
+        transactionTypeFilter!=="all"
+        &&
+        tr.type!==transactionTypeFilter
+    ){
 
-    if(summaryFilter==="today"){
-
-        return date.toDateString()===now.toDateString();
+        return false;
 
     }
 
-    if(summaryFilter==="month"){
+    const date=new Date(tr.createdAt);
 
-        return date.getMonth()===now.getMonth()
+const today=new Date();
 
-        &&
+const yesterday=new Date();
 
-        date.getFullYear()===now.getFullYear();
+yesterday.setDate(today.getDate()-1);
+
+if(transactionDateFilter==="today"){
+
+    if(date.toDateString()!==today.toDateString()){
+
+        return false;
+
+    }
+
+}
+
+if(transactionDateFilter==="yesterday"){
+
+    if(date.toDateString()!==yesterday.toDateString()){
+
+        return false;
+
+    }
+
+}
+
+if(transactionDateFilter==="week"){
+
+    const diff=
+    (today-date)/(1000*60*60*24);
+
+    if(diff>7){
+
+        return false;
+
+    }
+
+}
+
+if(transactionDateFilter==="month"){
+
+    if(
+        date.getMonth()!==today.getMonth()
+        ||
+        date.getFullYear()!==today.getFullYear()
+    ){
+
+        return false;
+
+    }
+
+}
+
+if(transactionDateFilter==="lastmonth"){
+
+    const last=new Date();
+
+    last.setMonth(last.getMonth()-1);
+
+    if(
+        date.getMonth()!==last.getMonth()
+        ||
+        date.getFullYear()!==last.getFullYear()
+    ){
+
+        return false;
+
+    }
+
+}
+
+if(transactionDateFilter==="year"){
+
+    if(
+        date.getFullYear()!==today.getFullYear()
+    ){
+
+        return false;
+
+    }
+
+}
+
+    if(transactionKeyword){
+
+        let bankName="";
+
+        if(tr.type==="transfer"){
+
+            const from=
+            banks.find(b=>b.id===tr.fromBank);
+
+            const to=
+            banks.find(b=>b.id===tr.toBank);
+
+            bankName=
+            (from?.name||"")+" "+
+            (to?.name||"");
+
+        }else{
+
+            bankName=
+            banks.find(b=>b.id===tr.bankId)?.name||"";
+
+        }
+
+        const categoryName=
+        getCategory(tr.categoryId)?.name||"";
+
+        const keyword=[
+
+            bankName,
+
+            categoryName,
+
+            tr.note,
+
+            tr.amount,
+
+            tr.type,
+
+            tr.date,
+
+            tr.time
+
+        ]
+
+        .join(" ")
+
+        .toLowerCase();
+
+        if(!keyword.includes(transactionKeyword)){
+
+            return false;
+
+        }
 
     }
 
     return true;
 
-});
+})
+
+.sort((a,b)=>
+
+new Date(b.createdAt)-new Date(a.createdAt)
+
+);
 
 list.forEach(tr=>{
 
@@ -2541,69 +3415,64 @@ homeList.appendChild(homeCard);
 }
 
 /*======================================
+        CUSTOM DATE TIME
+======================================*/
+
+const dateTimeOverlay =
+document.getElementById("dateTimeOverlay");
+
+const customDate =
+document.getElementById("customDate");
+
+const customTime =
+document.getElementById("customTime");
+
+const dateSave =
+document.getElementById("dateSave");
+
+const dateCancel =
+document.getElementById("dateCancel");
+
+let currentPicker = "";
+
+customDate.value =
+new Date().toISOString().slice(0,10);
+
+customTime.value =
+new Date().toTimeString().slice(0,5);
+
+/*======================================
         DATE / TIME PICKER
 ======================================*/
 
-const transactionDatePicker =
-document.getElementById("transactionDatePicker");
+const transactionDatePicker=document.getElementById("transactionDatePicker");
+const transactionDateText=document.getElementById("transactionDateText");
+const transactionTimeText=document.getElementById("transactionTimeText");
 
-const transactionDate =
-document.getElementById("transactionDate");
+const transferDatePicker=document.getElementById("transferDatePicker");
+const transferDateText=document.getElementById("transferDateText");
+const transferTimeText=document.getElementById("transferTimeText");
 
-const transactionDateText =
-document.getElementById("transactionDateText");
-
-const transactionTimeText =
-document.getElementById("transactionTimeText");
-
-const transferDatePicker =
-document.getElementById("transferDatePicker");
-
-const transferDate =
-document.getElementById("transferDate");
-
-const transferDateText =
-document.getElementById("transferDateText");
-
-const transferTimeText =
-document.getElementById("transferTimeText");
-
-let selectedTransactionDate =
-new Date();
-
-let selectedTransferDate =
-new Date();
+let selectedTransactionDate=new Date();
+let selectedTransferDate=new Date();
 
 function updateDateUI(date,title,time){
 
     const today=new Date();
 
-    if(date.toDateString()===today.toDateString()){
-
-        title.textContent="Hari Ini";
-
-    }else{
-
-        title.textContent=
-        date.toLocaleDateString("id-ID",{
-
+    title.textContent=
+        date.toDateString()===today.toDateString()
+        ?"Hari Ini"
+        :date.toLocaleDateString("id-ID",{
             day:"numeric",
-
             month:"long",
-
             year:"numeric"
-
         });
-
-    }
 
     time.textContent=
     date.toLocaleTimeString("id-ID",{
-
         hour:"2-digit",
-
         minute:"2-digit"
-
     });
 
 }
@@ -2622,39 +3491,73 @@ transferTimeText
 
 transactionDatePicker.onclick=function(){
 
-    transactionDate.click();
+    currentPicker="transaction";
 
-};
+    customDate.value=selectedTransactionDate.toISOString().slice(0,10);
 
-transactionDate.onchange=function(){
+    customTime.value=selectedTransactionDate.toTimeString().slice(0,5);
 
-    selectedTransactionDate=
-    new Date(this.value);
-
-    updateDateUI(
-        selectedTransactionDate,
-        transactionDateText,
-        transactionTimeText
-    );
+    dateTimeOverlay.classList.add("show");
 
 };
 
 transferDatePicker.onclick=function(){
 
-    transferDate.click();
+    currentPicker="transfer";
+
+    customDate.value=selectedTransferDate.toISOString().slice(0,10);
+
+    customTime.value=selectedTransferDate.toTimeString().slice(0,5);
+
+    dateTimeOverlay.classList.add("show");
 
 };
 
-transferDate.onchange=function(){
+dateCancel.onclick=function(){
 
-    selectedTransferDate=
-    new Date(this.value);
+    dateTimeOverlay.classList.remove("show");
 
-    updateDateUI(
-        selectedTransferDate,
-        transferDateText,
-        transferTimeText
+};
+
+dateSave.onclick=function(){
+
+    const value=new Date(
+        customDate.value+"T"+customTime.value
     );
+
+    if(currentPicker==="transaction"){
+
+        selectedTransactionDate=value;
+
+        updateDateUI(
+            selectedTransactionDate,
+            transactionDateText,
+            transactionTimeText
+        );
+
+    }else{
+
+        selectedTransferDate=value;
+
+        updateDateUI(
+            selectedTransferDate,
+            transferDateText,
+            transferTimeText
+        );
+
+    }
+
+    dateTimeOverlay.classList.remove("show");
+
+};
+
+dateTimeOverlay.onclick=function(e){
+
+    if(e.target===dateTimeOverlay){
+
+        dateTimeOverlay.classList.remove("show");
+
+    }
 
 };
 
@@ -2773,6 +3676,8 @@ renderBanks();
 updateTotalBalance();
 
 renderSummary();
+renderIncomeAnalysis();
+renderAnalysis();
 
 renderTransactions();
 
@@ -2869,6 +3774,19 @@ function showToast(type, message){
 
 }
 
+document.getElementById("seeAllTransaction").onclick = function(){
+
+    showPage("transactionPage");
+
+    navs.forEach(nav=>{
+        nav.classList.remove("active");
+    });
+
+    document.getElementById("navTransaction")
+    .classList.add("active");
+
+};
+
 /*======================================
             INIT APP
 ======================================*/
@@ -2922,7 +3840,13 @@ updateTotalBalance();
 
 renderSummary();
 
+renderIncomeAnalysis();
+
+renderAnalysis();
+
 renderTransactions();
+
+updateTransactionFilterUI();
 
 renderCategoryList();
 
