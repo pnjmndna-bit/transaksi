@@ -2078,19 +2078,33 @@ function showToast(type, message){
 
 function formatInputRupiah(input){
 
+    input.setAttribute("inputmode","numeric");
+
     input.addEventListener("input", function(){
 
-        let angka = this.value.replace(/\D/g,"");
+        const angka = this.value.replace(/\D/g,"");
 
-        if(angka===""){
+        if(!angka){
 
-            this.value="";
+            this.value = "";
 
             return;
 
         }
 
-        this.value="Rp"+Number(angka).toLocaleString("id-ID");
+        const posisiAkhir = this.selectionStart;
+
+        this.value =
+        "Rp" + Number(angka).toLocaleString("id-ID");
+
+        requestAnimationFrame(()=>{
+
+            this.setSelectionRange(
+                this.value.length,
+                this.value.length
+            );
+
+        });
 
     });
 
