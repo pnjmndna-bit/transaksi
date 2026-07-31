@@ -153,12 +153,6 @@ class="category-btn">
 
 </button>
 
-            <div
-id="incomeCategoryMenu"
-class="category-dropdown">
-
-            </div>
-
         </div>
 
         <!-- Card Pengeluaran -->
@@ -183,12 +177,6 @@ class="category-btn">
 
             </button>
 
-            <div
-id="expenseCategoryMenu"
-class="category-dropdown">
-
-            </div>
-
         </div>
 
     </div>
@@ -209,10 +197,8 @@ Transaksi Terbaru
 
 </h3>
 
-<a href="#">
-
+<a href="javascript:void(0)" id="seeAllTransaction">
 Lihat Semua
-
 </a>
 
 </div>
@@ -224,195 +210,25 @@ Lihat Semua
 </section>
 
 <!-- ========================= -->
-<!-- ANALISIS PEMASUKAN -->
+<!-- ANALISIS -->
 <!-- ========================= -->
 
 <section class="analysis">
 
-<h3>
+    <h3>Analisis Pemasukan</h3>
 
-Pemasukan Bulan Ini
-
-</h3>
-
-<div class="analysis-item">
-
-<div class="top">
-
-<span>Narik</span>
-
-<b>Rp1.200.000</b>
-
-</div>
-
-<div class="progress">
-
-<div class="bar"
-style="width:65%">
-
-</div>
-
-</div>
-
-<small>
-
-65%
-
-</small>
-
-</div>
-
-<div class="analysis-item">
-
-<div class="top">
-
-<span>Gaji</span>
-
-<b>Rp650.000</b>
-
-</div>
-
-<div class="progress">
-
-<div class="bar"
-style="width:35%">
-
-</div>
-
-</div>
-
-<small>
-
-35%
-
-</small>
-
-</div>
+    <div id="incomeAnalysisList"></div>
 
 </section>
-
-<!-- ========================= -->
-<!-- ANALISIS PENGELUARAN -->
-<!-- ========================= -->
 
 <section class="analysis">
 
-<h3>
+    <h3>Analisis Pengeluaran</h3>
 
-Pengeluaran Bulan Ini
-
-</h3>
-
-<div class="analysis-item">
-
-<div class="top">
-
-<span>Makan & Minum</span>
-
-<b>Rp850.000</b>
-
-</div>
-
-<div class="progress">
-
-<div class="bar"
-style="width:45%">
-
-</div>
-
-</div>
-
-<small>
-
-45%
-
-</small>
-
-</div>
-
-<div class="analysis-item">
-
-<div class="top">
-
-<span>Transport</span>
-
-<b>Rp500.000</b>
-
-</div>
-
-<div class="progress">
-
-<div class="bar"
-style="width:27%">
-
-</div>
-
-</div>
-
-<small>
-
-27%
-
-</small>
-
-</div>
-
-<div class="analysis-item">
-
-<div class="top">
-
-<span>Belanja</span>
-
-<b>Rp350.000</b>
-
-</div>
-
-<div class="progress">
-
-<div class="bar"
-style="width:18%">
-
-</div>
-
-</div>
-
-<small>
-
-18%
-
-</small>
-
-</div>
-
-<div class="analysis-item">
-
-<div class="top">
-
-<span>Tagihan</span>
-
-<b>Rp200.000</b>
-
-</div>
-
-<div class="progress">
-
-<div class="bar"
-style="width:10%">
-
-</div>
-
-</div>
-
-<small>
-
-10%
-
-</small>
-
-</div>
+    <div id="analysisList"></div>
 
 </section>
-
+  
 <div style="height:120px"></div>
 
 </section>
@@ -597,23 +413,71 @@ style="width:10%">
 
 <h2>Semua Transaksi</h2>
 
-<div class="search-box">
+<div class="transaction-filter">
+
+<button class="active" data-filter="all">
+
+Semua
+
+</button>
+
+<button data-filter="income">
+
+Pemasukan
+
+</button>
+
+<button data-filter="expense">
+
+Pengeluaran
+
+</button>
+
+<button data-filter="transfer">
+
+Transfer
+
+</button>
+
+</div>
+
+</div>
+
+<div class="transaction-search">
+
+<div class="search-input">
 
 <i class="fa-solid fa-magnifying-glass"></i>
 
 <input
+id="transactionSearch"
 type="text"
-placeholder="Cari transaksi...">
+placeholder="Cari transaksi, bank, kategori, catatan..."
+>
 
 </div>
 
-<button class="filter-btn">
+<button
+id="transactionFilterBtn"
+class="search-filter-btn">
 
-<i class="fa-regular fa-calendar"></i>
+<i class="fa-solid fa-sliders"></i>
 
-<span>Bulan Ini</span>
+</button>
 
-<i class="fa-solid fa-chevron-down"></i>
+</div>
+
+<div
+id="activeTransactionFilter"
+class="active-filter-bar"
+style="display:none;">
+
+<span id="activeFilterText"></span>
+
+<button
+id="clearTransactionFilter">
+
+<i class="fa-solid fa-xmark"></i>
 
 </button>
 
@@ -1115,6 +979,116 @@ Pilih
         <div
         class="picker-list"
         id="pickerList">
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- DATE TIME PICKER -->
+<!-- ========================= -->
+
+<div class="picker-overlay" id="dateTimeOverlay">
+
+    <div class="picker-sheet">
+
+        <div class="picker-handle"></div>
+
+        <h3 id="dateTimeTitle">
+            Pilih Tanggal
+        </h3>
+
+        <div class="datetime-body">
+
+            <div class="form-group">
+
+                <label>Tanggal</label>
+
+                <input
+                type="date"
+                id="customDate">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Jam</label>
+
+                <input
+                type="time"
+                id="customTime">
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+            id="dateCancel"
+            class="cancel-btn">
+
+                Batal
+
+            </button>
+
+            <button
+            id="dateSave"
+            class="save-btn">
+
+                Simpan
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- FILTER SHEET -->
+<!-- ========================= -->
+
+<div class="picker-overlay" id="filterOverlay">
+
+    <div class="picker-sheet">
+
+        <div class="picker-handle"></div>
+
+        <h3>Filter Transaksi</h3>
+
+        <div class="picker-list">
+
+            <button class="picker-item filter-time" data-filter="all">
+                <span>📅 Semua Waktu</span>
+            </button>
+
+            <button class="picker-item filter-time" data-filter="today">
+                <span>Hari Ini</span>
+            </button>
+
+            <button class="picker-item filter-time" data-filter="yesterday">
+                <span>Kemarin</span>
+            </button>
+
+            <button class="picker-item filter-time" data-filter="week">
+                <span>7 Hari Terakhir</span>
+            </button>
+
+            <button class="picker-item filter-time" data-filter="month">
+                <span>Bulan Ini</span>
+            </button>
+
+            <button class="picker-item filter-time" data-filter="lastmonth">
+                <span>Bulan Lalu</span>
+            </button>
+
+            <button class="picker-item filter-time" data-filter="year">
+                <span>Tahun Ini</span>
+            </button>
 
         </div>
 
