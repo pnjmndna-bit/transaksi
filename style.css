@@ -264,20 +264,21 @@ a {
 
 /*====================================== SALDO ======================================*/
 
-.balance-card h1 {
-  position: relative;
+.balance-card h1{
+    position: relative;
+    z-index: 2;
 
-  z-index: 2;
+    margin: 4px 0 6px;
 
-  margin: 6px 0 2px;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0px;
 
-  font-size: 28px;
+    color: #FFF7ED;
 
-  font-weight: 800;
-
-  letter-spacing: -0.4px;
-
-  line-height: 1.15;
+    text-shadow:
+        0 2px 8px rgba(0,0,0,.12);
 }
 
 .balance-card small {
@@ -369,42 +370,47 @@ a {
   min-width: 0;
 }
 
-.bank-info h4 {
-  display: flex;
+.bank-info h4{
+    display: flex;
+    align-items: center;
+    gap: 6px;
 
-  align-items: center;
+    margin: 0;
 
-  gap: 5px;
+    font-size: 12px;
+    font-weight: 800;
 
-  margin: 0;
+    color: #FFF7ED;
 
-  font-size: 10px;
+    letter-spacing: .2px;
 
-  font-weight: 600;
-
-  color: #fff;
+    line-height: 1.2;
 }
 
-.bank-info h4 i {
-  font-size: 9px;
+.bank-info h4 i{
+    font-size: 10px;
 
-  opacity: 0.85;
+    color: #FFF7ED;
+
+    opacity: .9;
 }
 
-.bank-info span {
-  display: block;
+.bank-info span{
+    display: block;
 
-  margin-top: 1px;
+    margin-top: 4px;
 
-  font-size: 13px;
+    font-size: 13px;
+    font-weight: 800;
 
-  font-weight: 700;
+    color: #FFF7ED;
 
-  color: #fff;
+    letter-spacing: .2px;
 
-  letter-spacing: 0.15px;
+    line-height: 1.15;
 
-  line-height: 1.1;
+    text-shadow:
+        0 1px 3px rgba(0,0,0,.12);
 }
 
 /*====================================== ACTION ======================================*/
@@ -510,8 +516,8 @@ a {
 
 /*====================================== PROGRESS ======================================*/
 
-.bank-percent {
-  display: flex;
+.bank-percent{
+display: flex;
 
   align-items: center;
 
@@ -1100,7 +1106,7 @@ a {
 
 .income h2,
 .expense h2 {
-  font-size: 18px;
+  font-size: 15px;
 
   font-weight: 800;
 
@@ -1163,86 +1169,6 @@ a {
   font-size: 9px;
 
   transition: 0.25s;
-}
-
-/*====================================== DROPDOWN ======================================*/
-
-.category-dropdown {
-  display: none;
-
-  position: absolute;
-
-  left: 0;
-
-  right: 0;
-
-  top: calc(100% + 8px);
-
-  background: #fff;
-
-  border-radius: 12px;
-
-  overflow: hidden;
-
-  border: 1px solid rgba(15, 23, 42, 0.05);
-
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.12);
-
-  z-index: 99;
-
-  animation: dropdown 0.18s ease;
-}
-
-.category-dropdown.show {
-  display: block;
-}
-
-.category-dropdown button {
-  width: 100%;
-
-  padding: 10px 12px;
-
-  border: none;
-
-  background: #fff;
-
-  text-align: left;
-
-  font-size: 11px;
-
-  font-weight: 500;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.category-dropdown button:hover {
-  background: #fff6ef;
-}
-
-.category-dropdown button.active {
-  background: #fff1e5;
-
-  color: var(--primary);
-
-  font-weight: 700;
-}
-
-/*====================================== ANIMATION ======================================*/
-
-@keyframes dropdown {
-  from {
-    opacity: 0;
-
-    transform: translateY(-8px);
-  }
-
-  to {
-    opacity: 1;
-
-    transform: translateY(0);
-  }
 }
 
 /*====================================== TRANSACTION ======================================*/
@@ -1757,40 +1683,6 @@ a {
   scrollbar-width: thin;
 
   scrollbar-color: rgba(255, 122, 0, 0.25) transparent;
-}
-
-/*====================================== RESPONSIVE ======================================*/
-
-@media (max-width: 420px) {
-  .app {
-    padding: 20px 15px 120px;
-  }
-
-  .header h2 {
-    font-size: 24px;
-  }
-
-  .balance-card h1 {
-    font-size: 32px;
-  }
-
-  .summary-card {
-    grid-template-columns: 1fr;
-  }
-
-  .bank-item {
-    min-width: 105px;
-  }
-
-  .add-bank {
-    min-width: 95px;
-
-    padding: 12px;
-  }
-
-  .bottom-nav {
-    height: 74px;
-  }
 }
 
 /*====================================== PAGE ANIMATION ======================================*/
