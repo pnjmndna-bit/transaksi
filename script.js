@@ -1724,6 +1724,7 @@ function openPicker(title){
 
     pickerOverlay.classList.add("show");
 
+    pickerList.classList.remove("icon-mode");
 }
 
 function closePicker(){
@@ -2142,6 +2143,8 @@ function openIconPicker(){
 
     openPicker("Pilih Icon");
 
+    pickerList.classList.add("icon-mode");
+
     pickerList.innerHTML="";
 
     categoryIcons.forEach(icon=>{
@@ -2152,9 +2155,7 @@ function openIconPicker(){
 
         item.className="icon-picker-item";
 
-        item.innerHTML=`
-            <i class="${icon}"></i>
-        `;
+        item.innerHTML=`<i class="${icon}"></i>`;
 
         item.onclick=function(){
 
