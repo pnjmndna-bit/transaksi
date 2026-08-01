@@ -983,9 +983,9 @@ class="fa-solid fa-wallet"></i>
 
         </div>
 
-        <div id="compareChart">
+        <canvas id="compareChart">
 
-        </div>
+        </canvas>
 
     </section>
 
@@ -999,17 +999,19 @@ class="fa-solid fa-wallet"></i>
                 Grafik Pemasukan
             </h3>
 
-            <button class="chart-type">
+            <button id="chartTypeBtn" class="chart-type">
 
-                Line
+    <i class="fa-solid fa-chart-line"></i>
 
-            </button>
+    <span>Line</span>
 
-        </div>
-
-        <div id="incomeChart">
+</button>
 
         </div>
+
+        <canvas id="incomeChart">
+
+        </canvas>
 
     </section>
 
@@ -1023,17 +1025,11 @@ class="fa-solid fa-wallet"></i>
                 Grafik Pengeluaran
             </h3>
 
-            <button class="chart-type">
-
-                Line
-
-            </button>
-
         </div>
 
-        <div id="expenseChart">
+        <canvas id="expenseChart">
 
-        </div>
+        </canvas>
 
     </section>
 
@@ -1174,8 +1170,6 @@ class="fa-solid fa-wallet"></i>
 </a>
 
 </nav>
-
-</div>
 
 <!-- ========================= -->
 <!-- PICKER SHEET -->
@@ -1324,6 +1318,14 @@ Pilih
         <p id="toastMessage"></p>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
 
 <script src="script.js"></script>
 
