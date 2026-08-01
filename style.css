@@ -6483,3 +6483,794 @@ transform:translateX(3px);
     width:56px;
     height:56px;
 }
+
+
+/*------------------------------*/
+
+/*==============================
+        INSIGHT PAGE
+==============================*/
+
+.insight-page{
+
+    padding:12px 12px 100px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #fcfcfc 0%,
+        #f6f7fb 100%
+    );
+
+}
+
+/*==============================
+        INSIGHT HEADER
+==============================*/
+
+.insight-header{
+
+    position:relative;
+
+    overflow:hidden;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:14px;
+
+    padding:16px;
+
+    border-radius:22px;
+
+    background:
+    linear-gradient(
+        145deg,
+        rgba(255,255,255,.98),
+        rgba(255,250,245,.95)
+    );
+
+    border:1px solid rgba(255,255,255,.9);
+
+    box-shadow:
+    0 12px 28px rgba(15,23,42,.05),
+    inset 0 1px 0 rgba(255,255,255,.95);
+
+}
+
+.insight-header::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:-45px;
+
+    right:-45px;
+
+    width:120px;
+
+    height:120px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(
+        rgba(255,170,0,.14),
+        transparent 70%
+    );
+
+}
+
+.insight-header::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    top:0;
+
+    width:4px;
+
+    height:100%;
+
+    border-radius:30px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #ffb347,
+        #ff9800,
+        #ff6a00
+    );
+
+}
+
+.insight-header h2{
+
+    margin:0;
+
+    font-size:23px;
+
+    font-weight:800;
+
+    color:#202124;
+
+    letter-spacing:-.5px;
+
+}
+
+.insight-header p{
+
+    margin-top:5px;
+
+    font-size:11px;
+
+    line-height:1.55;
+
+    color:#909090;
+
+    max-width:210px;
+
+}
+
+/*==============================
+        ICON
+==============================*/
+
+.insight-header-right{
+
+    width:52px;
+
+    height:52px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        145deg,
+        #fff5e8,
+        #ffe7bf
+    );
+
+    border:1px solid rgba(255,185,0,.18);
+
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 10px 22px rgba(255,170,0,.15);
+
+}
+
+.insight-header-right i{
+
+    font-size:22px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #ffb347,
+        #ff7a00
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+
+}
+
+/*==============================
+        INSIGHT FILTER
+==============================*/
+
+.insight-filter{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin:16px 0 18px;
+
+    padding:2px;
+
+    overflow-x:auto;
+
+    scrollbar-width:none;
+
+    -webkit-overflow-scrolling:touch;
+
+}
+
+.insight-filter::-webkit-scrollbar{
+
+    display:none;
+
+}
+
+.insight-filter button{
+
+    flex-shrink:0;
+
+    padding:8px 15px;
+
+    border:none;
+
+    outline:none;
+
+    cursor:pointer;
+
+    border-radius:14px;
+
+    background:rgba(255,255,255,.95);
+
+    color:#727272;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:.2px;
+
+    backdrop-filter:blur(18px);
+
+    -webkit-backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,.85);
+
+    box-shadow:
+
+    inset 0 1px 0 rgba(255,255,255,.9),
+
+    0 5px 14px rgba(0,0,0,.045);
+
+    transition:.22s;
+
+}
+
+.insight-filter button:hover{
+
+    transform:translateY(-1px);
+
+}
+
+.insight-filter button:active{
+
+    transform:scale(.96);
+
+}
+
+.insight-filter button.active{
+
+    color:#fff;
+
+    border-color:transparent;
+
+    background:
+
+    linear-gradient(
+
+        135deg,
+
+        #ffb347 0%,
+
+        #ff9800 55%,
+
+        #ff7a00 100%
+
+    );
+
+    box-shadow:
+
+    0 8px 18px rgba(255,145,0,.22),
+
+    inset 0 1px 0 rgba(255,255,255,.28);
+
+}
+
+/*==============================
+        SUMMARY GRID
+==============================*/
+
+.insight-summary{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:10px;
+
+    margin-bottom:14px;
+
+}
+
+/*==============================
+        SUMMARY ITEM
+==============================*/
+
+.summary-item{
+
+    position:relative;
+
+    overflow:hidden;
+
+    padding:14px;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(255,255,255,.98),
+        rgba(255,251,247,.94)
+    );
+
+    border:1px solid rgba(255,255,255,.92);
+
+    box-shadow:
+    0 8px 22px rgba(15,23,42,.05),
+    inset 0 1px 0 rgba(255,255,255,.95);
+
+    transition:.25s;
+
+}
+
+.summary-item::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:-35px;
+
+    right:-35px;
+
+    width:90px;
+
+    height:90px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(
+        rgba(255,170,0,.10),
+        transparent 70%
+    );
+
+}
+
+.summary-item:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 14px 28px rgba(255,153,0,.08);
+
+}
+
+.summary-item small{
+
+    display:block;
+
+    font-size:10px;
+
+    font-weight:600;
+
+    color:#9c9c9c;
+
+    letter-spacing:.3px;
+
+}
+
+.summary-item h3{
+
+    margin:7px 0 0;
+
+    font-size:18px;
+
+    font-weight:800;
+
+    color:#222;
+
+    letter-spacing:-.4px;
+
+    line-height:1.2;
+
+}
+
+.summary-item span{
+
+    display:block;
+
+    margin-top:5px;
+
+    font-size:9px;
+
+    color:#b0b0b0;
+
+}
+
+/*==============================
+        PREMIUM CARD
+==============================*/
+
+.insight-card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    margin-bottom:14px;
+
+    padding:15px;
+
+    border-radius:20px;
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(255,255,255,.98),
+        rgba(255,252,248,.95)
+    );
+
+    border:1px solid rgba(255,255,255,.92);
+
+    box-shadow:
+    0 10px 24px rgba(15,23,42,.05),
+    inset 0 1px 0 rgba(255,255,255,.96);
+
+}
+
+.insight-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+
+    left:0;
+
+    width:3px;
+
+    height:100%;
+
+    background:
+    linear-gradient(
+        180deg,
+        #ffb347,
+        #ff9800,
+        #ff6a00
+    );
+
+}
+
+/*==============================
+        CARD TITLE
+==============================*/
+
+.card-title{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    margin-bottom:14px;
+
+}
+
+.card-title h3{
+
+    margin:0;
+
+    font-size:14px;
+
+    font-weight:800;
+
+    color:#222;
+
+    letter-spacing:-.2px;
+
+}
+
+.card-title small{
+
+    font-size:10px;
+
+    font-weight:600;
+
+    color:#9d9d9d;
+
+}
+
+/*==============================
+        CHART TYPE BUTTON
+==============================*/
+
+.chart-type{
+
+    height:34px;
+
+    padding:0 14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    color:#ff8a00;
+
+    background:
+    linear-gradient(
+        180deg,
+        #fffaf2,
+        #fff3e2
+    );
+
+    border:1px solid rgba(255,170,0,.16);
+
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 6px 16px rgba(255,170,0,.08);
+
+    transition:.25s;
+
+}
+
+.chart-type:hover{
+
+    transform:translateY(-1px);
+
+    box-shadow:
+    0 10px 20px rgba(255,170,0,.12);
+
+}
+
+.chart-type:active{
+
+    transform:scale(.96);
+
+}
+
+/*==============================
+        CHART BOX
+==============================*/
+
+#incomeChart,
+#expenseChart,
+#compareChart{
+
+    position:relative;
+
+    width:100%;
+
+    height:220px;
+
+    overflow:hidden;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(255,255,255,.98),
+        rgba(255,251,246,.95)
+    );
+
+    border:1px solid rgba(255,255,255,.92);
+
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.96),
+    0 10px 24px rgba(15,23,42,.05);
+
+}
+
+#incomeChart::before,
+#expenseChart::before,
+#compareChart::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:-45px;
+
+    right:-45px;
+
+    width:110px;
+
+    height:110px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(
+        rgba(255,170,0,.08),
+        transparent 72%
+    );
+
+    pointer-events:none;
+
+}
+
+/*==============================
+        LIST
+==============================*/
+
+#topCategoryList,
+#topBankList,
+#activityList,
+#historyList{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+/*==============================
+        LIST ITEM
+==============================*/
+
+.insight-list-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    padding:13px 14px;
+
+    border-radius:16px;
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(255,255,255,.98),
+        rgba(255,251,247,.95)
+    );
+
+    border:1px solid rgba(255,255,255,.92);
+
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 8px 18px rgba(15,23,42,.04);
+
+    transition:.25s;
+
+}
+
+.insight-list-item:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 12px 24px rgba(255,170,0,.08);
+
+}
+
+.insight-list-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.insight-list-left i{
+
+    width:38px;
+
+    height:38px;
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:14px;
+
+    color:#ff9800;
+
+    background:
+    linear-gradient(
+        180deg,
+        #fff6e9,
+        #ffefd9
+    );
+
+}
+
+.insight-list-left h4{
+
+    margin:0;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    color:#222;
+
+}
+
+.insight-list-left small{
+
+    display:block;
+
+    margin-top:2px;
+
+    font-size:10px;
+
+    color:#999;
+
+}
+
+.insight-list-right{
+
+    text-align:right;
+
+}
+
+.insight-list-right b{
+
+    display:block;
+
+    font-size:13px;
+
+    color:#222;
+
+    font-weight:800;
+
+}
+
+.insight-list-right small{
+
+    font-size:10px;
+
+    color:#a0a0a0;
+
+}
