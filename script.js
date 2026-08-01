@@ -1092,11 +1092,1005 @@ function renderInsightSummary(){
     document.getElementById("insightExpense").textContent=
     formatRupiah(expense);
 
-    document.getElementById("insightDifference").textContent=
-    formatRupiah(income-expense);
+    document.getElementById("insightBalance").textContent =
+formatRupiah(income-expense);
 
     document.getElementById("insightTransaction").textContent=
     list.length;
+
+}
+
+/*======================================
+        INSIGHT CHART DATA
+======================================*/
+
+function getChartData(type){
+
+    const list = getInsightTransactions();
+
+    const result = {};
+
+    list.forEach(tr=>{
+
+        if(tr.type!==type) return;
+
+        const date = new Date(tr.createdAt);
+
+        let key="";
+
+        switch(insightFilter){
+
+            case "today":
+
+                key = date.getHours()+":00";
+
+                break;
+
+            case "week":
+
+                key = date.toLocaleDateString("id-ID",{
+
+                    weekday:"short"
+
+                });
+
+                break;
+
+            case "month":
+
+                key = date.getDate();
+
+                break;
+
+            case "year":
+
+                key = date.toLocaleDateString("id-ID",{
+
+                    month:"short"
+
+                });
+
+                break;
+
+            default:
+
+                key =
+                date.toLocaleDateString("id-ID");
+
+        }
+
+        if(!result[key]){
+
+            result[key]=0;
+
+        }
+
+        result[key]+=tr.amount;
+
+    });
+
+    return result;
+
+}
+
+/*======================================
+        TOP CATEGORY
+======================================*/
+
+function renderTopCategory(){
+
+    const container =
+    document.getElementById("topCategoryList");
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    const data={};
+
+    getInsightTransactions().forEach(tr=>{
+
+        if(tr.type!=="expense") return;
+
+        if(!data[tr.categoryId]){
+
+            data[tr.categoryId]=0;
+
+        }
+
+        data[tr.categoryId]+=tr.amount;
+
+    });
+
+    const list =
+    Object.entries(data)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,5);
+
+    if(list.length===0){
+
+        container.innerHTML=
+        "<div class='empty-box'>Belum ada data.</div>";
+
+        return;
+
+    }
+
+    list.forEach(([id,total],index)=>{
+
+        const cat=getCategory(Number(id));
+
+        if(!cat) return;
+
+        container.innerHTML+=`
+
+<div class="insight-list-item">
+
+<div>
+
+<b>${index+1}. ${cat.name}</b>
+
+<small>${formatRupiah(total)}</small>
+
+</div>
+
+<i class="${cat.icon}"></i>
+
+</div>
+
+`;
+
+    });
+
+}
+
+/*======================================
+        TOP BANK
+======================================*/
+
+function renderTopBank(){
+
+    const container =
+    document.getElementById("topBankList");
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    const data={};
+
+    getInsightTransactions().forEach(tr=>{
+
+        if(tr.type==="transfer") return;
+
+        if(!data[tr.bankId]){
+
+            data[tr.bankId]=0;
+
+        }
+
+        data[tr.bankId]++;
+
+    });
+
+    const list=
+    Object.entries(data)
+    .sort((a,b)=>b[1]-a[1]);
+
+    if(list.length===0){
+
+        container.innerHTML=
+        "<div class='empty-box'>Belum ada data.</div>";
+
+        return;
+
+    }
+
+    list.forEach(([id,total],index)=>{
+
+        const bank=
+        banks.find(b=>b.id==id);
+
+        if(!bank) return;
+
+        container.innerHTML+=`
+
+<div class="insight-list-item">
+
+<div>
+
+<b>${index+1}. ${bank.name}</b>
+
+<small>${total} transaksi</small>
+
+</div>
+
+<i class="fa-solid fa-building-columns"></i>
+
+</div>
+
+`;
+
+    });
+
+}
+
+/*======================================
+        ACTIVITY
+======================================*/
+
+function renderActivity(){
+
+    const container =
+    document.getElementById("activityList");
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    const hour={};
+
+    const day={};
+
+    getInsightTransactions().forEach(tr=>{
+
+        const date=new Date(tr.createdAt);
+
+        const h=date.getHours();
+
+        const d=date.toLocaleDateString("id-ID",{
+
+            weekday:"long"
+
+        });
+
+        hour[h]=(hour[h]||0)+1;
+
+        day[d]=(day[d]||0)+1;
+
+    });
+
+    const topHour=
+
+    Object.entries(hour)
+
+    .sort((a,b)=>b[1]-a[1])[0];
+
+    const topDay=
+
+    Object.entries(day)
+
+    .sort((a,b)=>b[1]-a[1])[0];
+
+    container.innerHTML=`
+
+<div class="insight-list-item">
+
+<div>
+
+<b>Jam Tersibuk</b>
+
+<small>
+
+${topHour ? topHour[0]+":00" : "-"}
+
+</small>
+
+</div>
+
+<i class="fa-regular fa-clock"></i>
+
+</div>
+
+<div class="insight-list-item">
+
+<div>
+
+<b>Hari Tersibuk</b>
+
+<small>
+
+${topDay ? topDay[0] : "-"}
+
+</small>
+
+</div>
+
+<i class="fa-regular fa-calendar"></i>
+
+</div>
+
+`;
+
+}
+
+/*======================================
+        HISTORY
+======================================*/
+
+function renderHistory(){
+
+    const container =
+    document.getElementById("historyList");
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    const data={};
+
+    transactions.forEach(tr=>{
+
+        const date=new Date(tr.createdAt);
+
+        const key=date.toLocaleDateString("id-ID",{
+
+            month:"long",
+
+            year:"numeric"
+
+        });
+
+        if(!data[key]){
+
+            data[key]={
+
+                income:0,
+
+                expense:0
+
+            };
+
+        }
+
+        if(tr.type==="income"){
+
+            data[key].income+=tr.amount;
+
+        }
+
+        if(tr.type==="expense"){
+
+            data[key].expense+=tr.amount;
+
+        }
+
+    });
+
+    Object.entries(data)
+
+    .reverse()
+
+    .forEach(([month,value])=>{
+
+        container.innerHTML+=`
+
+<div class="insight-list-item">
+
+<div>
+
+<b>${month}</b>
+
+<small>
+
++ ${formatRupiah(value.income)}
+
+&nbsp;&nbsp;
+
+- ${formatRupiah(value.expense)}
+
+</small>
+
+</div>
+
+<i class="fa-solid fa-calendar-days"></i>
+
+</div>
+
+`;
+
+    });
+
+}
+
+/*======================================
+        CHART
+======================================*/
+
+let incomeChart=null;
+let expenseChart=null;
+let compareChart=null;
+
+function destroyCharts(){
+
+    if(incomeChart){
+
+        incomeChart.destroy();
+
+        incomeChart=null;
+
+    }
+
+    if(expenseChart){
+
+        expenseChart.destroy();
+
+        expenseChart=null;
+
+    }
+
+    if(compareChart){
+
+        compareChart.destroy();
+
+        compareChart=null;
+
+    }
+
+}
+
+function createChartData(type){
+
+    const labels = [];
+    const values = [];
+
+    getInsightTransactions()
+
+    .filter(tr => tr.type === type)
+
+    .sort((a,b)=>
+        new Date(a.createdAt) - new Date(b.createdAt)
+    )
+
+    .forEach(tr=>{
+
+        const date = new Date(tr.createdAt);
+
+        let label = "";
+
+        switch(insightFilter){
+
+            case "today":
+
+                label = date.toLocaleTimeString("id-ID",{
+                    hour:"2-digit",
+                    minute:"2-digit"
+                });
+
+                break;
+
+            case "week":
+
+                label = date.toLocaleDateString("id-ID",{
+                    weekday:"short"
+                }) + " " +
+                date.toLocaleTimeString("id-ID",{
+                    hour:"2-digit",
+                    minute:"2-digit"
+                });
+
+                break;
+
+            case "month":
+
+                label =
+                date.getDate() + "/" +
+                (date.getMonth()+1) + " " +
+                date.toLocaleTimeString("id-ID",{
+                    hour:"2-digit",
+                    minute:"2-digit"
+                });
+
+                break;
+
+            case "year":
+
+                label =
+                date.toLocaleDateString("id-ID",{
+                    day:"numeric",
+                    month:"short"
+                });
+
+                break;
+
+            default:
+
+                label =
+                date.toLocaleDateString("id-ID") +
+                " " +
+                date.toLocaleTimeString("id-ID",{
+                    hour:"2-digit",
+                    minute:"2-digit"
+                });
+
+        }
+
+        labels.push(label);
+        values.push(tr.amount);
+
+    });
+
+    return {
+        labels,
+        values
+    };
+
+}
+
+function renderIncomeChart(){
+
+    const ctx =
+    document.getElementById("incomeChart");
+
+    if(!ctx) return;
+
+    const data = createChartData("income");
+
+    incomeChart = new Chart(ctx,{
+
+        type:"line",
+
+        data:{
+
+            labels:data.labels,
+
+            datasets:[{
+
+                label:"Pemasukan",
+
+                data:data.values,
+
+                borderColor:"#16c784",
+
+                backgroundColor(context){
+
+                    const chart = context.chart;
+                    const area = chart.chartArea;
+
+                    if(!area) return;
+
+                    const gradient =
+                    chart.ctx.createLinearGradient(
+                        0,
+                        area.top,
+                        0,
+                        area.bottom
+                    );
+
+                    gradient.addColorStop(
+                        0,
+                        "rgba(22,199,132,.28)"
+                    );
+
+                    gradient.addColorStop(
+                        1,
+                        "rgba(22,199,132,0)"
+                    );
+
+                    return gradient;
+
+                },
+
+                fill:true,
+
+                tension:.28,
+cubicInterpolationMode:"monotone",
+
+                borderWidth:2,
+
+                pointRadius:3,
+pointHoverRadius:7,
+pointHitRadius:18,
+              
+                pointHoverBorderWidth:2,
+
+                pointHoverBackgroundColor:"#fff",
+
+                pointHoverBorderColor:"#16c784"
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            animation:{
+
+                duration:700,
+
+                easing:"easeOutQuart"
+
+            },
+
+            interaction:{
+
+                mode:"index",
+
+                intersect:false
+
+            },
+
+            plugins:{
+
+                legend:{
+
+                    display:false
+
+                },
+
+                tooltip:{
+
+                    backgroundColor:"#1f2937",
+
+                    titleColor:"#fff",
+
+                    bodyColor:"#fff",
+
+                    displayColors:false,
+
+                    padding:12,
+
+                    cornerRadius:12,
+
+                    callbacks:{
+
+                        label(ctx){
+
+                            return formatRupiah(
+                                ctx.parsed.y
+                            );
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            scales:{
+
+                x:{
+
+                    grid:{
+                        display:false
+                    },
+
+                    ticks:{
+
+                        font:{
+                            size:10
+                        },
+
+                        color:"#94a3b8"
+
+                    }
+
+                },
+
+                y:{
+
+                    beginAtZero:true,
+
+                    grid:{
+
+                        color:"rgba(148,163,184,.15)"
+
+                    },
+
+                    ticks:{
+
+                        font:{
+                            size:10
+                        },
+
+                        color:"#94a3b8",
+
+                        callback(value){
+
+                            if(value>=1000000){
+
+                                return (
+                                    value/1000000
+                                )+"JT";
+
+                            }
+
+                            if(value>=1000){
+
+                                return (
+                                    value/1000
+                                )+"RB";
+
+                            }
+
+                            return value;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+function renderExpenseChart(){
+
+    const ctx =
+    document.getElementById("expenseChart");
+
+    if(!ctx) return;
+
+    const data = createChartData("expense");
+
+    expenseChart = new Chart(ctx,{
+
+        type:"line",
+
+        data:{
+
+            labels:data.labels,
+
+            datasets:[{
+
+                label:"Pengeluaran",
+
+                data:data.values,
+
+                borderColor:"#ef4444",
+
+                backgroundColor(context){
+
+                    const chart = context.chart;
+                    const area = chart.chartArea;
+
+                    if(!area) return;
+
+                    const gradient =
+                    chart.ctx.createLinearGradient(
+                        0,
+                        area.top,
+                        0,
+                        area.bottom
+                    );
+
+                    gradient.addColorStop(
+                        0,
+                        "rgba(239,68,68,.28)"
+                    );
+
+                    gradient.addColorStop(
+                        1,
+                        "rgba(239,68,68,0)"
+                    );
+
+                    return gradient;
+
+                },
+
+                fill:true,
+
+                tension:.28,
+cubicInterpolationMode:"monotone",
+
+                borderWidth:2,
+
+                pointRadius:3,
+pointHoverRadius:7,
+pointHitRadius:18,
+
+                pointHoverBackgroundColor:"#fff",
+
+                pointHoverBorderColor:"#ef4444"
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            animation:{
+
+                duration:700,
+
+                easing:"easeOutQuart"
+
+            },
+
+            interaction:{
+
+                mode:"index",
+
+                intersect:false
+
+            },
+
+            plugins:{
+
+                legend:{
+
+                    display:false
+
+                },
+
+                tooltip:{
+
+                    backgroundColor:"#1f2937",
+
+                    titleColor:"#fff",
+
+                    bodyColor:"#fff",
+
+                    displayColors:false,
+
+                    padding:12,
+
+                    cornerRadius:12,
+
+                    callbacks:{
+
+                        label(ctx){
+
+                            return formatRupiah(
+                                ctx.parsed.y
+                            );
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            scales:{
+
+                x:{
+
+                    grid:{
+                        display:false
+                    },
+
+                    ticks:{
+
+                        font:{
+                            size:10
+                        },
+
+                        color:"#94a3b8"
+
+                    }
+
+                },
+
+                y:{
+
+                    beginAtZero:true,
+
+                    grid:{
+
+                        color:"rgba(148,163,184,.15)"
+
+                    },
+
+                    ticks:{
+
+                        font:{
+                            size:10
+                        },
+
+                        color:"#94a3b8",
+
+                        callback(value){
+
+                            if(value>=1000000){
+
+                                return (
+                                    value/1000000
+                                )+"JT";
+
+                            }
+
+                            if(value>=1000){
+
+                                return (
+                                    value/1000
+                                )+"RB";
+
+                            }
+
+                            return value;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+function renderCompareChart(){
+
+    const ctx=document.getElementById("compareChart");
+
+    if(!ctx) return;
+
+    const income=createChartData("income");
+    const expense=createChartData("expense");
+
+    // Gabungkan semua label
+    const labels=[
+        ...new Set([
+            ...income.labels,
+            ...expense.labels
+        ])
+    ];
+
+    const incomeData=labels.map(label=>{
+        const i=income.labels.indexOf(label);
+        return i>-1 ? income.values[i] : 0;
+    });
+
+    const expenseData=labels.map(label=>{
+        const i=expense.labels.indexOf(label);
+        return i>-1 ? expense.values[i] : 0;
+    });
+
+    compareChart=new Chart(ctx,{
+        type:"line",
+
+        data:{
+            labels,
+            datasets:[
+                {
+                    label:"Income",
+                    data:incomeData,
+                    borderColor:"#16c784",
+                    backgroundColor:"rgba(22,199,132,.15)",
+                    fill:false,
+                    tension:.4,
+                    borderWidth:2,
+                    pointRadius:3
+                },
+                {
+                    label:"Expense",
+                    data:expenseData,
+                    borderColor:"#ef4444",
+                    backgroundColor:"rgba(239,68,68,.15)",
+                    fill:false,
+                    tension:.4,
+                    borderWidth:2,
+                    pointRadius:3
+                }
+            ]
+        },
+
+        options:{
+            responsive:true,
+            maintainAspectRatio:false
+        }
+
+    });
 
 }
 
@@ -2714,6 +3708,7 @@ renderAnalysis();
 renderTransactions();
 
 updateLastUpdate();
+renderInsight();
 
     transactionAmount.value="";
 
@@ -2904,6 +3899,7 @@ function deleteTransaction(id){
     renderTransactions();
 
     updateLastUpdate();
+    renderInsight();
 
 }
 
@@ -3831,6 +4827,7 @@ renderAnalysis();
 renderTransactions();
 
 updateLastUpdate();
+renderInsight();
 
 transferAmount.value="";
 
@@ -3879,6 +4876,8 @@ document.addEventListener("click",function(){
 ======================================*/
 
 function renderInsight(){
+
+    destroyCharts();
 
     renderInsightSummary();
 
@@ -4027,3 +5026,4 @@ updateSummaryDate();
 
 updateLastUpdate();
 
+renderInsight();
