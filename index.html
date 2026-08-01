@@ -879,16 +879,237 @@ class="fa-solid fa-wallet"></i>
 </section>
 
 <!-- ========================= -->
-<!-- PAGE BUDGET -->
+<!-- PAGE INSIGHT -->
 <!-- ========================= -->
 
-<section id="budgetPage" class="page">
+<section id="insightPage" class="page">
 
-<div class="page-header">
+<div class="insight-page">
 
-<h2>Budget</h2>
+    <!-- Header -->
+    <div class="insight-header">
 
-<p>Fitur Budget sedang dikembangkan.</p>
+        <div>
+
+            <h2>Insight</h2>
+
+            <p>
+                Analisis lengkap keuangan Anda
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Filter -->
+    <div class="insight-filter">
+
+        <button class="active">
+            Hari Ini
+        </button>
+
+        <button>
+            Minggu
+        </button>
+
+        <button>
+            Bulan
+        </button>
+
+        <button>
+            Tahun
+        </button>
+
+        <button>
+            Custom
+        </button>
+
+    </div>
+
+    <!-- Ringkasan -->
+    <section class="insight-summary">
+
+        <div class="summary-item income">
+
+            <small>Pemasukan</small>
+
+            <h3 id="insightIncome">
+                Rp0
+            </h3>
+
+        </div>
+
+        <div class="summary-item expense">
+
+            <small>Pengeluaran</small>
+
+            <h3 id="insightExpense">
+                Rp0
+            </h3>
+
+        </div>
+
+        <div class="summary-item balance">
+
+            <small>Selisih</small>
+
+            <h3 id="insightBalance">
+                Rp0
+            </h3>
+
+        </div>
+
+        <div class="summary-item transaction">
+
+            <small>Transaksi</small>
+
+            <h3 id="insightTransaction">
+                0
+            </h3>
+
+        </div>
+
+    </section>
+
+    <!-- Income vs Expense -->
+
+    <section class="insight-card">
+
+        <div class="card-title">
+
+            <h3>
+                Income vs Expense
+            </h3>
+
+        </div>
+
+        <div id="compareChart">
+
+        </div>
+
+    </section>
+
+    <!-- Grafik Income -->
+
+    <section class="insight-card">
+
+        <div class="card-title">
+
+            <h3>
+                Grafik Pemasukan
+            </h3>
+
+            <button class="chart-type">
+
+                Line
+
+            </button>
+
+        </div>
+
+        <div id="incomeChart">
+
+        </div>
+
+    </section>
+
+    <!-- Grafik Expense -->
+
+    <section class="insight-card">
+
+        <div class="card-title">
+
+            <h3>
+                Grafik Pengeluaran
+            </h3>
+
+            <button class="chart-type">
+
+                Line
+
+            </button>
+
+        </div>
+
+        <div id="expenseChart">
+
+        </div>
+
+    </section>
+
+    <!-- Top Kategori -->
+
+    <section class="insight-card">
+
+        <div class="card-title">
+
+            <h3>
+                Kategori Terbesar
+            </h3>
+
+        </div>
+
+        <div id="topCategoryList">
+
+        </div>
+
+    </section>
+
+    <!-- Top Bank -->
+
+    <section class="insight-card">
+
+        <div class="card-title">
+
+            <h3>
+                Bank Terbanyak Dipakai
+            </h3>
+
+        </div>
+
+        <div id="topBankList">
+
+        </div>
+
+    </section>
+
+    <!-- Aktivitas -->
+
+    <section class="insight-card">
+
+        <div class="card-title">
+
+            <h3>
+                Aktivitas
+            </h3>
+
+        </div>
+
+        <div id="activityList">
+
+        </div>
+
+    </section>
+
+    <!-- Riwayat -->
+
+    <section class="insight-card">
+
+        <div class="card-title">
+
+            <h3>
+                Ringkasan Bulanan
+            </h3>
+
+        </div>
+
+        <div id="historyList">
+
+        </div>
+
+    </section>
+
+    <div style="height:120px;"></div>
 
 </div>
 
@@ -936,11 +1157,11 @@ class="fa-solid fa-wallet"></i>
 
 </a>
 
-<a id="navBudget">
+<a id="navInsight">
 
-<i class="fa-solid fa-chart-pie"></i>
+<i class="fa-solid fa-chart-line"></i>
 
-<span>Budget</span>
+<span>Insight</span>
 
 </a>
 
