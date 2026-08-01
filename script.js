@@ -69,11 +69,11 @@ document.getElementById("navAdd").classList.add("active");
 
 }
 
-document.getElementById("navBudget").onclick=()=>{
+document.getElementById("navInsight").onclick=()=>{
 
-showPage("budgetPage");
+showPage("insightPage");
 
-document.getElementById("navBudget").classList.add("active");
+document.getElementById("navInsight").classList.add("active");
 
 }
 
@@ -173,6 +173,18 @@ function updateSummaryDate(){
     });
 
 }
+
+/*======================================
+            INSIGHT
+======================================*/
+
+let insightFilter = "today";
+
+let insightChartType = "line";
+
+let insightCustomStart = null;
+
+let insightCustomEnd = null;
 
 /*======================================
         DEFAULT ICON LIST
@@ -687,6 +699,67 @@ function formatRupiah(number){
 }
 
 /*======================================
+        INSIGHT FILTER
+======================================*/
+
+function getInsightTransactions(){
+
+    const now = new Date();
+
+    return transactions.filter(tr=>{
+
+        const date = new Date(tr.createdAt);
+
+        switch(insightFilter){
+
+            case "today":
+
+                return date.toDateString()===now.toDateString();
+
+            case "week":
+
+                return (
+                    (now-date)/(1000*60*60*24)
+                )<=7;
+
+            case "month":
+
+                return (
+                    date.getMonth()===now.getMonth()
+                    &&
+                    date.getFullYear()===now.getFullYear()
+                );
+
+            case "year":
+
+                return (
+                    date.getFullYear()===now.getFullYear()
+                );
+
+            case "custom":
+
+                if(!insightCustomStart || !insightCustomEnd){
+
+                    return true;
+
+                }
+
+                return (
+                    date>=insightCustomStart &&
+                    date<=insightCustomEnd
+                );
+
+            default:
+
+                return true;
+
+        }
+
+    });
+
+}
+
+/*======================================
         RENDER SUMMARY
 ======================================*/
 
@@ -982,6 +1055,48 @@ ${percent.toFixed(1)}%
 `;
 
     });
+
+}
+
+/*======================================
+        INSIGHT SUMMARY
+======================================*/
+
+function renderInsightSummary(){
+
+    const list=getInsightTransactions();
+
+    let income=0;
+
+    let expense=0;
+
+    list.forEach(tr=>{
+
+        if(tr.type==="income"){
+
+            income+=tr.amount;
+
+        }
+
+        if(tr.type==="expense"){
+
+            expense+=tr.amount;
+
+        }
+
+    });
+
+    document.getElementById("insightIncome").textContent=
+    formatRupiah(income);
+
+    document.getElementById("insightExpense").textContent=
+    formatRupiah(expense);
+
+    document.getElementById("insightDifference").textContent=
+    formatRupiah(income-expense);
+
+    document.getElementById("insightTransaction").textContent=
+    list.length;
 
 }
 
@@ -1702,6 +1817,34 @@ monthBtn.onclick=function(){
     renderAnalysis();
 
 };
+
+/*======================================
+        INSIGHT FILTER BUTTON
+======================================*/
+
+document
+.querySelectorAll(".insight-filter button")
+.forEach(btn=>{
+
+    btn.onclick=function(){
+
+        document
+        .querySelectorAll(".insight-filter button")
+        .forEach(item=>{
+
+            item.classList.remove("active");
+
+        });
+
+        this.classList.add("active");
+
+        insightFilter=this.dataset.filter;
+
+        renderInsight();
+
+    };
+
+});
 
 /*======================================
         ADD PAGE PICKER
@@ -3149,7 +3292,7 @@ new Date(b.createdAt)-new Date(a.createdAt)
 list.forEach((tr,index)=>{
 
     // Home hanya 5 transaksi terakhir
-    const showHome = index < 5;
+    const showHome = index < 3;
 
       const date = new Date(tr.createdAt);
 
@@ -3732,6 +3875,30 @@ document.addEventListener("click",function(){
 });
 
 /*======================================
+        RENDER INSIGHT
+======================================*/
+
+function renderInsight(){
+
+    renderInsightSummary();
+
+    renderIncomeChart();
+
+    renderExpenseChart();
+
+    renderCompareChart();
+
+    renderTopCategory();
+
+    renderTopBank();
+
+    renderActivity();
+
+    renderHistory();
+
+}
+
+/*======================================
         PREMIUM TOAST
 ======================================*/
 
@@ -3859,3 +4026,4 @@ renderCategoryList();
 updateSummaryDate();
 
 updateLastUpdate();
+
