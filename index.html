@@ -904,27 +904,38 @@ class="fa-solid fa-wallet"></i>
     <!-- Filter -->
     <div class="insight-filter">
 
-        <button class="active">
-            Hari Ini
-        </button>
+    <button
+        class="active"
+        data-filter="today">
+        Hari Ini
+    </button>
 
-        <button>
-            Minggu
-        </button>
+    <button
+        data-filter="week">
+        Minggu
+    </button>
 
-        <button>
-            Bulan
-        </button>
+    <button
+        data-filter="month">
+        Bulan
+    </button>
 
-        <button>
-            Tahun
-        </button>
+    <button
+        data-filter="year">
+        Tahun
+    </button>
 
-        <button>
-            Custom
-        </button>
+    <button
+id="customInsightBtn"
+data-filter="custom">
 
-    </div>
+<i class="fa-solid fa-calendar-days"></i>
+
+Custom
+
+</button>
+
+</div>
 
     <!-- Ringkasan -->
     <section class="insight-summary">
@@ -970,6 +981,110 @@ class="fa-solid fa-wallet"></i>
         </div>
 
     </section>
+
+   <section class="insight-card">
+
+<div class="card-title">
+
+<h3>
+
+<i class="fa-solid fa-sparkles"></i>
+
+Insight AI
+
+</h3>
+
+</div>
+
+<div id="insightAiList">
+
+</div>
+
+</section>
+
+<section class="insight-card">
+
+<div class="card-title">
+
+<h3>
+
+<i class="fa-solid fa-shield-heart"></i>
+
+Financial Health
+
+</h3>
+
+</div>
+
+<div class="health-score">
+
+<div class="health-circle">
+
+<h1 id="healthScore">
+
+0
+
+</h1>
+
+<span>
+
+Score
+
+</span>
+
+</div>
+
+<div class="health-status"
+
+id="healthStatus">
+
+Belum ada data
+
+</div>
+
+</div>
+
+<div class="health-list">
+
+<div>
+
+<span>Saving Rate</span>
+
+<b id="savingRate">
+
+0%
+
+</b>
+
+</div>
+
+<div>
+
+<span>Expense Ratio</span>
+
+<b id="expenseRatio">
+
+0%
+
+</b>
+
+</div>
+
+<div>
+
+<span>Cash Flow</span>
+
+<b id="cashFlowStatus">
+
+-
+
+</b>
+
+</div>
+
+</div>
+
+</section>
 
     <!-- Income vs Expense -->
 
@@ -1260,6 +1375,72 @@ Pilih
         </div>
 
     </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- CUSTOM INSIGHT FILTER -->
+<!-- ========================= -->
+
+<div
+class="modal-overlay"
+id="insightCustomOverlay">
+
+<div class="modal-sheet">
+
+<div class="modal-handle"></div>
+
+<h3>
+
+Pilih Rentang Tanggal
+
+</h3>
+
+<div class="modal-body">
+
+<div class="form-group">
+
+<label>Tanggal Mulai</label>
+
+<input
+type="date"
+id="insightStartDate">
+
+</div>
+
+<div class="form-group">
+
+<label>Tanggal Selesai</label>
+
+<input
+type="date"
+id="insightEndDate">
+
+</div>
+
+</div>
+
+<div class="modal-footer">
+
+<button
+id="cancelInsightCustom"
+class="cancel-btn">
+
+Batal
+
+</button>
+
+<button
+id="saveInsightCustom"
+class="save-btn">
+
+Terapkan
+
+</button>
+
+</div>
+
+</div>
 
 </div>
 
