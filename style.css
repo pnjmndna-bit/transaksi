@@ -7034,18 +7034,17 @@ transform:translateX(3px);
 
     color:#ff8a00;
 
-    background:
-    linear-gradient(
+    background:linear-gradient(
         180deg,
         #fffaf2,
         #fff3e2
     );
 
-    border:1px solid rgba(255,170,0,.16);
+    border:1px solid rgba(255,170,0,.15);
 
     box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    0 6px 16px rgba(255,170,0,.08);
+        inset 0 1px 0 rgba(255,255,255,.95),
+        0 6px 14px rgba(255,170,0,.08);
 
     transition:.25s;
 
@@ -7053,10 +7052,10 @@ transform:translateX(3px);
 
 .chart-type:hover{
 
-    transform:translateY(-1px);
+    transform:translateY(-2px);
 
     box-shadow:
-    0 10px 20px rgba(255,170,0,.12);
+        0 10px 22px rgba(255,170,0,.14);
 
 }
 
@@ -7067,63 +7066,75 @@ transform:translateX(3px);
 }
 
 /*==============================
-        CHART BOX
+        INSIGHT CARD
+==============================*/
+
+.insight-card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    margin-top:16px;
+
+    padding:18px;
+
+    border-radius:22px;
+
+    background:linear-gradient(
+        180deg,
+        #ffffff,
+        #fffaf5
+    );
+
+    border:1px solid rgba(255,255,255,.95);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.95),
+        0 10px 24px rgba(15,23,42,.06);
+
+}
+
+.insight-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:-50px;
+
+    right:-50px;
+
+    width:130px;
+
+    height:130px;
+
+    border-radius:50%;
+
+    background:radial-gradient(
+        rgba(255,170,0,.08),
+        transparent 72%
+    );
+
+    pointer-events:none;
+
+}
+
+/*==============================
+        CHART CANVAS
 ==============================*/
 
 #incomeChart,
 #expenseChart,
 #compareChart{
 
-    position:relative;
+    display:block;
 
-    width:100%;
+    width:100% !important;
 
-    height:220px;
+    height:180px !important;
 
-    overflow:hidden;
-
-    border-radius:18px;
-
-    background:
-    linear-gradient(
-        180deg,
-        rgba(255,255,255,.98),
-        rgba(255,251,246,.95)
-    );
-
-    border:1px solid rgba(255,255,255,.92);
-
-    box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.96),
-    0 10px 24px rgba(15,23,42,.05);
-
-}
-
-#incomeChart::before,
-#expenseChart::before,
-#compareChart::before{
-
-    content:"";
-
-    position:absolute;
-
-    top:-45px;
-
-    right:-45px;
-
-    width:110px;
-
-    height:110px;
-
-    border-radius:50%;
-
-    background:
-    radial-gradient(
-        rgba(255,170,0,.08),
-        transparent 72%
-    );
-
-    pointer-events:none;
+    max-height:180px;
 
 }
 
@@ -7140,7 +7151,7 @@ transform:translateX(3px);
 
     flex-direction:column;
 
-    gap:10px;
+    gap:12px;
 
 }
 
@@ -7156,24 +7167,23 @@ transform:translateX(3px);
 
     justify-content:space-between;
 
-    gap:12px;
+    gap:14px;
 
-    padding:13px 14px;
+    padding:14px 15px;
 
-    border-radius:16px;
+    border-radius:18px;
 
-    background:
-    linear-gradient(
+    background:linear-gradient(
         180deg,
         rgba(255,255,255,.98),
         rgba(255,251,247,.95)
     );
 
-    border:1px solid rgba(255,255,255,.92);
+    border:1px solid rgba(255,255,255,.95);
 
     box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    0 8px 18px rgba(15,23,42,.04);
+        inset 0 1px 0 rgba(255,255,255,.95),
+        0 8px 20px rgba(15,23,42,.05);
 
     transition:.25s;
 
@@ -7184,7 +7194,7 @@ transform:translateX(3px);
     transform:translateY(-2px);
 
     box-shadow:
-    0 12px 24px rgba(255,170,0,.08);
+        0 14px 24px rgba(255,170,0,.08);
 
 }
 
@@ -7200,11 +7210,11 @@ transform:translateX(3px);
 
 .insight-list-left i{
 
-    width:38px;
+    width:42px;
 
-    height:38px;
+    height:42px;
 
-    border-radius:12px;
+    border-radius:14px;
 
     display:flex;
 
@@ -7212,15 +7222,14 @@ transform:translateX(3px);
 
     justify-content:center;
 
-    font-size:14px;
+    font-size:15px;
 
     color:#ff9800;
 
-    background:
-    linear-gradient(
+    background:linear-gradient(
         180deg,
-        #fff6e9,
-        #ffefd9
+        #fff7eb,
+        #ffedd5
     );
 
 }
@@ -7229,11 +7238,11 @@ transform:translateX(3px);
 
     margin:0;
 
-    font-size:13px;
+    font-size:14px;
 
     font-weight:700;
 
-    color:#222;
+    color:#1f2937;
 
 }
 
@@ -7241,11 +7250,11 @@ transform:translateX(3px);
 
     display:block;
 
-    margin-top:2px;
+    margin-top:3px;
 
-    font-size:10px;
+    font-size:11px;
 
-    color:#999;
+    color:#9ca3af;
 
 }
 
@@ -7259,18 +7268,28 @@ transform:translateX(3px);
 
     display:block;
 
-    font-size:13px;
-
-    color:#222;
+    font-size:14px;
 
     font-weight:800;
+
+    color:#111827;
 
 }
 
 .insight-list-right small{
 
-    font-size:10px;
+    font-size:11px;
 
-    color:#a0a0a0;
+    color:#9ca3af;
 
+}
+
+#compareChart{
+    width:100% !important;
+    height:180px !important;
+}
+
+#compareChart canvas{
+    width:100% !important;
+    height:180px !important;
 }
