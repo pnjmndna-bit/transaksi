@@ -3629,15 +3629,19 @@ button:focus {
 
     display:flex;
 
-    gap:8px;
+    align-items:center;
+
+    gap:10px;
 
     overflow-x:auto;
 
-    padding-bottom:4px;
+    padding:4px 0 6px;
 
-    margin:14px 0;
+    margin:16px 0;
 
     scrollbar-width:none;
+
+    -webkit-overflow-scrolling:touch;
 
 }
 
@@ -3649,39 +3653,53 @@ button:focus {
 
 .transaction-filter button{
 
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    min-height:38px;
+
+    padding:0 18px;
+
     border:none;
 
     outline:none;
 
-    padding:8px 14px;
-
     border-radius:999px;
 
-    background:
-
-    linear-gradient(
+    background:linear-gradient(
         180deg,
         #ffffff,
         #f8f8f8
     );
 
-    border:1px solid rgba(0,0,0,.05);
+    border:1px solid rgba(255,255,255,.85);
 
     box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.95),
+        0 6px 14px rgba(15,23,42,.05);
 
-    0 4px 12px rgba(0,0,0,.03),
-
-    inset 0 1px 0 rgba(255,255,255,.9);
-
-    color:#777;
+    color:#6b7280;
 
     font-size:11px;
 
     font-weight:700;
 
+    line-height:1;
+
+    letter-spacing:.2px;
+
     white-space:nowrap;
 
-    transition:.22s;
+    transition:
+        background .25s,
+        color .25s,
+        transform .2s,
+        box-shadow .25s;
 
     cursor:pointer;
 
@@ -3689,28 +3707,26 @@ button:focus {
 
 .transaction-filter button.active{
 
-    background:
+    color:#fff;
 
-    linear-gradient(
+    background:linear-gradient(
         135deg,
-        #ffb347,
-        #ff8a00,
+        #ffc15c,
+        #ff9800,
         #ff6a00
     );
-
-    color:#fff;
 
     border-color:transparent;
 
     box-shadow:
-
-    0 8px 18px rgba(255,140,0,.22);
+        0 10px 22px rgba(255,140,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.22);
 
 }
 
 .transaction-filter button:active{
 
-    transform:scale(.95);
+    transform:scale(.96);
 
 }
 
