@@ -3478,48 +3478,67 @@ button:focus {
 
 .search-filter-btn{
 
-    width:40px;
-
-    height:40px;
+    width:32px;
+    height:32px;
 
     border:none;
-
-    border-radius:14px;
+    outline:none;
 
     display:flex;
-
     align-items:center;
-
     justify-content:center;
 
     cursor:pointer;
 
-    color:#fff;
+    border-radius:10px;
 
+    color:#ff9800;
     font-size:15px;
 
     background:
-
     linear-gradient(
-        145deg,
-        #ffb347,
-        #ff8a00,
-        #ff6a00
+        180deg,
+        rgba(255,255,255,.98),
+        rgba(250,247,242,.95)
     );
 
+    border:1px solid rgba(255,180,0,.18);
+
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
     box-shadow:
+    0 8px 22px rgba(15,23,42,.05),
+    inset 0 1px 0 rgba(255,255,255,.95);
 
-    0 10px 22px rgba(255,140,0,.22),
+    transition:
+    transform .22s,
+    box-shadow .22s,
+    color .22s;
 
-    inset 0 1px 0 rgba(255,255,255,.28);
+}
 
-    transition:.22s;
+.search-filter-btn:hover{
+
+    transform:translateY(-2px);
+
+    color:#ff8a00;
+
+    box-shadow:
+    0 14px 26px rgba(255,170,0,.14),
+    inset 0 1px 0 rgba(255,255,255,.95);
 
 }
 
 .search-filter-btn:active{
 
     transform:scale(.94);
+
+}
+
+.search-filter-btn i{
+
+    font-size:16px;
 
 }
 
@@ -3877,9 +3896,9 @@ button:focus {
 
     display:flex;
 
-    justify-content:space-between;
+flex-direction:column;
 
-    align-items:center;
+align-items:stretch;
 
     gap:10px;
 
@@ -4121,12 +4140,9 @@ button:focus {
         TEXT
 ======================================*/
 
-.transaction-left div:last-child{
-
+.transaction-info{
     flex:1;
-
     min-width:0;
-
 }
 
 .transaction-left h3{
@@ -4326,53 +4342,107 @@ button:focus {
 }
 
 /*======================================
+      ULTRA PREMIUM ACTION BUTTON
+======================================*/
+
+.transaction-actions{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-end;
+
+    gap:8px;
+
+}
+
+/*======================================
+        BUTTON BASE
+======================================*/
+
+.transaction-actions button{
+
+    width:36px;
+
+    height:36px;
+
+    border:none;
+
+    outline:none;
+
+    cursor:pointer;
+
+    border-radius:13px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    transition:
+    transform .25s,
+    opacity .25s,
+    box-shadow .25s,
+    background .25s;
+
+    backdrop-filter:blur(18px);
+
+    -webkit-backdrop-filter:blur(18px);
+
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 6px 16px rgba(0,0,0,.05);
+
+}
+
+.transaction-actions button i{
+
+    font-size:13px;
+
+}
+
+.transaction-actions button:active{
+
+    transform:scale(.92);
+
+}
+
+/*======================================
         MENU
 ======================================*/
 
 .menu-btn{
 
     background:
-
     linear-gradient(
-
-        180deg,
-
-        rgba(255,255,255,.95),
-
-        rgba(247,247,247,.9)
-
+        145deg,
+        #ffffff,
+        #f7f7f7
     );
 
-    border:1px solid rgba(255,170,70,.18);
-
-    box-shadow:
-
-    inset 0 1px 0 rgba(255,255,255,.95),
-
-    0 3px 8px rgba(0,0,0,.04);
+    border:1px solid rgba(255,170,0,.14);
 
 }
 
 .menu-btn i{
 
-    font-size:10px;
-
-    color:#9a9a9a;
+    color:#9c9c9c;
 
 }
 
 .menu-btn:hover{
 
-    transform:rotate(90deg);
+    transform:rotate(90deg) scale(1.06);
 
     box-shadow:
-
-    0 6px 14px rgba(255,140,0,.10);
+    0 10px 22px rgba(255,165,0,.14);
 
 }
 
 /*======================================
-        HIDDEN BUTTON
+      HIDDEN BUTTON
 ======================================*/
 
 .edit-btn,
@@ -4384,12 +4454,8 @@ button:focus {
     pointer-events:none;
 
     transform:
-
-    translateX(8px)
-
+    translateX(10px)
     scale(.82);
-
-    transition:.22s;
 
 }
 
@@ -4402,9 +4468,7 @@ button:focus {
     pointer-events:auto;
 
     transform:
-
     translateX(0)
-
     scale(1);
 
 }
@@ -4416,30 +4480,24 @@ button:focus {
 .edit-btn{
 
     background:
-
     linear-gradient(
-
-        135deg,
-
-        #fff8ea,
-
-        #fff2d8
-
+        145deg,
+        #fff9ef,
+        #fff3df
     );
 
-    color:#ff9800;
+    border:1px solid rgba(255,180,0,.18);
 
-    border:1px solid rgba(255,170,0,.18);
+    color:#ff9800;
 
 }
 
 .edit-btn:hover{
 
-    background:#fff;
+    transform:translateY(-2px);
 
     box-shadow:
-
-    0 6px 14px rgba(255,180,0,.16);
+    0 10px 20px rgba(255,180,0,.18);
 
 }
 
@@ -4450,30 +4508,98 @@ button:focus {
 .delete-btn{
 
     background:
-
     linear-gradient(
-
-        135deg,
-
-        #fff5f5,
-
-        #ffecec
-
+        145deg,
+        #fff6f6,
+        #ffeded
     );
 
-    color:#ef4444;
+    border:1px solid rgba(239,68,68,.14);
 
-    border:1px solid rgba(239,68,68,.12);
+    color:#ef4444;
 
 }
 
 .delete-btn:hover{
 
-    background:#fff;
+    transform:translateY(-2px);
 
     box-shadow:
+    0 10px 20px rgba(239,68,68,.16);
 
-    0 6px 14px rgba(239,68,68,.14);
+}
+
+/*======================================
+        PREMIUM TRANSACTION LAYOUT
+======================================*/
+
+.transaction-main{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:14px;
+
+    width:100%;
+
+}
+
+/*======================================
+        INFO
+======================================*/
+
+.transaction-info{
+
+    flex:1;
+
+    min-width:0;
+
+}
+
+.transaction-info h3{
+
+    margin:0;
+
+    font-size:13px;
+
+    font-weight:800;
+
+    color:#222;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+.transaction-info p{
+
+    margin:3px 0 0;
+
+    font-size:10px;
+
+    font-weight:600;
+
+    color:#9ca3af;
+
+}
+
+.transaction-time{
+
+    display:block;
+
+    margin-top:3px;
+
+    font-size:9px;
+
+    font-weight:600;
+
+    color:#b5b5b5;
 
 }
 
@@ -4490,6 +4616,81 @@ button:focus {
 .transaction-actions button:active{
 
     transform:scale(.90);
+
+}
+
+/*======================================
+      PREMIUM NOTE TRANSACTION
+======================================*/
+
+.transaction-note-card{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:7px;
+
+    width:100%;
+
+    margin-top:1px;
+
+    padding:8px 10px;
+
+    border-radius:12px;
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(255,251,247,.95),
+        rgba(255,247,239,.98)
+    );
+
+    border:1px solid rgba(255,175,60,.12);
+
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 3px 10px rgba(255,165,0,.05);
+
+}
+
+.transaction-note-card i{
+
+    flex-shrink:0;
+
+    width:16px;
+
+    margin-top:1px;
+
+    font-size:10px;
+
+    color:#ff9800;
+
+}
+
+.transaction-note-card span{
+
+    flex:1;
+
+    text-align:left;
+
+    font-size:9.5px;
+
+    font-weight:600;
+
+    line-height:1.45;
+
+    color:#7a7a7a;
+
+    word-break:break-word;
+
+}
+
+/* Jika catatan "-" tampil lebih samar */
+
+.transaction-note-card span:empty{
+
+    color:#b5b5b5;
 
 }
 
