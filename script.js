@@ -86,13 +86,15 @@ let banks = JSON.parse(localStorage.getItem("banks")) || [
     {
         id: generateId(),
         name: "Cash",
-        balance: 0
+        balance: 0,
+        dailyChange:{}
     },
 
     {
         id: generateId(),
         name: "Jago",
-        balance: 0
+        balance: 0,
+        dailyChange:{}
     }
 
 ];
@@ -182,9 +184,60 @@ let insightFilter = "today";
 
 let insightChartType = "line";
 
+const chartTypeBtn =
+document.getElementById("chartTypeBtn");
+
+if(chartTypeBtn){
+
+    chartTypeBtn.onclick=function(){
+
+        insightChartType =
+        insightChartType==="line"
+        ? "candlestick"
+        : "line";
+
+        chartTypeBtn.innerHTML =
+
+        insightChartType==="line"
+
+        ?
+
+        `
+<i class="fa-solid fa-chart-line"></i>
+<span>Line</span>
+`
+
+        :
+
+        `
+<i class="fa-solid fa-chart-column"></i>
+<span>Candlestick</span>
+`;
+
+        renderInsight();
+
+    };
+
+}
+
 let insightCustomStart = null;
 
 let insightCustomEnd = null;
+
+const insightCustomOverlay =
+document.getElementById("insightCustomOverlay");
+
+const insightStartDate =
+document.getElementById("insightStartDate");
+
+const insightEndDate =
+document.getElementById("insightEndDate");
+
+const saveInsightCustom =
+document.getElementById("saveInsightCustom");
+
+const cancelInsightCustom =
+document.getElementById("cancelInsightCustom");
 
 /*======================================
         DEFAULT ICON LIST
@@ -619,13 +672,10 @@ currentIndex=-1;
 function createBank(name, balance = 0){
 
     return{
-
         id: generateId(),
-
         name: name.trim(),
-
-        balance: Number(balance)
-
+        balance: Number(balance),
+        startOfDay: Number(balance)
     };
 
 }
@@ -1046,7 +1096,9 @@ style="width:${percent}%">
 
 <small>
 
+<small>
 ${percent.toFixed(1)}%
+</small>
 
 </small>
 
@@ -1617,6 +1669,373 @@ function createChartData(type){
 
 }
 
+/*======================================
+        CANDLE DATA
+======================================*/
+
+function createCandleData(type){
+
+    const list = getInsightTransactions()
+
+    .filter(tr=>tr.type===type)
+
+    .sort((a,b)=>
+
+        new Date(a.createdAt)-new Date(b.createdAt)
+
+    );
+
+    return list.map((tr,index)=>{
+
+        const prev=index===0
+
+        ? tr.amount
+
+        : list[index-1].amount;
+
+        const date=new Date(tr.createdAt);
+
+        return{
+
+            label:
+
+            date.toLocaleDateString("id-ID")+
+
+            " "+
+
+            date.toLocaleTimeString("id-ID",{
+
+                hour:"2-digit",
+
+                minute:"2-digit"
+
+            }),
+
+            x:index,
+
+            o:prev,
+
+            h:Math.max(prev,tr.amount),
+
+            l:Math.min(prev,tr.amount),
+
+            c:tr.amount
+
+        };
+
+    });
+
+}
+
+/*======================================
+    RENDER INCOME CANDLESTICK
+======================================*/
+
+function renderIncomeCandlestick(ctx,data){
+
+    const candles = data.values.map((value,index)=>{
+
+        const prev =
+        index===0
+        ? value
+        : data.values[index-1];
+
+        return{
+
+            x:index,
+
+            o:prev,
+
+            h:Math.max(prev,value),
+
+            l:Math.min(prev,value),
+
+            c:value
+
+        };
+
+    });
+
+    incomeChart = new Chart(ctx,{
+
+        type:"candlestick",
+
+        data:{
+
+            datasets:[{
+
+                label:"Pemasukan",
+
+                data:candles,
+
+                color:{
+
+                    up:"#16c784",
+
+                    down:"#ef4444",
+
+                    unchanged:"#94a3b8"
+
+                }
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            animation:false,
+
+            plugins:{
+
+                legend:{
+                    display:false
+                }
+
+            },
+
+            scales:{
+
+                x:{
+
+                    type:"linear",
+
+                    ticks:{
+
+                        callback(value){
+
+                            return data.labels[value] || "";
+
+                        }
+
+                    }
+
+                },
+
+                y:{
+
+                    beginAtZero:true,
+
+                    ticks:{
+
+                        callback(value){
+
+                            return formatRupiah(value);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+/*======================================
+    RENDER EXPENSE CANDLESTICK
+======================================*/
+
+function renderExpenseCandlestick(ctx){
+
+    const candles=createCandleData("expense");
+
+    expenseChart=new Chart(ctx,{
+
+        type:"candlestick",
+
+        data:{
+
+            datasets:[{
+
+                label:"Pengeluaran",
+
+                data:candles,
+
+                color:{
+
+                    up:"#ef4444",
+
+                    down:"#ef4444",
+
+                    unchanged:"#ef4444"
+
+                }
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+
+                    display:false
+
+                }
+
+            },
+
+            scales:{
+
+                x:{
+
+                    type:"linear",
+
+                    ticks:{
+
+                        callback(value){
+
+                            return candles[value]?.label||"";
+
+                        }
+
+                    }
+
+                },
+
+                y:{
+
+                    beginAtZero:true,
+
+                    ticks:{
+
+                        callback(value){
+
+                            return formatRupiah(value);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+/*======================================
+    RENDER COMPARE CANDLESTICK
+======================================*/
+
+function renderCompareCandlestick(ctx){
+
+    const income=createChartData("income");
+
+    const expense=createChartData("expense");
+
+    const labels=[
+
+        ...new Set([
+
+            ...income.labels,
+
+            ...expense.labels
+
+        ])
+
+    ];
+
+    const incomeData=labels.map(label=>{
+
+        const i=income.labels.indexOf(label);
+
+        return i>-1
+
+        ? income.values[i]
+
+        : null;
+
+    });
+
+    const expenseData=labels.map(label=>{
+
+        const i=expense.labels.indexOf(label);
+
+        return i>-1
+
+        ? expense.values[i]
+
+        : null;
+
+    });
+
+    compareChart=new Chart(ctx,{
+
+        type:"line",
+
+        data:{
+
+            labels,
+
+            datasets:[
+
+                {
+
+                    label:"Income",
+
+                    data:incomeData,
+
+                    borderColor:"#16c784",
+
+                    borderWidth:2,
+
+                    tension:.35,
+
+                    pointRadius:3
+
+                },
+
+                {
+
+                    label:"Expense",
+
+                    data:expenseData,
+
+                    borderColor:"#ef4444",
+
+                    borderWidth:2,
+
+                    tension:.35,
+
+                    pointRadius:3
+
+                }
+
+            ]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false
+
+        }
+
+    });
+
+}
+
 function renderIncomeChart(){
 
     const ctx =
@@ -1625,6 +2044,14 @@ function renderIncomeChart(){
     if(!ctx) return;
 
     const data = createChartData("income");
+
+    if(insightChartType==="candlestick"){
+
+    renderIncomeCandlestick(ctx,data);
+
+    return;
+
+}
 
     incomeChart = new Chart(ctx,{
 
@@ -1833,6 +2260,14 @@ function renderExpenseChart(){
 
     const data = createChartData("expense");
 
+    if(insightChartType==="candlestick"){
+
+    renderExpenseCandlestick(ctx,data);
+
+    return;
+
+}
+
     expenseChart = new Chart(ctx,{
 
         type:"line",
@@ -2038,6 +2473,14 @@ function renderCompareChart(){
     const income=createChartData("income");
     const expense=createChartData("expense");
 
+    if(insightChartType==="candlestick"){
+
+    renderCompareCandlestick(ctx);
+
+    return;
+
+}
+
     // Gabungkan semua label
     const labels=[
         ...new Set([
@@ -2195,6 +2638,38 @@ function saveData(){
 }
 
 /*======================================
+    RESET SALDO AWAL HARI
+======================================*/
+
+function resetStartOfDay(){
+
+    const today =
+    new Date().toDateString();
+
+    const last =
+    localStorage.getItem("startDay");
+
+    if(last !== today){
+
+        banks.forEach(bank=>{
+
+            bank.startOfDay =
+            bank.balance;
+
+        });
+
+        localStorage.setItem(
+            "startDay",
+            today
+        );
+
+        saveData();
+
+    }
+
+}
+
+/*======================================
             RENDER BANK
 ======================================*/
 
@@ -2212,7 +2687,7 @@ function renderBanks(){
         0
     );
 
-    const percent = totalBalance > 0
+    const balancePercent = totalBalance > 0
         ? (bank.balance / totalBalance) * 100
         : 0;
     // ===== SAMPAI SINI =====
@@ -2224,6 +2699,14 @@ card.className="bank-item";
 card.draggable = false;
 
 card.dataset.id=bank.id;
+
+      const change =
+    bank.balance - bank.startOfDay;
+
+const changePercent =
+    bank.startOfDay > 0
+    ? (change / bank.startOfDay) * 100
+    : 0;
 
         card.innerHTML=`
 
@@ -2239,9 +2722,30 @@ ${bank.name}
 
 </h4>
 
-<span class="bank-balance">
-    ${balanceHidden ? "••••••" : formatRupiah(bank.balance)}
-</span>
+<div class="bank-balance-row">
+
+    <span class="bank-balance">
+        ${balanceHidden ? "••••••" : formatRupiah(bank.balance)}
+    </span>
+
+    <span class="bank-change ${
+        change > 0
+        ? "plus"
+        : change < 0
+        ? "minus"
+        : "zero"
+    }">
+
+        ${
+            change > 0
+            ? "+"
+            : ""
+        }${change > 0 ? "" : ""}
+${changePercent.toFixed(1)}%
+
+    </span>
+
+</div>
 
 </div>
 
@@ -2286,11 +2790,11 @@ class="delete-bank">
 
 <div class="bank-progress">
 
-<div class="bank-progress-fill" style="width:${percent}%"></div>
+<div class="bank-progress-fill" style="width:${balancePercent}%"></div>
 
 </div>
 
-<span>${percent.toFixed(0)}%</span>
+<span>${balancePercent.toFixed(0)}%</span>
 
 </div>
 
@@ -2820,25 +3324,98 @@ document
 .querySelectorAll(".insight-filter button")
 .forEach(btn=>{
 
-    btn.onclick=function(){
+btn.onclick=function(){
 
-        document
-        .querySelectorAll(".insight-filter button")
-        .forEach(item=>{
+const filter=this.dataset.filter;
 
-            item.classList.remove("active");
+if(filter==="custom"){
 
-        });
+insightCustomOverlay.classList.add("show");
 
-        this.classList.add("active");
+return;
 
-        insightFilter=this.dataset.filter;
+}
 
-        renderInsight();
+document
+.querySelectorAll(".insight-filter button")
+.forEach(b=>b.classList.remove("active"));
 
-    };
+this.classList.add("active");
+
+insightFilter=filter;
+
+renderInsight();
+
+};
 
 });
+
+saveInsightCustom.onclick=function(){
+
+if(
+!insightStartDate.value ||
+!insightEndDate.value
+){
+
+showToast(
+"warning",
+"Pilih tanggal."
+);
+
+return;
+
+}
+
+insightCustomStart=
+new Date(insightStartDate.value);
+
+insightCustomEnd=
+new Date(insightEndDate.value);
+
+insightCustomEnd.setHours(
+23,
+59,
+59,
+999
+);
+
+insightFilter="custom";
+
+document
+.querySelectorAll(".insight-filter button")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+if(btn.dataset.filter==="custom"){
+
+btn.classList.add("active");
+
+}
+
+});
+
+insightCustomOverlay.classList.remove("show");
+
+renderInsight();
+
+};
+
+cancelInsightCustom.onclick=function(){
+
+insightCustomOverlay.classList.remove("show");
+
+};
+
+insightCustomOverlay.onclick=function(e){
+
+if(e.target===insightCustomOverlay){
+
+insightCustomOverlay.classList.remove("show");
+
+}
+
+};
 
 /*======================================
         ADD PAGE PICKER
@@ -3595,13 +4172,13 @@ saveTransaction.onclick=function(){
 
     if(selectedTransactionType==="income"){
 
-        bank.balance += amount;
+    bank.balance += amount;
 
-    }else{
+}else{
 
-        bank.balance -= amount;
+    bank.balance -= amount;
 
-    }
+}
 
 }else{
 
@@ -3615,13 +4192,13 @@ saveTransaction.onclick=function(){
 
     if(old.type==="income"){
 
-        oldBank.balance -= old.amount;
+    oldBank.balance -= old.amount;
 
-    }else{
+}else{
 
-        oldBank.balance += old.amount;
+    oldBank.balance += old.amount;
 
-    }
+}
 
     const newBank =
     banks.find(b=>b.id===selectedBankId);
@@ -3635,26 +4212,26 @@ saveTransaction.onclick=function(){
 
         if(old.type==="income"){
 
-            oldBank.balance += old.amount;
+    oldBank.balance -= old.amount;
 
-        }else{
+}else{
 
-            oldBank.balance -= old.amount;
+    oldBank.balance += old.amount;
 
-        }
+}
 
         return;
     }
 
     if(selectedTransactionType==="income"){
 
-        newBank.balance += amount;
+    newBank.balance += amount;
 
-    }else{
+}else{
 
-        newBank.balance -= amount;
+    newBank.balance -= amount;
 
-    }
+}
 
 }
 
@@ -3872,13 +4449,13 @@ function deleteTransaction(id){
 
             if(tr.type==="income"){
 
-                bank.balance -= tr.amount;
+    bank.balance -= tr.amount;
 
-            }else{
+}else{
 
-                bank.balance += tr.amount;
+    bank.balance += tr.amount;
 
-            }
+}
 
         }
 
@@ -4879,21 +5456,333 @@ function renderInsight(){
 
     destroyCharts();
 
-    renderInsightSummary();
+renderInsightSummary();
 
-    renderIncomeChart();
+renderInsightAI();
 
-    renderExpenseChart();
+renderFinancialHealth();
 
-    renderCompareChart();
+renderIncomeChart();
 
-    renderTopCategory();
+renderExpenseChart();
 
-    renderTopBank();
+renderCompareChart();
 
-    renderActivity();
+renderTopCategory();
 
-    renderHistory();
+renderTopBank();
+
+renderActivity();
+
+renderHistory();
+
+}
+
+/*======================================
+        INSIGHT AI
+======================================*/
+
+function renderInsightAI(){
+
+const box=document.getElementById("insightAiList");
+
+if(!box) return;
+
+box.innerHTML="";
+
+const list=getInsightTransactions();
+
+if(list.length===0){
+
+box.innerHTML=`
+
+<div class="empty-box">
+
+Belum ada data transaksi.
+
+</div>
+
+`;
+
+return;
+
+}
+
+let income=0;
+
+let expense=0;
+
+const category={};
+
+const bank={};
+
+list.forEach(tr=>{
+
+if(tr.type==="income") income+=tr.amount;
+
+if(tr.type==="expense") expense+=tr.amount;
+
+if(tr.type!=="transfer"){
+
+category[tr.categoryId]=(category[tr.categoryId]||0)+tr.amount;
+
+bank[tr.bankId]=(bank[tr.bankId]||0)+1;
+
+}
+
+});
+
+const topCategoryId=
+
+Object.keys(category)
+
+.sort((a,b)=>category[b]-category[a])[0];
+
+const topBankId=
+
+Object.keys(bank)
+
+.sort((a,b)=>bank[b]-bank[a])[0];
+
+const topCategory=getCategory(Number(topCategoryId));
+
+const topBank=banks.find(b=>b.id==topBankId);
+
+box.innerHTML+=`
+
+<div class="insight-ai-item">
+
+<i class="fa-solid fa-chart-line"></i>
+
+<div>
+
+<b>Keuangan</b>
+
+<p>
+
+Selisih keuangan Anda
+
+<strong>
+
+${formatRupiah(income-expense)}
+
+</strong>
+
+pada periode ini.
+
+</p>
+
+</div>
+
+</div>
+
+`;
+
+if(topCategory){
+
+box.innerHTML+=`
+
+<div class="insight-ai-item">
+
+<i class="${topCategory.icon}"></i>
+
+<div>
+
+<b>Kategori Terbesar</b>
+
+<p>
+
+Kategori
+
+<strong>
+
+${topCategory.name}
+
+</strong>
+
+menjadi transaksi terbesar.
+
+</p>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+if(topBank){
+
+box.innerHTML+=`
+
+<div class="insight-ai-item">
+
+<i class="fa-solid fa-building-columns"></i>
+
+<div>
+
+<b>Bank Favorit</b>
+
+<p>
+
+Bank
+
+<strong>
+
+${topBank.name}
+
+</strong>
+
+paling sering digunakan.
+
+</p>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+}
+
+/*======================================
+    FINANCIAL HEALTH
+======================================*/
+
+function renderFinancialHealth(){
+
+const list=getInsightTransactions();
+
+let income=0;
+
+let expense=0;
+
+list.forEach(tr=>{
+
+if(tr.type==="income")
+
+income+=tr.amount;
+
+if(tr.type==="expense")
+
+expense+=tr.amount;
+
+});
+
+const saving=
+
+income>0
+
+?
+
+((income-expense)/income)*100
+
+:
+
+0;
+
+const expenseRatio=
+
+income>0
+
+?
+
+(expense/income)*100
+
+:
+
+0;
+
+let score=100;
+
+score-=expenseRatio*.45;
+
+score+=saving*.25;
+
+score=Math.max(
+
+0,
+
+Math.min(
+
+100,
+
+Math.round(score)
+
+)
+
+);
+
+let status="";
+
+if(score>=90){
+
+status="Luar Biasa";
+
+}else if(score>=75){
+
+status="Sangat Baik";
+
+}else if(score>=60){
+
+status="Baik";
+
+}else if(score>=40){
+
+status="Cukup";
+
+}else{
+
+status="Perlu Perbaikan";
+
+}
+
+document.getElementById(
+
+"healthScore"
+
+).textContent=score;
+
+document.getElementById(
+
+"healthStatus"
+
+).textContent=status;
+
+document.getElementById(
+
+"savingRate"
+
+).textContent=
+
+saving.toFixed(1)+"%";
+
+document.getElementById(
+
+"expenseRatio"
+
+).textContent=
+
+expenseRatio.toFixed(1)+"%";
+
+document.getElementById(
+
+"cashFlowStatus"
+
+).textContent=
+
+income>=expense
+
+?
+
+"Positif"
+
+:
+
+"Negatif";
 
 }
 
@@ -5005,7 +5894,7 @@ formatInputRupiah(transferAmount);
 formatInputRupiah(transferFee);
 
 // ===== SAMPAI SINI =====
-
+resetStartOfDay();
 renderBanks();
 
 updateTotalBalance();
