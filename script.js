@@ -3146,7 +3146,10 @@ new Date(b.createdAt)-new Date(a.createdAt)
 
 );
 
-list.forEach(tr=>{
+list.forEach((tr,index)=>{
+
+    // Home hanya 5 transaksi terakhir
+    const showHome = index < 5;
 
       const date = new Date(tr.createdAt);
 
@@ -3231,65 +3234,65 @@ if(date.toDateString()===today.toDateString()){
 
 card.className="transaction-card";
 
-        card.innerHTML=`
+       card.innerHTML = `
 
-<div class="transaction-left">
+<div class="transaction-main">
 
-<div class="transaction-icon ${tr.type}">
+    <div class="transaction-left">
 
-<i class="${icon}"></i>
+        <div class="transaction-icon ${tr.type}">
+            <i class="${icon}"></i>
+        </div>
 
-</div>
+        <div class="transaction-info">
 
-<div>
+            <h3>${title}</h3>
 
-<h3>${title}</h3>
+            <p>${bankText}</p>
 
-<p>${bankText}</p>
+            <small class="transaction-time">
+                ${tr.time}
+            </small>
 
-<small>${tr.time}</small>
+        </div>
 
-</div>
+    </div>
 
-</div>
+    <div class="transaction-right">
 
-<div class="transaction-right">
+        <b class="${amountClass}">
+            ${amountText}
+        </b>
 
-<b class="${amountClass}">
+        <div class="transaction-actions">
 
-${amountText}
+            <button class="edit-btn">
+                <i class="fa-solid fa-pen"></i>
+            </button>
 
-</b>
+            <button class="delete-btn">
+                <i class="fa-solid fa-trash"></i>
+            </button>
 
-<div class="transaction-actions">
+            <button class="menu-btn">
+                <i class="fa-solid fa-ellipsis"></i>
+            </button>
 
-<button
-class="edit-btn">
+        </div>
 
-<i class="fa-solid fa-pen"></i>
-
-</button>
-
-<button
-class="delete-btn">
-
-<i class="fa-solid fa-trash"></i>
-
-</button>
-
-<button
-class="menu-btn">
-
-<i class="fa-solid fa-ellipsis"></i>
-
-</button>
+    </div>
 
 </div>
 
+${`
+<div class="transaction-note-card">
+    <i class="fa-solid fa-note-sticky"></i>
+    <span>${tr.note?.trim() || "-"}</span>
 </div>
+`}
 
 `;
-
+  
       // ===== TAMBAH DARI SINI =====
 if(tr.type==="transfer"){
 
@@ -3409,7 +3412,9 @@ homeMenu.onclick=function(e){
 
 };
 
-homeList.appendChild(homeCard);
+if(showHome){
+    homeList.appendChild(homeCard);
+}
 
     });
 
