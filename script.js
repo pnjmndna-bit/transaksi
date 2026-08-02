@@ -3153,46 +3153,33 @@ function resetStartOfDay(){
 
 }
 
-/*======================================
-            RENDER BANK
-======================================*/
+function createBankCard(bank, manage = false){
 
-function renderBanks(){
-
-    const bankList = document.getElementById("bankList");
-
-    bankList.innerHTML = "";
-
-    banks.forEach(bank=>{
-
-    // ===== TAMBAH DARI SINI =====
     const totalBalance = banks.reduce(
-        (sum, b) => sum + b.balance,
+        (sum,b)=>sum+b.balance,
         0
     );
 
-    const balancePercent = totalBalance > 0
-        ? (bank.balance / totalBalance) * 100
+    const balancePercent =
+        totalBalance>0
+        ? bank.balance/totalBalance*100
         : 0;
-    // ===== SAMPAI SINI =====
+
+    const change =
+        bank.balance-bank.startOfDay;
+
+    const changePercent =
+        bank.startOfDay>0
+        ? (change/bank.startOfDay)*100
+        : 0;
 
     const card=document.createElement("div");
 
-card.className="bank-item";
+    card.className="bank-item";
+    card.draggable = false;
+card.dataset.id = bank.id;
 
-card.draggable = false;
-
-card.dataset.id=bank.id;
-
-      const change =
-    bank.balance - bank.startOfDay;
-
-const changePercent =
-    bank.startOfDay > 0
-    ? (change / bank.startOfDay) * 100
-    : 0;
-
-        card.innerHTML=`
+    card.innerHTML=`
 
 <div class="bank-top">
 
@@ -3208,26 +3195,19 @@ ${bank.name}
 
 <div class="bank-balance-row">
 
-    <span class="bank-balance">
-        ${balanceHidden ? "••••••" : formatRupiah(bank.balance)}
-    </span>
+<span class="bank-balance">
 
-    <span class="bank-change ${
-        change > 0
-        ? "plus"
-        : change < 0
-        ? "minus"
-        : "zero"
-    }">
+${balanceHidden ? "••••••" : formatRupiah(bank.balance)}
 
-        ${
-            change > 0
-            ? "+"
-            : ""
-        }${change > 0 ? "" : ""}
+</span>
+
+<span class="bank-change ${
+change>0?"plus":change<0?"minus":"zero"
+}">
+
 ${changePercent.toFixed(1)}%
 
-    </span>
+</span>
 
 </div>
 
@@ -3235,36 +3215,51 @@ ${changePercent.toFixed(1)}%
 
 <div class="bank-actions">
 
+${
+manage ?
+
+`
+
+<div class="manage-actions">
+
+<button class="rename-bank">
+    <i class="fa-solid fa-pen"></i>
+</button>
+
+<button class="delete-bank">
+    <i class="fa-solid fa-trash"></i>
+</button>
+
+</div>
+
+`
+
+:
+
+`
+
 <button class="bank-action-btn">
-
-<i class="fa-solid fa-ellipsis"></i>
-
+    <i class="fa-solid fa-ellipsis"></i>
 </button>
 
 <div class="bank-action-menu">
 
-<button
-class="view-bank">
+    <button class="view-bank">
+        <i class="fa-regular fa-file-lines"></i>
+    </button>
 
-<i class="fa-regular fa-file-lines"></i>
+    <button class="rename-bank">
+        <i class="fa-solid fa-pen"></i>
+    </button>
 
-</button>
-
-<button
-class="rename-bank">
-
-<i class="fa-solid fa-pen"></i>
-
-</button>
-
-<button
-class="delete-bank">
-
-<i class="fa-solid fa-trash"></i>
-
-</button>
+    <button class="delete-bank">
+        <i class="fa-solid fa-trash"></i>
+    </button>
 
 </div>
+
+`
+}
 
 </div>
 
@@ -3274,7 +3269,11 @@ class="delete-bank">
 
 <div class="bank-progress">
 
-<div class="bank-progress-fill" style="width:${balancePercent}%"></div>
+<div class="bank-progress-fill"
+
+style="width:${balancePercent}%">
+
+</div>
 
 </div>
 
@@ -3283,21 +3282,70 @@ class="delete-bank">
 </div>
 
 `;
+
+    if(manage){
+
+    card.querySelector(".rename-bank").onclick = ()=>renameBank(bank.id);
+
+    card.querySelector(".delete-bank").onclick = ()=>deleteBank(bank.id);
+
+}else{
+
+    card.querySelector(".view-bank").onclick = ()=>viewBank(bank.id);
+
+    card.querySelector(".rename-bank").onclick = ()=>renameBank(bank.id);
+
+    card.querySelector(".delete-bank").onclick = ()=>deleteBank(bank.id);
+
+    // hanya card di Home yang punya menu titik tiga
+    setTimeout(initBankMenu,0);
+
+}
+
+    return card;
+
+}
+
+/*======================================
+            RENDER BANK
+======================================*/
+
+function renderBanks(){
+
+    const bankList = document.getElementById("bankList");
+
+    bankList.innerHTML = "";
+
+    banks.forEach(bank=>{
+
+        const card = createBankCard(bank);
+
+        card.draggable = false;
+        card.dataset.id = bank.id;
+
         bankList.appendChild(card);
-
-      card.querySelector(".view-bank").onclick = () => viewBank(bank.id);
-
-card.querySelector(".rename-bank").onclick = () => renameBank(bank.id);
-
-card.querySelector(".delete-bank").onclick = () => deleteBank(bank.id);
 
     });
 
     bankList.appendChild(createAddButton());
 
-initBankMenu();
+    initBankMenu();
 
-initBankDrag();
+    initBankDrag();
+
+}
+
+function renderManageBank(){
+
+    manageList.innerHTML="";
+
+    banks.forEach(bank=>{
+
+        manageList.appendChild(
+            createBankCard(bank,true)
+        );
+
+    });
 
 }
 
@@ -3510,6 +3558,12 @@ const viewExpense = document.getElementById("viewExpense");
 
 const viewTotalTransaction = document.getElementById("viewTotalTransaction");
 
+const manageOverlay =
+document.getElementById("manageBankOverlay");
+
+const manageList =
+document.getElementById("manageBankList");
+
 let deleteBankId = null;
 
 let editingBankId = null;
@@ -3572,12 +3626,14 @@ modalSave.onclick = function(){
     saveData();
 
 renderBanks();
+renderManageBank();
 
 updateTotalBalance();
 
 renderSummary();
 renderIncomeAnalysis();
 renderAnalysis();
+renderProfile();
 
 closeModal();
   
@@ -3595,10 +3651,12 @@ deleteConfirm.onclick = function(){
 
         saveData();
         renderBanks();
+        renderManageBank();
         updateTotalBalance();
         renderSummary();
         renderIncomeAnalysis();
         renderAnalysis();
+        renderProfile();
         renderTransactions();
 
     }else if(deleteTransactionId !== null){
@@ -3657,6 +3715,40 @@ deleteOverlay.onclick = function(e){
         closeDeleteModal();
 
     }
+
+};
+
+document
+.getElementById("openManageBank")
+.onclick = function(){
+
+    renderManageBank();
+
+    manageOverlay.classList.add("show");
+
+};
+
+manageOverlay.onclick = function(e){
+
+    if(e.target===manageOverlay){
+
+        manageOverlay.classList.remove("show");
+
+    }
+
+};
+
+document
+.getElementById("manageAddBank")
+.onclick=function(){
+
+    manageOverlay.classList.remove("show");
+
+    setTimeout(()=>{
+
+        addBank();
+
+    },300);
 
 };
 
@@ -4765,6 +4857,7 @@ updateTotalBalance();
 renderSummary();
 renderIncomeAnalysis();
 renderAnalysis();
+renderProfile();
 
 renderTransactions();
 
@@ -4956,6 +5049,7 @@ function deleteTransaction(id){
     renderSummary();
     renderIncomeAnalysis();
     renderAnalysis();
+    renderProfile();
 
     renderTransactions();
 
@@ -5884,6 +5978,7 @@ updateTotalBalance();
 renderSummary();
 renderIncomeAnalysis();
 renderAnalysis();
+renderProfile();
 
 renderTransactions();
 
@@ -6151,43 +6246,45 @@ function renderFinancialHealth(){
     });
 
     const savingRate =
-        income>0
-        ? ((income-expense)/income)*100
+        income > 0
+        ? ((income - expense) / income) * 100
         : 0;
 
     const expenseRatio =
-        income>0
-        ? (expense/income)*100
+        income > 0
+        ? (expense / income) * 100
         : 0;
 
     let score = 100;
 
-    // Penalti berdasarkan Expense Ratio
-    if(expenseRatio<=30){
+    // =========================
+    // Expense Ratio
+    // =========================
+    if(expenseRatio <= 30){
 
         score = 100;
 
-    }else if(expenseRatio<=40){
+    }else if(expenseRatio <= 40){
 
-        score = 90;
+        score = 95;
 
-    }else if(expenseRatio<=50){
+    }else if(expenseRatio <= 50){
 
-        score = 80;
+        score = 85;
 
-    }else if(expenseRatio<=60){
+    }else if(expenseRatio <= 60){
 
-        score = 70;
+        score = 75;
 
-    }else if(expenseRatio<=70){
+    }else if(expenseRatio <= 70){
 
         score = 60;
 
-    }else if(expenseRatio<=80){
+    }else if(expenseRatio <= 80){
 
         score = 45;
 
-    }else if(expenseRatio<=100){
+    }else if(expenseRatio <= 100){
 
         score = 25;
 
@@ -6197,59 +6294,100 @@ function renderFinancialHealth(){
 
     }
 
-    // Bonus jika saving tinggi
-    if(savingRate>=40){
+    // =========================
+    // Bonus / Penalti Saving
+    // =========================
+    if(savingRate >= 40){
 
         score += 5;
 
-    }else if(savingRate<0){
+    }else if(savingRate >= 20){
+
+        score += 2;
+
+    }else if(savingRate < 0){
 
         score -= 10;
 
     }
 
-    score = Math.max(0,Math.min(100,Math.round(score)));
+    score = Math.max(0, Math.min(100, Math.round(score)));
 
-    let status="";
+    let status = "";
 
-    if(score>=95){
+    if(score >= 95){
 
-        status="Sangat Sehat";
+        status = "Sangat Sehat";
 
-    }else if(score>=85){
+    }else if(score >= 85){
 
-        status="Sehat";
+        status = "Sehat";
 
-    }else if(score>=75){
+    }else if(score >= 75){
 
-        status="Baik";
+        status = "Baik";
 
-    }else if(score>=60){
+    }else if(score >= 60){
 
-        status="Cukup";
+        status = "Cukup";
 
-    }else if(score>=40){
+    }else if(score >= 40){
 
-        status="Buruk";
+        status = "Buruk";
 
     }else{
 
-        status="Sangat Buruk";
+        status = "Sangat Buruk";
+
+    }
+
+    // =========================
+    // Warna Status
+    // =========================
+
+    const healthStatus =
+    document.getElementById("healthStatus");
+
+    healthStatus.className = "health-status";
+
+    if(score >= 95){
+
+        healthStatus.classList.add("excellent");
+
+    }else if(score >= 85){
+
+        healthStatus.classList.add("good");
+
+    }else if(score >= 75){
+
+        healthStatus.classList.add("good");
+
+    }else if(score >= 60){
+
+        healthStatus.classList.add("fair");
+
+    }else if(score >= 40){
+
+        healthStatus.classList.add("bad");
+
+    }else{
+
+        healthStatus.classList.add("danger");
 
     }
 
     document.getElementById("healthScore").textContent = score;
 
-    document.getElementById("healthStatus").textContent = status;
+    healthStatus.textContent = status;
 
     document.getElementById("savingRate").textContent =
-        savingRate.toFixed(1)+"%";
+        savingRate.toFixed(1) + "%";
 
     document.getElementById("expenseRatio").textContent =
-        expenseRatio.toFixed(1)+"%";
+        expenseRatio.toFixed(1) + "%";
 
     document.getElementById("cashFlowStatus").textContent =
-        income>=expense
+        income >= expense
         ? "Positif"
         : "Negatif";
 
@@ -6316,6 +6454,202 @@ document.getElementById("seeAllTransaction").onclick = function(){
     .classList.add("active");
 
 };
+
+/*======================================
+        PROFILE
+======================================*/
+
+function renderProfile(){
+
+    // Total saldo semua bank
+    const saldo = banks.reduce(
+        (sum, bank) => sum + bank.balance,
+        0
+    );
+
+    // Sementara
+    const investasi = 0;
+
+    const now = new Date();
+
+let growth = 0;
+
+transactions.forEach(tr=>{
+
+    if(tr.type==="transfer") return;
+
+    const date = new Date(tr.createdAt);
+
+    if(
+        date.getMonth()===now.getMonth() &&
+        date.getFullYear()===now.getFullYear()
+    ){
+
+        if(tr.type==="income"){
+
+            growth += tr.amount;
+
+        }else{
+
+            growth -= tr.amount;
+
+        }
+
+    }
+
+});
+  
+    const piutang = 0;
+    const hutang = 0;
+
+    const totalAsset =
+        saldo +
+        investasi +
+        piutang -
+        hutang;
+
+    // Total Kekayaan
+    document.getElementById("totalAsset").textContent =
+        formatRupiah(totalAsset);
+
+    document.getElementById("assetBalance").textContent =
+        formatRupiah(saldo);
+
+    document.getElementById("assetInvestment").textContent =
+        formatRupiah(investasi);
+
+    document.getElementById("assetReceivable").textContent =
+        formatRupiah(piutang);
+
+    document.getElementById("assetDebt").textContent =
+        formatRupiah(hutang);
+
+const growthText = document.getElementById("assetGrowth");
+
+if(growthText){
+
+    growthText.textContent =
+        (growth >= 0 ? "▲ " : "▼ ") +
+        formatRupiah(Math.abs(growth)) +
+        " Bulan Ini";
+
+}
+
+    // Statistik
+    const today = new Date();
+
+    let todayCash = 0;
+    let monthCash = 0;
+
+    transactions.forEach(tr=>{
+
+        if(tr.type==="transfer") return;
+
+        const date = new Date(tr.createdAt);
+
+        const value =
+            tr.type==="income"
+            ? tr.amount
+            : -tr.amount;
+
+        if(date.toDateString()===today.toDateString()){
+
+            todayCash += value;
+
+        }
+
+        if(
+            date.getMonth()===today.getMonth() &&
+            date.getFullYear()===today.getFullYear()
+        ){
+
+            monthCash += value;
+
+        }
+
+    });
+
+    document.getElementById("todayCashflow").textContent =
+        formatRupiah(todayCash);
+
+    document.getElementById("monthCashflow").textContent =
+        formatRupiah(monthCash);
+
+    document.getElementById("profileTransaction").textContent =
+        transactions.length;
+
+    document.getElementById("profileBank").textContent =
+        banks.length;
+
+  const insightBox =
+document.getElementById("profileInsightList");
+
+if(insightBox){
+
+    let income = 0;
+    let expense = 0;
+
+    transactions.forEach(tr=>{
+
+        if(tr.type==="income") income += tr.amount;
+
+        if(tr.type==="expense") expense += tr.amount;
+
+    });
+
+    let title = "";
+    let desc = "";
+    let icon = "";
+
+    if(transactions.length===0){
+
+        title = "Belum ada data";
+
+        desc =
+        "Tambahkan transaksi pertama untuk mendapatkan analisis.";
+
+        icon = "fa-solid fa-sparkles";
+
+    }else if(income > expense){
+
+        title = "Keuangan Sehat";
+
+        desc =
+        "Pemasukan lebih besar dari pengeluaran.";
+
+        icon = "fa-solid fa-arrow-trend-up";
+
+    }else if(expense > income){
+
+        title = "Pengeluaran Tinggi";
+
+        desc =
+        "Pengeluaran melebihi pemasukan.";
+
+        icon = "fa-solid fa-triangle-exclamation";
+
+    }else{
+
+        title = "Cashflow Stabil";
+
+        desc =
+        "Pemasukan dan pengeluaran seimbang.";
+
+        icon = "fa-solid fa-scale-balanced";
+
+    }
+
+    insightBox.innerHTML = `
+    <div class="profile-insight">
+        <i class="${icon}"></i>
+        <div>
+            <b>${title}</b>
+            <span>${desc}</span>
+        </div>
+    </div>`;
+}
+
+}
 
 /*======================================
             INIT APP
@@ -6385,3 +6719,5 @@ updateSummaryDate();
 updateLastUpdate();
 
 renderInsight();
+
+renderProfile();
