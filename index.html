@@ -1093,7 +1093,7 @@ Belum ada data
         <div class="card-title">
 
             <h3>
-                Income vs Expense
+                Pergerakan Total Saldo
             </h3>
 
         </div>
@@ -1232,13 +1232,358 @@ Belum ada data
 
 <section id="profilePage" class="page">
 
-<div class="page-header">
+<div class="profile-page">
 
-<h2>Profil</h2>
+    <!-- HEADER -->
+
+    <div class="profile-header">
+
+        <h2>Profil</h2>
+
+        <button class="profile-setting">
+
+            <i class="fa-solid fa-gear"></i>
+
+        </button>
+
+    </div>
+
+    <!-- PROFILE CARD -->
+
+    <div class="profile-card">
+
+        <img
+        src="assets/avatar.png"
+        class="profile-avatar">
+
+        <div class="profile-info">
+
+            <h3 id="profileName">
+
+                April Saputra
+
+            </h3>
+
+            <span>
+
+                Personal Finance Tracker
+
+            </span>
+
+        </div>
+
+    </div>
+
+<div class="asset-card">
+
+    <small>Total Kekayaan</small>
+
+    <h1 id="totalAsset">
+        Rp0
+    </h1>
+
+    <span id="assetGrowth">
+        ▲ Rp0 Bulan Ini
+    </span>
+
+    <div class="asset-slider">
+
+        <div class="asset-mini">
+
+            <div class="asset-top">
+
+                <i class="fa-solid fa-wallet"></i>
+
+                <span>Saldo</span>
+
+            </div>
+
+            <div class="asset-value" id="assetBalance">
+                Rp0
+            </div>
+
+        </div>
+
+        <div class="asset-mini">
+
+            <div class="asset-top">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>Investasi</span>
+
+            </div>
+
+            <div class="asset-value" id="assetInvestment">
+                Rp0
+            </div>
+
+        </div>
+
+        <div class="asset-mini">
+
+            <div class="asset-top">
+
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+
+                <span>Piutang</span>
+
+            </div>
+
+            <div class="asset-value" id="assetReceivable">
+                Rp0
+            </div>
+
+        </div>
+
+        <div class="asset-mini">
+
+            <div class="asset-top">
+
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+
+                <span>Hutang</span>
+
+            </div>
+
+            <div class="asset-value" id="assetDebt">
+                Rp0
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <!-- QUICK MENU -->
+
+    <div class="profile-section">
+
+        <h3>Akses Cepat</h3>
+
+        <div class="quick-grid">
+
+            <button class="quick-item">
+
+                <i class="fa-solid fa-robot"></i>
+
+                <span>AI Finance</span>
+
+            </button>
+
+            <button class="quick-item">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>Investasi</span>
+
+            </button>
+
+            <button class="quick-item">
+
+                <i class="fa-solid fa-handshake"></i>
+
+                <span>Hutang Piutang</span>
+
+            </button>
+
+            <button class="quick-item" id="openManageBank">
+
+<i class="fa-solid fa-building-columns"></i>
+
+<span>Kelola Bank</span>
+
+</button>
+
+            <button class="quick-item">
+
+                <i class="fa-solid fa-chart-pie"></i>
+
+                <span>Laporan</span>
+
+            </button>
+
+            <button class="quick-item">
+
+                <i class="fa-solid fa-bullseye"></i>
+
+                <span>Target</span>
+
+            </button>
+
+            <button class="quick-item">
+
+                <i class="fa-solid fa-bell"></i>
+
+                <span>Pengingat</span>
+
+            </button>
+
+            <button class="quick-item">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>Pengaturan</span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- TARGET -->
+
+    <div class="profile-section">
+
+        <div class="section-head">
+
+            <h3>Target</h3>
+
+            <span>Lihat Semua</span>
+
+        </div>
+
+        <div class="goal-card">
+
+            <div class="goal-top">
+
+                <b>Dana Darurat</b>
+
+                <span>80%</span>
+
+            </div>
+
+            <div class="goal-progress">
+
+                <div class="goal-fill" style="width:80%"></div>
+
+            </div>
+
+            <small>
+
+                Rp8.000.000 / Rp10.000.000
+
+            </small>
+
+        </div>
+
+    </div>
+
+    <!-- AI INSIGHT -->
+
+    <div class="profile-section">
+
+        <h3>Insight Hari Ini</h3>
+
+        <div id="profileInsightList">
+
+            <div class="profile-insight">
+
+                <i class="fa-solid fa-sparkles"></i>
+
+                <div>
+
+                    <b>Belum ada data</b>
+
+                    <span>
+
+                        Insight akan muncul setelah ada transaksi.
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- STATISTIK -->
+
+    <div class="profile-section">
+
+        <h3>Statistik</h3>
+
+        <div class="profile-stat-grid">
+
+            <div>
+
+                <small>Hari Ini</small>
+
+                <b id="todayCashflow">
+
+                    Rp0
+
+                </b>
+
+            </div>
+
+            <div>
+
+                <small>Bulan Ini</small>
+
+                <b id="monthCashflow">
+
+                    Rp0
+
+                </b>
+
+            </div>
+
+            <div>
+
+                <small>Total Transaksi</small>
+
+                <b id="profileTransaction">
+
+                    0
+
+                </b>
+
+            </div>
+
+            <div>
+
+                <small>Bank</small>
+
+                <b id="profileBank">
+
+                    0
+
+                </b>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div style="height:120px;"></div>
 
 </div>
 
 </section>
+
+<div class="modal-overlay" id="manageBankOverlay">
+
+    <div class="modal-sheet manage-bank-sheet">
+
+        <div class="modal-handle"></div>
+
+        <h2>Kelola Bank</h2>
+
+        <div id="manageBankList" class="manage-bank-list"></div>
+
+        <button id="manageAddBank" class="primary-btn">
+            <i class="fa-solid fa-plus"></i>
+            Tambah Bank
+        </button>
+
+    </div>
+
+</div>
   
 <!-- ========================= -->
 <!-- BOTTOM NAV -->
