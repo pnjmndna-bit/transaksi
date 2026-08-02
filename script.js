@@ -1551,7 +1551,7 @@ function renderHistory(){
 
 let incomeChart=null;
 let expenseChart=null;
-let compareChart=null;
+let balanceChart=null;
 
 function destroyCharts(){
 
@@ -1571,13 +1571,13 @@ function destroyCharts(){
 
     }
 
-    if(compareChart){
+    if(balanceChart){
 
-        compareChart.destroy();
+    balanceChart.destroy();
 
-        compareChart=null;
+    balanceChart=null;
 
-    }
+}
 
 }
 
@@ -1666,6 +1666,419 @@ function createChartData(type){
         labels,
         values
     };
+
+}
+
+/*======================================
+        BALANCE HISTORY
+======================================*/
+
+function getRunningBalanceHistory(){
+
+    const list = getInsightTransactions()
+
+    .slice()
+
+    .sort((a,b)=>
+        new Date(a.createdAt) -
+        new Date(b.createdAt)
+    );
+
+    let balance = 0;
+
+    const history = [];
+
+    list.forEach(tr=>{
+
+        if(tr.type==="income"){
+
+            balance += tr.amount;
+
+        }else if(tr.type==="expense"){
+
+            balance -= tr.amount;
+
+        }else if(tr.type==="transfer"){
+
+            return;
+        }
+
+        history.push({
+
+            balance,
+
+            createdAt:tr.createdAt
+
+        });
+
+    });
+
+    return history;
+
+}
+
+/*======================================
+        BALANCE CHART DATA
+======================================*/
+
+function createBalanceChartData(){
+
+    const history = getRunningBalanceHistory();
+
+    const labels = [];
+    const values = [];
+
+    if(
+        insightFilter==="today" ||
+        insightFilter==="week"
+    ){
+
+        history.forEach(item=>{
+
+            labels.push(
+                getBalanceLabel(
+                    new Date(item.createdAt)
+                )
+            );
+
+            values.push(item.balance);
+
+        });
+
+    }else{
+
+        const grouped={};
+
+        history.forEach(item=>{
+
+            const date=new Date(item.createdAt);
+
+            let key="";
+
+            if(
+                insightFilter==="month" ||
+                insightFilter==="custom"
+            ){
+
+                key=date.toLocaleDateString("id-ID");
+
+            }else{
+
+                key=
+                date.getFullYear()+
+                "-"+
+                (date.getMonth()+1);
+
+            }
+
+            grouped[key]={
+
+                createdAt:item.createdAt,
+
+                balance:item.balance
+
+            };
+
+        });
+
+        Object.values(grouped).forEach(item=>{
+
+            labels.push(
+                getBalanceLabel(
+                    new Date(item.createdAt)
+                )
+            );
+
+            values.push(item.balance);
+
+        });
+
+    }
+
+    return{
+
+        labels,
+        values
+
+    };
+
+}
+
+/*======================================
+        BALANCE LABEL
+======================================*/
+
+function getBalanceLabel(date){
+
+    switch(insightFilter){
+
+        case "today":
+
+            return date.toLocaleTimeString("id-ID",{
+                hour:"2-digit",
+                minute:"2-digit"
+            });
+
+        case "week":
+
+            return date.toLocaleDateString("id-ID",{
+                weekday:"short"
+            });
+
+        case "month":
+
+            return date.getDate().toString();
+
+        case "year":
+
+            return date.toLocaleDateString("id-ID",{
+                month:"short"
+            });
+
+        case "custom":
+
+            return date.toLocaleDateString("id-ID",{
+                day:"numeric",
+                month:"short"
+            });
+
+        default:
+
+            return date.toLocaleDateString("id-ID");
+
+    }
+
+}
+
+/*======================================
+      BALANCE CANDLE DATA
+======================================*/
+
+function createBalanceCandleData(){
+
+    const history = getRunningBalanceHistory();
+
+    if(history.length===0) return [];
+
+    // TODAY & WEEK
+    if(
+        insightFilter==="today" ||
+        insightFilter==="week"
+    ){
+
+        return history.map((item,index)=>{
+
+            const prev =
+                index===0
+                ? 0
+                : history[index-1].balance;
+
+            const open = prev;
+            const close = item.balance;
+
+            return{
+
+                x:index,
+
+                label:getBalanceLabel(
+                    new Date(item.createdAt)
+                ),
+
+                o:open,
+                h:Math.max(open,close),
+                l:Math.min(open,close),
+                c:close
+
+            };
+
+        });
+
+    }
+
+    // MONTH / YEAR / CUSTOM
+
+    const groups={};
+
+    history.forEach(item=>{
+
+        const date=new Date(item.createdAt);
+
+        let key="";
+
+        if(
+            insightFilter==="month" ||
+            insightFilter==="custom"
+        ){
+
+            key=date.toLocaleDateString("id-ID");
+
+        }else{
+
+            key=
+            date.getFullYear()+"-"+(date.getMonth()+1);
+
+        }
+
+        if(!groups[key]){
+
+            groups[key]={
+
+                createdAt:item.createdAt,
+
+                values:[]
+
+            };
+
+        }
+
+        groups[key].values.push(item.balance);
+
+    });
+
+    return Object.values(groups).map((group,index)=>{
+
+        const values=group.values;
+
+        return{
+
+            x:index,
+
+            label:getBalanceLabel(
+                new Date(group.createdAt)
+            ),
+
+            o:values[0],
+
+            h:Math.max(...values),
+
+            l:Math.min(...values),
+
+            c:values[values.length-1]
+
+        };
+
+    });
+
+}
+
+/*======================================
+    RENDER BALANCE CANDLESTICK
+======================================*/
+
+function renderBalanceCandlestick(ctx){
+
+    const candles=createBalanceCandleData();
+
+    balanceChart=new Chart(ctx,{
+
+        type:"candlestick",
+
+        data:{
+
+            datasets:[{
+
+                label:"Saldo",
+
+                data:candles,
+
+                color:{
+
+                    up:"#16c784",
+
+                    down:"#ef4444",
+
+                    unchanged:"#94a3b8"
+
+                }
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+                    display:false
+                },
+
+                tooltip:{
+
+                    callbacks:{
+
+                        title(items){
+
+                            return candles[
+                                items[0].parsed.x
+                            ]?.label || "";
+
+                        },
+
+                        label(context){
+
+                            const c=context.raw;
+
+                            return[
+                                "Open : "+formatRupiah(c.o),
+                                "High : "+formatRupiah(c.h),
+                                "Low : "+formatRupiah(c.l),
+                                "Close : "+formatRupiah(c.c)
+                            ];
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            scales:{
+
+    x:{
+
+        type:"linear",
+
+        offset:true,
+
+        ticks:{
+
+            callback(value){
+
+                return candles[value]
+                    ? candles[value].label
+                    : "";
+
+            }
+
+        }
+
+    },
+
+    y:{
+
+        ticks:{
+
+            callback(value){
+
+                return formatRupiah(value);
+
+            }
+
+        }
+
+    }
+
+}
+
+        }
+
+    });
 
 }
 
@@ -2464,73 +2877,144 @@ pointHitRadius:18,
 
 }
 
-function renderCompareChart(){
+function renderBalanceChart(){
 
-    const ctx=document.getElementById("compareChart");
+    const ctx = document.getElementById("compareChart");
 
     if(!ctx) return;
 
-    const income=createChartData("income");
-    const expense=createChartData("expense");
+    const data = createBalanceChartData();
 
     if(insightChartType==="candlestick"){
 
-    renderCompareCandlestick(ctx);
+        renderBalanceCandlestick(ctx);
 
-    return;
+        return;
 
-}
+    }
 
-    // Gabungkan semua label
-    const labels=[
-        ...new Set([
-            ...income.labels,
-            ...expense.labels
-        ])
-    ];
+    balanceChart = new Chart(ctx,{
 
-    const incomeData=labels.map(label=>{
-        const i=income.labels.indexOf(label);
-        return i>-1 ? income.values[i] : 0;
-    });
-
-    const expenseData=labels.map(label=>{
-        const i=expense.labels.indexOf(label);
-        return i>-1 ? expense.values[i] : 0;
-    });
-
-    compareChart=new Chart(ctx,{
         type:"line",
 
         data:{
-            labels,
-            datasets:[
-                {
-                    label:"Income",
-                    data:incomeData,
-                    borderColor:"#16c784",
-                    backgroundColor:"rgba(22,199,132,.15)",
-                    fill:false,
-                    tension:.4,
-                    borderWidth:2,
-                    pointRadius:3
+
+            labels:data.labels,
+
+            datasets:[{
+
+                label:"Saldo",
+
+                data:data.values,
+
+                borderColor:"#3b82f6",
+
+                backgroundColor(context){
+
+                    const chart=context.chart;
+
+                    const area=chart.chartArea;
+
+                    if(!area) return;
+
+                    const gradient=
+
+                    chart.ctx.createLinearGradient(
+
+                        0,
+
+                        area.top,
+
+                        0,
+
+                        area.bottom
+
+                    );
+
+                    gradient.addColorStop(
+                        0,
+                        "rgba(59,130,246,.28)"
+                    );
+
+                    gradient.addColorStop(
+                        1,
+                        "rgba(59,130,246,0)"
+                    );
+
+                    return gradient;
+
                 },
-                {
-                    label:"Expense",
-                    data:expenseData,
-                    borderColor:"#ef4444",
-                    backgroundColor:"rgba(239,68,68,.15)",
-                    fill:false,
-                    tension:.4,
-                    borderWidth:2,
-                    pointRadius:3
-                }
-            ]
+
+                fill:true,
+
+                tension:.35,
+
+                borderWidth:2,
+
+                pointRadius:3,
+
+                pointHoverRadius:7
+
+            }]
+
         },
 
         options:{
+
             responsive:true,
-            maintainAspectRatio:false
+
+            maintainAspectRatio:false,
+
+            interaction:{
+
+                mode:"index",
+
+                intersect:false
+
+            },
+
+            plugins:{
+
+                legend:{
+                    display:false
+                },
+
+                tooltip:{
+
+                    callbacks:{
+
+                        label(ctx){
+
+                            return "Saldo : " +
+
+                            formatRupiah(ctx.parsed.y);
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            scales:{
+
+                y:{
+
+                    ticks:{
+
+                        callback(value){
+
+                            return formatRupiah(value);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
         }
 
     });
@@ -5466,7 +5950,7 @@ renderIncomeChart();
 
 renderExpenseChart();
 
-renderCompareChart();
+renderBalanceChart();
 
 renderTopCategory();
 
@@ -5654,135 +6138,120 @@ paling sering digunakan.
 
 function renderFinancialHealth(){
 
-const list=getInsightTransactions();
+    const list = getInsightTransactions();
 
-let income=0;
+    let income = 0;
+    let expense = 0;
 
-let expense=0;
+    list.forEach(tr=>{
 
-list.forEach(tr=>{
+        if(tr.type==="income") income += tr.amount;
+        if(tr.type==="expense") expense += tr.amount;
 
-if(tr.type==="income")
+    });
 
-income+=tr.amount;
+    const savingRate =
+        income>0
+        ? ((income-expense)/income)*100
+        : 0;
 
-if(tr.type==="expense")
+    const expenseRatio =
+        income>0
+        ? (expense/income)*100
+        : 0;
 
-expense+=tr.amount;
+    let score = 100;
 
-});
+    // Penalti berdasarkan Expense Ratio
+    if(expenseRatio<=30){
 
-const saving=
+        score = 100;
 
-income>0
+    }else if(expenseRatio<=40){
 
-?
+        score = 90;
 
-((income-expense)/income)*100
+    }else if(expenseRatio<=50){
 
-:
+        score = 80;
 
-0;
+    }else if(expenseRatio<=60){
 
-const expenseRatio=
+        score = 70;
 
-income>0
+    }else if(expenseRatio<=70){
 
-?
+        score = 60;
 
-(expense/income)*100
+    }else if(expenseRatio<=80){
 
-:
+        score = 45;
 
-0;
+    }else if(expenseRatio<=100){
 
-let score=100;
+        score = 25;
 
-score-=expenseRatio*.45;
+    }else{
 
-score+=saving*.25;
+        score = 5;
 
-score=Math.max(
+    }
 
-0,
+    // Bonus jika saving tinggi
+    if(savingRate>=40){
 
-Math.min(
+        score += 5;
 
-100,
+    }else if(savingRate<0){
 
-Math.round(score)
+        score -= 10;
 
-)
+    }
 
-);
+    score = Math.max(0,Math.min(100,Math.round(score)));
 
-let status="";
+    let status="";
 
-if(score>=90){
+    if(score>=95){
 
-status="Luar Biasa";
+        status="Sangat Sehat";
 
-}else if(score>=75){
+    }else if(score>=85){
 
-status="Sangat Baik";
+        status="Sehat";
 
-}else if(score>=60){
+    }else if(score>=75){
 
-status="Baik";
+        status="Baik";
 
-}else if(score>=40){
+    }else if(score>=60){
 
-status="Cukup";
+        status="Cukup";
 
-}else{
+    }else if(score>=40){
 
-status="Perlu Perbaikan";
+        status="Buruk";
 
-}
+    }else{
 
-document.getElementById(
+        status="Sangat Buruk";
 
-"healthScore"
+    }
 
-).textContent=score;
+    document.getElementById("healthScore").textContent = score;
 
-document.getElementById(
+    document.getElementById("healthStatus").textContent = status;
 
-"healthStatus"
+    document.getElementById("savingRate").textContent =
+        savingRate.toFixed(1)+"%";
 
-).textContent=status;
+    document.getElementById("expenseRatio").textContent =
+        expenseRatio.toFixed(1)+"%";
 
-document.getElementById(
-
-"savingRate"
-
-).textContent=
-
-saving.toFixed(1)+"%";
-
-document.getElementById(
-
-"expenseRatio"
-
-).textContent=
-
-expenseRatio.toFixed(1)+"%";
-
-document.getElementById(
-
-"cashFlowStatus"
-
-).textContent=
-
-income>=expense
-
-?
-
-"Positif"
-
-:
-
-"Negatif";
+    document.getElementById("cashFlowStatus").textContent =
+        income>=expense
+        ? "Positif"
+        : "Negatif";
 
 }
 
