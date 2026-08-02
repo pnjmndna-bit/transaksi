@@ -1,3 +1,6 @@
+
+"use strict";
+
 const banks = JSON.parse(
 localStorage.getItem("banks") || "[]"
 );
@@ -6,35 +9,18 @@ const categories = JSON.parse(
 localStorage.getItem("categories") || "{}"
 );
 
+const transactions = JSON.parse(
+localStorage.getItem("transactions") || "[]"
+);
+
 const allCategories = [
-
 ...(categories.income || []),
-
 ...(categories.expense || [])
-
 ];
-
-let pendingTransaction = {
-
-type:null,
-
-amount:null,
-
-bank:null,
-
-category:null,
-
-note:null,
-
-date:new Date()
-
-};
 
 let pendingTransactions = [];
 
-/*======================================
-            ELEMENT
-======================================*/
+let isTyping = false;
 
 const chatContainer =
 document.getElementById("chatContainer");
@@ -48,125 +34,159 @@ document.getElementById("sendBtn");
 const backBtn =
 document.getElementById("backBtn");
 
-/*======================================
-            BACK
-======================================*/
+backBtn.onclick = () => {
 
-backBtn.onclick=()=>{
-
-history.back();
+    window.location.href = "index.html";
 
 };
 
-/*======================================
-            MESSAGE
-======================================*/
+function scrollBottom(){
+
+chatContainer.scrollTop =  
+chatContainer.scrollHeight;
+
+}
+
+function escapeHtml(text){
+
+return String(text)  
+.replace(/&/g,"&amp;")  
+.replace(/</g,"&lt;")  
+.replace(/>/g,"&gt;");
+
+}
+
+function formatRupiah(number){
+
+if(!number) return "";  
+
+return Number(number)  
+.toLocaleString("id-ID");
+
+}
+
+function nowTime(){
+
+return new Date().toLocaleTimeString(  
+    "id-ID",  
+    {  
+        hour:"2-digit",  
+        minute:"2-digit"  
+    }  
+);
+
+}
+
+function generateId(){
+
+return Date.now() +  
+Math.floor(Math.random()*99999);
+
+}
 
 function addUserMessage(text){
 
-const time=new Date().toLocaleTimeString("id-ID",{
-hour:"2-digit",
-minute:"2-digit"
-});
+const wrapper =  
+document.createElement("div");  
 
-const wrapper=document.createElement("div");
+wrapper.className = "message user";  
 
-wrapper.className="message user";
+wrapper.innerHTML = `  
 
-wrapper.innerHTML=`
+<div class="bubble">  
 
-<div class="bubble">
+    ${escapeHtml(text)}  
 
-${text}
+    <div class="message-time">  
 
-<div class="message-time">
-${time}
-</div>
+        ${nowTime()}  
 
-</div>
+    </div>  
 
-`;
+</div>  
 
-chatContainer.appendChild(wrapper);
+`;  
+
+chatContainer.appendChild(wrapper);  
 
 scrollBottom();
 
 }
 
-function addAIMessage(text){
+function addAIMessage(html){
 
-const time=new Date().toLocaleTimeString("id-ID",{
-hour:"2-digit",
-minute:"2-digit"
-});
+const wrapper =  
+document.createElement("div");  
 
-const wrapper=document.createElement("div");
+wrapper.className = "message ai";  
 
-wrapper.className="message ai";
+wrapper.innerHTML = `  
 
-wrapper.innerHTML=`
+<div class="avatar">  
 
-<div class="avatar">
+    <img src="assets/apxx-ai.png">  
 
-<img src="assets/apxx-ai.png">
+</div>  
 
-</div>
+<div class="bubble">  
 
-<div class="bubble">
+    <div class="ai-name">  
 
-<div class="ai-name">
-Apxx AI
-</div>
+        Apxx AI  
 
-${text}
+    </div>  
 
-<div class="message-time">
-${time}
-</div>
+    ${html}  
 
-</div>
+    <div class="message-time">  
 
-`;
+        ${nowTime()}  
 
-chatContainer.appendChild(wrapper);
+    </div>  
+
+</div>  
+
+`;  
+
+chatContainer.appendChild(wrapper);  
 
 scrollBottom();
 
 }
 
-/*======================================
-            TYPING
-======================================*/
-
-let typingBox=null;
+let typingBox = null;
 
 function showTyping(){
 
-typingBox=document.createElement("div");
+if(typingBox) return;  
 
-typingBox.className="message ai";
+typingBox =  
+document.createElement("div");  
 
-typingBox.innerHTML=`
+typingBox.className =  
+"message ai";  
 
-<div class="avatar">
+typingBox.innerHTML = `  
 
-<img src="assets/apxx-ai.png">
+<div class="avatar">  
 
-</div>
+    <img src="assets/apxx-ai.png">  
 
-<div class="typing">
+</div>  
 
-<span></span>
+<div class="typing">  
 
-<span></span>
+    <span></span>  
+    <span></span>  
+    <span></span>  
 
-<span></span>
+</div>  
 
-</div>
+`;  
 
-`;
-
-chatContainer.appendChild(typingBox);
+chatContainer.appendChild(  
+    typingBox  
+);  
 
 scrollBottom();
 
@@ -174,223 +194,369 @@ scrollBottom();
 
 function hideTyping(){
 
-if(typingBox){
+if(!typingBox) return;  
 
-typingBox.remove();
+typingBox.remove();  
 
-typingBox=null;
-
-}
+typingBox = null;
 
 }
 
-/*======================================
-        QUICK QUESTION
-======================================*/
+window.onload = ()=>{
 
-function addSuggestion(){
+showTyping();  
 
-const wrap=document.createElement("div");
+setTimeout(()=>{  
 
-wrap.className="quick-question";
+    hideTyping();  
 
-wrap.innerHTML=`
+    addAIMessage(`
 
-<button>Makan ayam geprek 20rb Cash</button>
-
-<button>Gaji 5 juta BCA</button>
-
-<button>Pengeluaran hari ini</button>
-
-<button>Saldo semua bank</button>
-
-<button>Insight bulan ini</button>
-
-`;
-
-
-chatContainer.appendChild(wrap);
-
-wrap.querySelectorAll("button").forEach(btn=>{
-
-btn.onclick=()=>{
-
-input.value=btn.innerText;
-
-input.focus();
-
-};
-
-});
-
-scrollBottom();
-
-}
-
-/*======================================
-        FIRST MESSAGE
-======================================*/
-
-window.onload=()=>{
-
-showTyping();
-
-setTimeout(()=>{
-
-hideTyping();
-
-addAIMessage(`
-
-Halo Bestie! 👋😊
+Halo Bestie! 🤗
 
 <br><br>
 
-Aku <b>Apxx AI</b>, teman finansialmu.
+Apa kabar hari ini?
 
-Aku bisa membantu mencatat transaksi hanya dari chat biasa.
+Semoga semuanya berjalan lancar ya. ✨
+
+<br><br>
+
+Hari ini mau catat pemasukan, pengeluaran, atau mau lihat kondisi keuangan dulu?
+
+Tinggal chat aja seperti ngobrol biasa, aku siap bantu. 💙
 
 `);
 
-addSuggestion();
+},1500);
 
-},1800);
-
-};
-
-/*======================================
-            SEND
-======================================*/
+}
 
 function sendMessage(){
 
-const text=input.value.trim();
+const text = input.value.trim();  
 
-if(text=="") return;
+if(!text) return;  
 
-addUserMessage(text);
+addUserMessage(text);  
 
-input.value="";
+input.value = "";  
 
-showTyping();
+showTyping();  
 
-setTimeout(()=>{
+setTimeout(()=>{  
 
-hideTyping();
+    hideTyping();  
 
-processMessage(text);
+    processMessage(text);  
 
-},1200);
+},800);
 
 }
 
-sendBtn.onclick=sendMessage;
+sendBtn.onclick = sendMessage;
 
-input.onkeydown=e=>{
+input.onkeydown = e=>{
 
-if(e.key==="Enter"){
+if(e.key==="Enter"){  
 
-sendMessage();
+    sendMessage();  
 
 }
 
 };
 
-/*======================================
-        SCROLL
-======================================*/
+let aiState = {
 
-function scrollBottom(){
+waiting:false,  
 
-chatContainer.scrollTop=
+field:null,  
 
-chatContainer.scrollHeight;
+data:null
 
-}
+};
+
+let aiContext = {
+
+waiting:false,  
+
+transaction:null,  
+
+field:null
+
+};
+
+let draftTransaction = {
+
+type:null,  
+
+amount:null,  
+
+bank:null,  
+
+category:null,  
+
+note:"",  
+
+date:new Date()
+
+};
+
+let lastTransactionCard = null;
+
+let lastTransactionData = null;
+
+let chatState = null;
 
 function processMessage(text){
 
+if(aiContext.waiting){
+
+return processContextReply(text);
+
+}
+
+/*=========================  
+    MASIH ADA PERTANYAAN  
+=========================*/  
+
+if(aiState.waiting){  
+
+    return processWaitingAnswer(text);  
+
+}  
+
+const msg =  
+text.toLowerCase();
+
+if(
+["halo","hai","hi","pagi","siang","sore","malam","assalamualaikum"]
+.includes(msg)
+){
+
+chatState = "greeting";  
+
+return addAIMessage(`  
+Halo juga Bestie 👋😊  
+
+<br><br>  
+
+Apa kabar hari ini?  
+
+<br><br>  
+
+Mau catat transaksi atau lihat laporan keuangan?  
+`);
+
+}
+
+if(chatState=="greeting"){
+
+chatState = null;  
+
+if(  
+    msg.includes("baik") ||  
+    msg.includes("alhamdulillah") ||  
+    msg.includes("sehat")  
+){  
+
+    return addAIMessage(`  
+    Syukurlah 😊  
+
+    <br><br>  
+
+    Semoga harimu lancar ya.  
+
+    <br><br>  
+
+    Ada transaksi yang mau dicatat hari ini Bestie?  
+    `);  
+
+}  
+
+if(  
+    msg.includes("capek") ||  
+    msg.includes("lelah") ||  
+    msg.includes("pusing")  
+){  
+
+    return addAIMessage(`  
+    Semoga setelah istirahat badanmu lebih enak ya 😊  
+
+    <br><br>  
+
+    Kalau ada transaksi tinggal chat aja ya Bestie.  
+    `);  
+
+}
+
+}
+
 if(
 
-data.amount &&
-!data.bank
+msg=="kopi" ||  
+
+msg=="makan" ||  
+
+msg=="bakso" ||  
+
+msg=="ayam" ||  
+
+msg=="bensin"
 
 ){
 
-const bank=banks.find(b=>
+draftTransaction={  
 
-b.name.toLowerCase()==
+    type:"expense",  
 
-text.toLowerCase()
+    amount:null,  
+
+    bank:null,  
+
+    category:detectSmartCategory(msg),  
+
+    note:text,  
+
+    date:new Date()  
+
+};  
+
+aiContext.waiting=true;  
+
+aiContext.field="amount";  
+
+aiContext.transaction=draftTransaction;  
+
+return addAIMessage(  
+
+    "💰 Nominalnya berapa Bestie?"  
 
 );
 
-if(bank){
-
-data.bank=bank;
-
-showTransactionCard();
-
-return;
-
-}
-
 }
 
 if(
 
-data.amount &&
+msg=="gaji" ||  
 
-data.bank &&
-
-!data.category
+msg=="bonus"
 
 ){
 
-const category=allCategories.find(c=>
+draftTransaction={  
 
-c.name.toLowerCase()==
+    type:"income",  
 
-text.toLowerCase()
+    amount:null,  
+
+    bank:null,  
+
+    category:detectSmartCategory(msg),  
+
+    note:text,  
+
+    date:new Date()  
+
+};  
+
+aiContext.waiting=true;  
+
+aiContext.field="amount";  
+
+aiContext.transaction=draftTransaction;  
+
+return addAIMessage(  
+
+    "💰 Berapa nominal pemasukannya?"  
 
 );
 
-if(category){
+}
 
-data.category=category;
+if(
 
-showTransactionCard();
+lastTransactionData &&  
+
+(  
+    msg.includes("yang tadi") ||  
+
+    msg.includes("ubah") ||  
+
+    msg.includes("ganti") ||  
+
+    msg.includes("harusnya")  
+)
+
+){
+
+return editLastTransaction(text);
+
+}
+
+if(  
+
+    msg.includes("saldo")  
+
+){  
+
+    return showBalance();  
+
+}
+
+if(
+
+msg.includes("insight")
+
+){
+
+return monthInsight();
+
+}
+
+if(msg.includes("hari ini")){
+
+return showPeriodReport("today",msg);
+
+}
+
+if(msg.includes("minggu ini")){
+
+return showPeriodReport("week",msg);
+
+}
+
+if(msg.includes("bulan ini")){
+
+return showPeriodReport("month",msg);
+
+}
+
+if(  
+
+    msg.includes("pengeluaran") &&  
+    msg.includes("hari ini")  
+
+){  
+
+    return todayExpense();  
+
+}  
+
+if(  
+
+    msg.includes("pemasukan") &&  
+    msg.includes("hari ini")  
+
+){  
+
+    return todayIncome();  
+
+}
+
+if(processCommand(text)){
 
 return;
-
-}
-
-}
-
-const msg=text.toLowerCase();
-
-if(
-msg.includes("hari ini") &&
-msg.includes("pengeluaran")
-){
-
-return todayExpense();
-
-}
-
-if(
-msg.includes("hari ini") &&
-msg.includes("pemasukan")
-){
-
-return todayIncome();
-
-}
-
-if(
-msg.includes("saldo")
-){
-
-return showBalance();
 
 }
 
@@ -398,460 +564,1515 @@ parseTransactions(text);
 
 }
 
-function detectCategoryFromHistory(text){
+function processContextReply(text){
 
-const transactions=JSON.parse(
+const trx = aiContext.transaction;  
 
-localStorage.getItem("transactions")||"[]"
+switch(aiContext.field){  
 
-);
+    case "bank":  
 
-let bestCategory=null;
+        trx.bank = banks.find(b=>  
 
-let bestScore=0;
+            b.name.toLowerCase()==  
+            text.toLowerCase()  
 
-transactions.forEach(tr=>{
+        );  
 
-if(!tr.note||!tr.categoryId)return;
+    break;  
 
-let score=0;
+    case "category":  
 
-const oldWords=
-tr.note.toLowerCase().split(/\s+/);
+        trx.category = allCategories.find(c=>  
 
-const newWords=
-text.toLowerCase().split(/\s+/);
+            c.name.toLowerCase()==  
+            text.toLowerCase()  
 
-oldWords.forEach(word=>{
+        );  
+
+    break;  
+
+    case "amount":  
+
+        trx.amount = Number(  
+
+            text.replace(/\D/g,"")  
+
+        );  
+
+    break;  
+
+}  
+
+aiContext.waiting = false;
 
 if(
 
-newWords.includes(word)
+aiContext.field=="amount"
 
 ){
 
-score++;
+aiContext.field="bank";  
 
-}
+aiContext.waiting=true;  
 
-});
+return addAIMessage(  
 
-if(score>bestScore){
-
-bestScore=score;
-
-bestCategory=
-
-allCategories.find(c=>
-
-c.id==tr.categoryId
+    "🏦 Pakai bank apa Bestie?"  
 
 );
 
 }
 
+if(
+
+aiContext.field=="bank"
+
+){
+
+aiContext.waiting=false;  
+
+return showTransactionCard(trx);
+
+}
+
+showTransactionCard(trx);
+
+}
+
+function editLastTransaction(text){
+
+const msg = text.toLowerCase();  
+
+const data = lastTransactionData;  
+
+const nominal = msg.match(  
+
+    /(\d+[.,]?\d*)\s*(rb|ribu|jt|juta)?/  
+
+);  
+
+if(nominal){  
+
+    let amount = parseFloat(nominal[1]);  
+
+    if(nominal[2]){  
+
+        const s = nominal[2];  
+
+        if(s=="rb" || s=="ribu"){  
+
+            amount *= 1000;  
+
+        }  
+
+        if(s=="jt" || s=="juta"){  
+
+            amount *= 1000000;  
+
+        }  
+
+    }  
+
+    data.amount = amount;  
+
+}  
+
+const bank = banks.find(b=>  
+
+    msg.includes(  
+
+        b.name.toLowerCase()  
+
+    )  
+
+);  
+
+if(bank){  
+
+    data.bank = bank;  
+
+}  
+
+const category = allCategories.find(c=>  
+
+    msg.includes(  
+
+        c.name.toLowerCase()  
+
+    )  
+
+);  
+
+if(category){  
+
+    data.category = category;  
+
+}  
+
+lastTransactionCard.remove();  
+
+showTransactionCard(data);
+
+}
+
+function processWaitingAnswer(text){
+
+const data =  
+aiState.data;  
+
+switch(aiState.field){  
+
+    case "amount":  
+
+        const angka =  
+        text.replace(/\D/g,"");  
+
+        data.amount =  
+        Number(angka);  
+
+        break;  
+
+    case "bank":  
+
+        data.bank =  
+        banks.find(b=>  
+
+            b.name  
+            .toLowerCase()==  
+            text.toLowerCase()  
+
+        );  
+
+        break;  
+
+    case "category":  
+
+        data.category =  
+        allCategories.find(c=>  
+
+            c.name  
+            .toLowerCase()==  
+            text.toLowerCase()  
+
+        );  
+
+        break;  
+
+}  
+
+aiState.waiting = false;  
+
+aiState.field = null;  
+
+showTransactionCard(data);
+
+}
+
+function processCommand(text){
+
+const msg = text.toLowerCase();  
+
+if(msg.includes("undo")){  
+
+    undoLastTransaction();  
+
+    return true;  
+
+}  
+
+if(msg.includes("hapus transaksi terakhir")){  
+
+    undoLastTransaction();  
+
+    return true;  
+
+}  
+
+if(msg.includes("transaksi terakhir")){  
+
+    showLastTransaction();  
+
+    return true;  
+
+}  
+
+if(msg.includes("jumlah transaksi")){  
+
+    showTransactionCount();  
+
+    return true;  
+
+}
+
+if(
+
+msg.startsWith("cari") ||  
+
+msg.startsWith("search")
+
+){
+
+searchTransaction(msg);  
+
+return true;
+
+}
+
+return false;
+
+}
+
+function showWeekExpense(){
+
+const transactions = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    || "[]"  
+
+);  
+
+const now = new Date();  
+
+const weekAgo = new Date();  
+
+weekAgo.setDate(now.getDate()-7);  
+
+let total=0;  
+
+let count=0;  
+
+transactions.forEach(t=>{  
+
+    const d = new Date(t.createdAt);  
+
+    if(  
+
+        t.type=="expense" &&  
+
+        d>=weekAgo  
+
+    ){  
+
+        total += Number(t.amount);  
+
+        count++;  
+
+    }  
+
+});  
+
+addAIMessage(`
+
+📅 <b>Pengeluaran 7 Hari Terakhir</b>
+
+<br><br>
+
+Jumlah transaksi
+
+<b>${count}</b>
+
+<br>  Total
+
+<b>Rp ${formatRupiah(total)}</b>
+
+`);
+
+}
+
+function showLastTransaction(){
+
+const data = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    ||"[]"  
+
+);  
+
+if(!data.length){  
+
+    return addAIMessage(  
+
+        "Belum ada transaksi."  
+
+    );  
+
+}  
+
+const trx = data[0];  
+
+const bank =  
+
+banks.find(  
+
+    b=>b.id==trx.bankId  
+
+);  
+
+const category =  
+
+allCategories.find(  
+
+    c=>c.id==trx.categoryId  
+
+);  
+
+addAIMessage(`
+
+📄 <b>Transaksi Terakhir</b>
+
+<br><br>
+
+💰 Rp ${formatRupiah(trx.amount)}
+
+<br>  🏦 ${bank?.name || "-"}
+
+<br>  📂 ${category?.name || "-"}
+
+<br>  📝 ${trx.note}
+
+`);
+
+}
+
+function undoLastTransaction(){
+
+let data = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    ||"[]"  
+
+);  
+
+if(!data.length){  
+
+    return addAIMessage(  
+
+        "Tidak ada transaksi untuk dihapus."  
+
+    );  
+
+}  
+
+const trx = data.shift();  
+
+localStorage.setItem(  
+
+    "transactions",  
+
+    JSON.stringify(data)  
+
+);  
+
+addAIMessage(`
+
+🗑 Berhasil menghapus transaksi
+
+<b>${trx.note}</b>
+
+`);
+
+}
+
+function showTransactionCount(){
+
+const data = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    ||"[]"  
+
+);  
+
+addAIMessage(`
+
+📊 Saat ini terdapat
+
+<b>${data.length}</b>
+
+transaksi yang tersimpan.
+
+`);
+
+}
+
+function searchTransaction(keyword){
+
+keyword = keyword  
+    .replace("cari","")  
+    .replace("search","")  
+    .trim();  
+
+const transactions = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    || "[]"  
+
+);  
+
+let result = transactions.filter(t=>{  
+
+    return(  
+
+        t.note  
+        .toLowerCase()  
+        .includes(  
+
+            keyword.toLowerCase()  
+
+        )  
+
+    );  
+
 });
 
-return bestCategory;
+if(!result.length){
+
+const bank = banks.find(b=>  
+
+    b.name  
+    .toLowerCase()  
+
+    .includes(keyword)  
+
+);  
+
+if(bank){  
+
+    result = transactions.filter(  
+
+        t=>t.bankId==bank.id  
+
+    );  
+
+}
+
+}
+
+const angka =
+
+keyword.match(/\d+/);
+
+if(
+
+angka &&  
+
+!result.length
+
+){
+
+const nominal =  
+
+Number(angka[0]);  
+
+result = transactions.filter(  
+
+    t=>Number(t.amount)>=nominal  
+
+);
+
+}
+
+if(!result.length){  
+
+    return addAIMessage(  
+
+        `🔍 Tidak ditemukan transaksi <b>${keyword}</b>.`  
+
+    );  
+
+}  
+
+let html = `  
+
+🔍 <b>Ditemukan ${result.length} transaksi</b>  
+
+<br><br>  
+
+`;  
+
+let total = 0;  
+
+result.forEach(tr=>{  
+
+    total += Number(tr.amount);  
+
+    html += `  
+
+    💰 Rp ${formatRupiah(tr.amount)}  
+
+    <br>  
+
+    📝 ${tr.note}  
+
+    <br><br>  
+
+    `;  
+
+});  
+
+html += `  
+
+<hr>  
+
+Total  
+
+<b>Rp ${formatRupiah(total)}</b>  
+
+`;  
+
+addAIMessage(html);
 
 }
 
 function parseTransactions(text){
 
-const lines=text
-
-.split(/\n|,|terus|lalu|kemudian|dan/i)
-
-.map(i=>i.trim())
-
-.filter(i=>i);
-
 pendingTransactions = [];
 
-lines.forEach(line=>{
+const globalDate =
+detectSmartDate(text);
 
-parseTransaction(line);
+const globalBank =
+banks.find(b=>
+
+text  
+.toLowerCase()  
+
+.includes(  
+
+    b.name.toLowerCase()  
+
+)
+
+);
+
+const globalType =
+detectTransactionType(text);
+
+const list = text  
+    .split(/\n|,| lalu | terus | kemudian | dan /i)  
+    .map(v=>v.trim())  
+    .filter(v=>v);  
+
+list.forEach(item=>{  
+
+const trx = parseTransaction(  
+
+    item,  
+
+    globalDate,  
+
+    globalBank,  
+
+    globalType  
+
+);  
+
+if(trx){  
+
+    pendingTransactions.push(trx);  
+
+}
+
+});
+
+if(!pendingTransactions.length){  
+
+return addAIMessage(`
+
+Aduh Bestie 🥹
+
+<br><br>
+
+Maaf ya, aku masih dalam tahap pengembangan jadi belum bisa memahami pesan itu.
+
+<br><br>
+
+Aku paling jago bantu mencatat transaksi, mencari transaksi, dan memberikan laporan keuangan.
+
+<br><br>
+
+Yuk coba kirim transaksi seperti:
+
+<br>  • Makan bakso 20rb Cash
+
+<br>  • Gaji 5 juta BCA
+
+<br>  • Bensin 50rb Jago 😊
+
+`);
+
+}
+
+pendingTransactions.forEach(trx=>{  
+
+    showTransactionCard(trx);  
 
 });
 
 }
 
-function parseTransaction(text){
+function parseTransaction(
 
-const bankList = banks;
+text,  
 
-const categoryList = allCategories;
+globalDate,  
 
-let amount=0;
+globalBank,  
 
-const amountMatch=text.match(
-/(\d+[.,]?\d*)\s*(jt|juta|rb|ribu)?/i
-);
+globalType
 
-if(amountMatch){
+){
 
-amount=parseFloat(amountMatch[1]);
+const lower =  
+text.toLowerCase();  
 
-if(amountMatch[2]){
+/*========== NOMINAL ==========*/  
 
-const s=amountMatch[2].toLowerCase();
+let amount = 0;  
 
-if(s=="jt"||s=="juta"){
+const amountMatch =  
+lower.match(  
+    /(\d+[.,]?\d*)\s*(jt|juta|rb|ribu)?/i  
+);  
 
-amount*=1000000;
+if(amountMatch){  
 
-}
+    amount =  
+    parseFloat(amountMatch[1]);  
 
-if(s=="rb"||s=="ribu"){
+    if(amountMatch[2]){  
 
-amount*=1000;
+        const satuan =  
+        amountMatch[2].toLowerCase();  
 
-}
+        if(  
+            satuan=="jt"||  
+            satuan=="juta"  
+        ){  
 
-}
+            amount *= 1000000;  
 
-}
+        }  
 
-let bank = bankList.find(item=>
-text.toLowerCase().includes(
-item.name.toLowerCase()
-));
-  
-let category = detectCategoryFromHistory(text);
+        if(  
+            satuan=="rb"||  
+            satuan=="ribu"  
+        ){  
+
+            amount *= 1000;  
+
+        }  
+
+    }  
+
+}  
+
+/*========== BANK ==========*/  
+
+let bank = null;  
+
+bank = banks.find(b=>  
+
+    lower.includes(  
+        b.name.toLowerCase()  
+    )  
+
+);  
+
+/*========== KATEGORI ==========*/  
+
+let category =
+
+detectCategoryFromHistory(text);
 
 if(!category){
 
-category = categoryList.find(item=>
+category =  
+detectSmartCategory(text);
 
-text.toLowerCase().includes(
+}
 
-item.name.toLowerCase()
+if(!category){
 
-)
+category =  
+allCategories.find(c=>  
+
+    lower.includes(  
+
+        c.name.toLowerCase()  
+
+    )  
 
 );
 
 }
 
-let type="expense";
+/*========== TYPE ==========*/  
 
-if(
-text.match(
-/gaji|bonus|masuk|income|pemasukan|jual/i
-)
-){
+let type =
 
-type="income";
+detectTransactionType(text);
+
+if(!type){
+
+type = globalType;
 
 }
 
-const transaction={
+if(!amount){
 
-type,
+aiContext.waiting=true;  
 
-amount,
+aiContext.field="amount";  
 
-bank,
+aiContext.transaction={  
 
-category,
+    bank,  
+    category,  
+    type,  
+    note:text  
 
-note:text,
+};  
 
-date:new Date()
+addAIMessage(  
+
+    "💰 Nominalnya berapa Bestie?"  
+
+);  
+
+return null;
+
+}
+
+if(!bank){
+
+aiContext.waiting=true;  
+
+aiContext.field="bank";  
+
+aiContext.transaction={  
+
+    amount,  
+    category,  
+    type,  
+    note:text  
+
+};  
+
+addAIMessage(  
+
+    "🏦 Pakai bank apa Bestie?"  
+
+);  
+
+return null;
+
+}
+
+if(!category){
+
+aiContext.waiting=true;  
+
+aiContext.field="category";  
+
+aiContext.transaction={  
+
+    amount,  
+    bank,  
+    type,  
+    note:text  
+
+};  
+
+addAIMessage(  
+
+    "📂 Kategorinya apa Bestie?"  
+
+);  
+
+return null;
+
+}
+
+return{  
+
+    id:Date.now()+  
+    Math.random(),  
+
+    type,  
+
+    amount,  
+
+    bank,  
+
+    category,  
+
+    note:text,  
+
+    date:
+
+detectSmartDate(text)
+
+||
+
+globalDate
 
 };
 
-pendingTransactions.push(transaction);
+}
 
-showTransactionCard(transaction);
+function detectCategoryFromHistory(text){
 
-pendingTransaction = {
+const transactions =  
+JSON.parse(  
+    localStorage.getItem("transactions") || "[]"  
+);  
 
-type,
+if(!transactions.length)  
+    return null;  
 
-amount,
+let bestCategory = null;  
 
-bank,
+let bestScore = 0;  
 
-category,
+const words =  
+text.toLowerCase()  
+.split(/\s+/);  
 
-note:text,
+transactions.forEach(tr=>{  
 
-date:new Date()
+    if(!tr.note || !tr.categoryId)  
+        return;  
 
-};
+    let score = 0;  
+
+    tr.note  
+    .toLowerCase()  
+    .split(/\s+/)  
+    .forEach(word=>{  
+
+        if(words.includes(word))  
+            score++;  
+
+    });  
+
+    if(score > bestScore){  
+
+        bestScore = score;  
+
+        bestCategory =  
+        allCategories.find(c=>  
+
+            c.id == tr.categoryId  
+
+        );  
+
+    }  
+
+});  
+
+if(bestScore >= 2){  
+
+    return bestCategory;  
+
+}  
+
+return null;
+
+}
+
+function detectSmartCategory(text){
+
+const msg =  
+text.toLowerCase();  
+
+const keyword={  
+
+    makanan:[  
+        "makan",  
+        "ayam",  
+        "geprek",  
+        "bakso",  
+        "mie",  
+        "nasi",  
+        "kopi",  
+        "minum",  
+        "teh",  
+        "cafe",  
+        "resto",  
+        "pizza",  
+        "burger"  
+    ],  
+
+    transport:[  
+        "bensin",  
+        "pertalite",  
+        "pertamax",  
+        "solar",  
+        "parkir",  
+        "tol",  
+        "grab",  
+        "gocar",  
+        "gojek",  
+        "ojek",  
+        "taxi"  
+    ],  
+
+    belanja:[  
+        "belanja",  
+        "indomaret",  
+        "alfamart",  
+        "supermarket",  
+        "sayur",  
+        "buah",  
+        "shopee",  
+        "tokopedia",  
+        "lazada"  
+    ],  
+
+    kesehatan:[  
+        "obat",  
+        "dokter",  
+        "rumah sakit",  
+        "apotek",  
+        "vitamin"  
+    ],  
+
+    hiburan:[  
+        "bioskop",  
+        "game",  
+        "steam",  
+        "spotify",  
+        "netflix"  
+    ]  
+
+};  
+
+for(const key in keyword){  
+
+    if(  
+
+        keyword[key].some(word=>  
+
+            msg.includes(word)  
+
+        )  
+
+    ){  
+
+        const cat=  
+
+        allCategories.find(c=>  
+
+            c.name.toLowerCase()  
+
+            .includes(key)  
+
+        );  
+
+        if(cat) return cat;  
+
+    }  
+
+}  
+
+return null;
+
+}
+
+function detectTransactionType(text){
+
+const msg = text.toLowerCase();  
+
+const incomeWords=[  
+
+    "gaji",  
+    "bonus",  
+    "jual",  
+    "transfer masuk",  
+    "cashback",  
+    "hadiah",  
+    "komisi",  
+    "refund",  
+    "pendapatan",  
+    "pemasukan",  
+    "dibayar",  
+    "dibayar client",  
+    "bayaran"  
+
+];  
+
+const expenseWords=[  
+
+    "makan",  
+    "minum",  
+    "kopi",  
+    "beli",  
+    "bayar",  
+    "isi bensin",  
+    "parkir",  
+    "belanja",  
+    "traktir",  
+    "topup",  
+    "langganan",  
+    "spotify",  
+    "netflix",  
+    "shopee",  
+    "tokopedia"  
+
+];  
+
+if(  
+
+    incomeWords.some(  
+
+        word=>msg.includes(word)  
+
+    )  
+
+){  
+
+    return "income";  
+
+}  
+
+if(  
+
+    expenseWords.some(  
+
+        word=>msg.includes(word)  
+
+    )  
+
+){  
+
+    return "expense";  
+
+}  
+
+return "expense";
+
+}
+
+function detectSmartDate(text){
+
+const msg =  
+text.toLowerCase();  
+
+const date =  
+new Date();  
+
+/*========== HARI ==========*/  
+
+if(msg.includes("kemarin")){  
+
+    date.setDate(  
+        date.getDate()-1  
+    );  
+
+}  
+
+const dayMatch =  
+msg.match(  
+    /(\d+)\s*hari\s*lalu/  
+);  
+
+if(dayMatch){  
+
+    date.setDate(  
+
+        date.getDate()-  
+
+        Number(dayMatch[1])  
+
+    );  
+
+}  
+
+/*========== JAM ==========*/  
+
+const hourMatch =  
+msg.match(  
+    /jam\s*(\d{1,2})/  
+);  
+
+if(hourMatch){  
+
+    date.setHours(  
+
+        Number(hourMatch[1])  
+
+    );  
+
+    date.setMinutes(0);  
+
+}  
+
+if(msg.includes("pagi")){  
+
+    date.setHours(8);  
+
+}  
+
+if(msg.includes("siang")){  
+
+    date.setHours(13);  
+
+}  
+
+if(msg.includes("sore")){  
+
+    date.setHours(16);  
+
+}  
+
+if(msg.includes("malam")){  
+
+    date.setHours(20);  
+
+}  
+
+return date;
 
 }
 
 function showTransactionCard(data){
 
-const wrapper = document.createElement("div");
+const wrapper =  
+document.createElement("div");  
 
-wrapper.className = "message ai";
+wrapper.className =  
+"message ai ai-card-message";  
 
-wrapper.innerHTML = `
+wrapper.innerHTML = `  
 
-<div class="avatar">
+<div class="avatar">  
 
-<img src="assets/apxx-ai.png">
+    <img src="assets/apxx-ai.png">  
 
-</div>
+</div>  
 
-<div class="bubble ai-card-bubble">
+<div class="bubble ai-card-bubble">  
 
-<div class="ai-name">
+    <div class="ai-name">  
 
-Apxx AI
+        Apxx AI  
 
-</div>
+    </div>  
 
-<div class="ai-transaction-card">
+    <div class="ai-transaction-card">  
 
-<div class="ai-card-title">
+        <div class="ai-card-title">  
 
-<i class="fa-solid fa-receipt"></i>
+            <i class="fa-solid fa-receipt"></i>  
 
-<span>Tambah Transaksi</span>
+            <span>Tambah Transaksi</span>  
 
-</div>
+        </div>  
 
-<div class="ai-field">
+        <div class="ai-field">  
 
-<label>Kategori</label>
+            <label>Kategori</label>  
 
-<select id="aiCategory">
+            <select class="ai-category">  
 
-<option value="">Pilih Kategori</option>
+                <option value="">  
+                Pilih kategori  
+                </option>  
 
-${allCategories.map(cat=>`
+                ${allCategories.map(cat=>`  
 
-<option
+                <option  
 
-value="${cat.id}"
+                    value="${cat.id}"  
 
-${data.category?.id==cat.id?"selected":""}
+                    ${data.category?.id==cat.id  
+                    ?"selected":""}  
 
->
+                >  
 
-${cat.name}
+                    ${cat.name}  
 
-</option>
+                </option>  
 
-`).join("")}
+                `).join("")}  
 
-</select>
+            </select>  
 
-</div>
+        </div>  
 
-<div class="ai-field">
+        <div class="ai-field">  
 
-<label>Nominal</label>
+            <label>Nominal</label>  
 
-<input
+            <input  
 
-id="aiAmount"
+                class="ai-amount"  
 
-type="text"
+                value="${formatRupiah(data.amount)}"  
 
-value="${
-data.amount
-? Number(data.amount).toLocaleString("id-ID")
-: ""
-}"
+                placeholder="Nominal"  
 
->
+            >  
 
-</div>
+        </div>  
 
-<div class="ai-field">
+        <div class="ai-field">  
 
-<label>Bank</label>
+            <label>Bank</label>  
 
-<select id="aiBank">
+            <select class="ai-bank">  
 
-<option value="">Pilih Bank</option>
+                <option value="">  
+                Pilih Bank  
+                </option>  
 
-${banks.map(bank=>`
+                ${banks.map(bank=>`  
 
-<option
+                <option  
 
-value="${bank.id}"
+                    value="${bank.id}"  
 
-${data.bank?.id==bank.id?"selected":""}
+                    ${data.bank?.id==bank.id  
+                    ?"selected":""}  
 
->
+                >  
 
-${bank.name}
+                    ${bank.name}  
 
-</option>
+                </option>  
 
-`).join("")}
+                `).join("")}  
 
-</select>
+            </select>  
 
-</div>
+        </div>  
 
-<div class="ai-field">
+        <div class="ai-field">  
 
-<label>Tanggal</label>
+            <label>Tanggal</label>  
 
-<input
+            <input  
 
-id="aiDate"
+                class="ai-date"  
 
-type="datetime-local"
+                type="datetime-local"  
 
-value="${new Date().toISOString().slice(0,16)}"
+                value="${new Date(data.date)  
+                .toISOString()  
+                .slice(0,16)}"  
 
->
+            >  
 
-</div>
+        </div>  
 
-<div class="ai-field">
+        <div class="ai-field">  
 
-<label>Catatan</label>
+            <label>Catatan</label>  
 
-<textarea
+            <textarea  
 
-id="aiNote"
+                class="ai-note"  
 
-rows="2"
+                rows="2"  
 
->${data.note||""}</textarea>
+            >${data.note}</textarea>  
 
-</div>
+        </div>  
 
-<div class="ai-actions">
+        <div class="ai-actions">  
 
-${
-pendingTransactions.length>1
-?
-`<button class="ai-save-all">
-Simpan Semua
-</button>`
-:
-""
-}
+            <button  
+            class="ai-cancel">  
 
-<button class="ai-cancel">
-Batal
-</button>
+                Batal  
 
-<button class="ai-save">
-Simpan
-</button>
+            </button>  
 
-</div>
+            <button  
+            class="ai-save">  
 
-</div>
+                Simpan  
 
-</div>
+            </button>  
 
-</div>
+        </div>  
 
-`;
+    </div>  
 
-// Hapus card lama kalau masih ada
-  
-wrapper.classList.add("ai-card-message");
+</div>  
 
-chatContainer.appendChild(wrapper);
+`;  
+
+chatContainer.appendChild(wrapper);  
 
 scrollBottom();
 
-bindTransactionCard(wrapper,data);
+lastTransactionCard = wrapper;
+lastTransactionData = data;
+
+bindTransactionCard(  
+    wrapper,  
+    data  
+);
 
 }
 
 function bindTransactionCard(wrapper,data){
 
-const amount =
-wrapper.querySelector("#aiAmount");
+const amount =  
+wrapper.querySelector(".ai-amount");  
 
-const bank =
-wrapper.querySelector("#aiBank");
+const bank =  
+wrapper.querySelector(".ai-bank");  
 
-const category =
-wrapper.querySelector("#aiCategory");
+const category =  
+wrapper.querySelector(".ai-category");  
 
-const note =
-wrapper.querySelector("#aiNote");
+const note =  
+wrapper.querySelector(".ai-note");  
 
-const save =
-wrapper.querySelector(".ai-save");
+const date =  
+wrapper.querySelector(".ai-date");  
 
-const cancel =
-wrapper.querySelector(".ai-cancel");
+const save =  
+wrapper.querySelector(".ai-save");  
 
-const saveAll =
-wrapper.querySelector(".ai-save-all");
+const cancel =  
+wrapper.querySelector(".ai-cancel");  
 
-if(saveAll){
+/*==========================  
+        NOMINAL  
+==========================*/  
 
-saveAll.onclick=function(){
+amount.oninput=function(){  
 
-pendingTransactions.forEach(item=>{
+    const angka =  
+    this.value.replace(/\D/g,"");  
 
-saveTransactionFromAI(item);
+    data.amount =  
+    Number(angka);  
 
-});
+    this.value =  
+    angka  
+    ? Number(angka)  
+    .toLocaleString("id-ID")  
+    : "";  
 
-pendingTransactions=[];
+};  
 
-document
-.querySelectorAll(".ai-card-message")
-.forEach(card=>card.remove());
+/*==========================  
+        BANK  
+==========================*/  
 
-addAIMessage(
-"✅ Sip bestie!, semua transaksi berhasil disimpan."
-);
+bank.onchange=function(){  
 
-};
+    data.bank =  
+    banks.find(b=>  
+
+        String(b.id)===this.value  
+
+    );  
+
+};  
+
+/*==========================  
+        CATEGORY  
+==========================*/  
+
+category.onchange=function(){  
+
+    data.category =  
+    allCategories.find(c=>  
+
+        String(c.id)===this.value  
+
+    );  
+
+};  
+
+/*==========================  
+        NOTE  
+==========================*/  
+
+note.oninput=function(){  
+
+    data.note =  
+    this.value;  
+
+};  
+
+/*==========================  
+        DATE  
+==========================*/  
+
+date.onchange=function(){  
+
+    data.date =  
+    new Date(this.value);  
+
+};  
+
+/*==========================  
+        SAVE  
+==========================*/  
+
+save.onclick=function(){  
+
+    if(!data.amount){  
+
+        return addAIMessage(  
+        "💰 Isi nominal dulu ya Bestie."  
+        );  
+
+    }  
+
+    if(!data.bank){  
+
+        return addAIMessage(  
+        "🏦 Pilih bank dulu ya."  
+        );  
+
+    }  
+
+    if(!data.category){  
+
+        return addAIMessage(  
+        "📂 Pilih kategori dulu ya."  
+        );  
+
+    }  
+
+    saveTransactionFromAI(data);  
+
+    wrapper.remove();  
+
+  if(  
+
+pendingTransactions.length===0
+
+){
+
+document  
+.querySelector(".ai-save-all")  
+?.remove();
 
 }
 
-amount.oninput=function(){
+};  
 
-const angka=this.value.replace(/\D/g,"");
+/*==========================  
+        CANCEL  
+==========================*/  
 
-this.value=angka
-?Number(angka).toLocaleString("id-ID")
-:"";
+cancel.onclick=function(){  
 
-data.amount=
-Number(angka);
-
-};
-
-bank.onchange=function(){
-
-data.bank=
-
-banks.find(b=>b.id==this.value);
-
-};
-
-category.onchange=function(){
-
-data.category=
-
-allCategories.find(c=>c.id==this.value);
-
-};
-
-note.oninput=function(){
-
-data.note=this.value;
-
-};
-
-save.onclick=function(){
-
-saveTransactionFromAI(
-data
-);
-
-wrapper.remove();
+    wrapper.remove();  
 
 };
 
@@ -859,58 +2080,724 @@ wrapper.remove();
 
 function saveTransactionFromAI(data){
 
-const transactions=JSON.parse(
+/*==============================  
+        AMBIL DATA  
+==============================*/  
 
-localStorage.getItem("transactions")||"[]"
+const transactions =  
+JSON.parse(  
+
+    localStorage.getItem(  
+        "transactions"  
+    ) || "[]"  
+
+);  
+
+/*==============================  
+        SIMPAN  
+==============================*/  
+
+transactions.unshift({  
+
+    id: generateId(),  
+
+    type: data.type,  
+
+    amount: data.amount,  
+
+    bankId: data.bank?.id || null,  
+
+    categoryId: data.category?.id || null,  
+
+    note: data.note,  
+
+    createdAt:  
+    new Date(data.date)  
+    .toISOString()  
+
+});  
+
+localStorage.setItem(  
+
+    "transactions",  
+
+    JSON.stringify(  
+        transactions  
+    )  
+
+);  
+
+/*==============================  
+    UPDATE SALDO BANK  
+==============================*/  
+
+if(data.bank){  
+
+    const bankIndex =  
+    banks.findIndex(b=>  
+
+        b.id===data.bank.id  
+
+    );  
+
+    if(bankIndex!=-1){  
+
+        if(data.type==="income"){  
+
+            banks[bankIndex].balance +=  
+            Number(data.amount);  
+
+        }else{  
+
+            banks[bankIndex].balance -=  
+            Number(data.amount);  
+
+        }  
+
+        localStorage.setItem(  
+
+            "banks",  
+
+            JSON.stringify(banks)  
+
+        );  
+
+    }  
+
+}  
+
+/*==============================  
+    HAPUS DARI PENDING  
+==============================*/  
+
+pendingTransactions =  
+pendingTransactions.filter(  
+
+    t=>t.id!==data.id  
+
+);  
+
+/*==============================  
+    SUCCESS  
+==============================*/  
+
+addAIMessage(`  
+
+✅ <b>Berhasil disimpan!</b>  
+
+<br><br>  
+
+💰 ${formatRupiah(data.amount)}  
+
+<br>  
+
+🏦 ${data.bank?.name || "-"}  
+
+<br>  
+
+📂 ${data.category?.name || "-"}  
+
+`);
+
+}
+
+function aiFollowUp(data){
+
+const message=[];  
+
+if(data.type=="expense"){  
+
+    if(data.amount>=1000000){  
+
+        message.push(  
+
+            "💸 Wah cukup besar ya Bestie."  
+
+        );  
+
+    }  
+
+    if(  
+
+        data.category &&  
+
+        data.category.name  
+
+        .toLowerCase()  
+
+        .includes("makanan")  
+
+    ){  
+
+        message.push(  
+
+            "🍜 Jangan lupa jaga budget makan ya."  
+
+        );  
+
+    }  
+
+}  
+
+if(data.type=="income"){  
+
+    message.push(  
+
+        "🎉 Selamat atas pemasukannya!"  
+
+    );  
+
+}  
+
+if(message.length){  
+
+    addAIMessage(  
+
+        message.join("<br><br>")  
+
+    );  
+
+}
+
+aiFollowUp(data);
+
+}
+
+function showBalance(){
+
+const banks = JSON.parse(  
+    localStorage.getItem("banks") || "[]"  
+);  
+
+if(!banks.length){  
+
+    return addAIMessage(  
+        "Belum ada data bank Bestie 😊"  
+    );  
+
+}  
+
+let total = 0;  
+
+let html = `  
+
+💳 <b>Saldo Semua Bank</b>  
+
+<br><br>  
+
+`;  
+
+banks.forEach(bank=>{  
+
+    const saldo =  
+    Number(bank.balance || bank.saldo || 0);  
+
+    total += saldo;  
+
+    html += `  
+
+    <b>${bank.name}</b>  
+
+    <br>  
+
+    Rp ${formatRupiah(saldo)}  
+
+    <br><br>  
+
+    `;  
+
+});  
+
+html += `  
+
+<hr>  
+
+<b>Total Saldo</b>  
+
+<br>  
+
+Rp ${formatRupiah(total)}  
+
+`;  
+
+addAIMessage(html);
+
+}
+
+function todayExpense(){
+
+const transactions = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    || "[]"  
+
+);  
+
+const today =  
+new Date().toDateString();  
+
+const todayData =  
+transactions.filter(t=>{  
+
+    return(  
+
+        t.type==="expense" &&  
+
+        new Date(t.createdAt)  
+        .toDateString()===today  
+
+    );  
+
+});  
+
+const total =  
+todayData.reduce(  
+
+    (a,b)=>a+Number(b.amount),  
+
+    0  
+
+);  
+
+addAIMessage(`  
+
+    📉 <b>Pengeluaran Hari Ini</b>  
+
+    <br><br>  
+
+    Total transaksi  
+
+    <b>${todayData.length}</b>  
+
+    <br>  
+
+    Total pengeluaran  
+
+    <b>Rp ${formatRupiah(total)}</b>  
+
+`);
+
+}
+
+function todayIncome(){
+
+const transactions = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    || "[]"  
+
+);  
+
+const today =  
+new Date().toDateString();  
+
+const todayData =  
+transactions.filter(t=>{  
+
+    return(  
+
+        t.type==="income" &&  
+
+        new Date(t.createdAt)  
+        .toDateString()===today  
+
+    );  
+
+});  
+
+const total =  
+todayData.reduce(  
+
+    (a,b)=>a+Number(b.amount),  
+
+    0  
+
+);  
+
+addAIMessage(`  
+
+    📈 <b>Pemasukan Hari Ini</b>  
+
+    <br><br>  
+
+    Total transaksi  
+
+    <b>${todayData.length}</b>  
+
+    <br>  
+
+    Total pemasukan  
+
+    <b>Rp ${formatRupiah(total)}</b>  
+
+`);
+
+}
+
+function monthInsight(){
+
+const transactions = JSON.parse(  
+
+    localStorage.getItem("transactions")  
+
+    || "[]"  
+
+);  
+
+const now = new Date();  
+
+const month = now.getMonth();  
+
+const year = now.getFullYear();  
+
+const data = transactions.filter(t=>{  
+
+    const d = new Date(t.createdAt);  
+
+    return(  
+
+        d.getMonth()==month &&  
+
+        d.getFullYear()==year  
+
+    );  
+
+});  
+
+if(!data.length){  
+
+    return addAIMessage(  
+
+        "📊 Belum ada transaksi bulan ini Bestie."  
+
+    );  
+
+}  
+
+let income = 0;  
+
+let expense = 0;  
+
+const categoryMap = {};  
+
+data.forEach(t=>{  
+
+    if(t.type=="income"){  
+
+        income += Number(t.amount);  
+
+    }else{  
+
+        expense += Number(t.amount);  
+
+    }  
+
+    if(!categoryMap[t.categoryId]){  
+
+        categoryMap[t.categoryId]=0;  
+
+    }  
+
+    categoryMap[t.categoryId]+=  
+
+    Number(t.amount);  
+
+});  
+
+let topCategory = null;  
+
+let topValue = 0;  
+
+Object.keys(categoryMap).forEach(id=>{  
+
+    if(categoryMap[id]>topValue){  
+
+        topValue = categoryMap[id];  
+
+        topCategory =  
+
+        allCategories.find(c=>  
+
+            String(c.id)==String(id)  
+
+        );  
+
+    }  
+
+});  
+
+const saving = income-expense;
+
+let advice = [];
+
+if(expense > income){
+
+advice.push(  
+    "⚠ Pengeluaran lebih besar daripada pemasukan bulan ini."  
+);
+
+}
+
+if(saving > 0){
+
+advice.push(  
+    "🎉 Keuangan kamu masih surplus. Pertahankan ya!"  
+);
+
+}
+
+if(topCategory){
+
+const persen =  
+
+Math.round(  
+
+    (topValue /  
+
+    Math.max(expense,1))  
+
+    *100  
+
+);  
+
+advice.push(  
+
+    `📌 Pengeluaran terbesar ada di kategori <b>${topCategory.name}</b> (${persen}%).`  
+
+);  
+
+if(persen >= 40){  
+
+    advice.push(  
+
+        "💡 Coba kurangi pengeluaran pada kategori tersebut agar tabungan lebih cepat bertambah."  
+
+    );  
+
+}
+
+}
+
+if(expense==0){
+
+advice.push(  
+
+    "🥳 Belum ada pengeluaran bulan ini."  
 
 );
 
-transactions.unshift({
+}
 
-id:Date.now(),
+if(income==0){
 
-type:data.type,
+advice.push(  
 
-amount:data.amount,
-
-bankId:data.bank?.id,
-
-categoryId:data.category?.id,
-
-note:data.note,
-
-createdAt:new Date().toISOString()
-
-});
-
-localStorage.setItem(
-
-"transactions",
-
-JSON.stringify(transactions)
+    "💼 Belum ada pemasukan yang tercatat bulan ini."  
 
 );
 
-pendingTransaction={
+}
 
-type:null,
+addAIMessage(`
 
-amount:null,
+📊 <b>Insight Bulan Ini</b>
 
-bank:null,
+<br><br>
 
-category:null,
+💰 Pemasukan
 
-note:null,
+<b>Rp ${formatRupiah(income)}</b>
 
-date:new Date()
+<br><br>
 
-};
+💸 Pengeluaran
 
-addAIMessage(
+<b>Rp ${formatRupiah(expense)}</b>
 
-"✅ Sip Bestie! Transaksi berhasil disimpan."
+<br><br>
+
+💵 Selisih
+
+<b>Rp ${formatRupiah(saving)}</b>
+
+<br><br>
+
+🏆 Kategori terbesar
+
+<b>${topCategory?.name || "-"}</b>
+
+(Rp ${formatRupiah(topValue)})
+
+<br><br>
+
+<hr>  <br>  ${advice.join("<br><br>")}
+
+`);
+
+if(expense > income * 1.5){
+
+addAIMessage(  
+
+    "🚨 Pengeluaranmu sudah jauh melebihi pemasukan bulan ini."  
 
 );
+
+}
+else if(expense > income){
+
+addAIMessage(  
+
+    "⚠ Sebaiknya mulai mengurangi pengeluaran agar tetap surplus."  
+
+);
+
+}
+else{
+
+addAIMessage(  
+
+    "✅ Kondisi keuanganmu masih sehat bulan ini."  
+
+);
+
+}
+
+}
+
+function showPeriodReport(period, msg){
+
+    const transactions = JSON.parse(
+        localStorage.getItem("transactions") || "[]"
+    );
+
+    const now = new Date();
+
+    let start = new Date(now);
+
+    if(period=="today"){
+        start.setHours(0,0,0,0);
+    }
+
+    if(period=="week"){
+        start.setDate(now.getDate()-6);
+        start.setHours(0,0,0,0);
+    }
+
+    if(period=="month"){
+        start = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1
+        );
+    }
+
+    const isIncome = msg.includes("pemasukan");
+    const isExpense = msg.includes("pengeluaran");
+
+    let data = transactions.filter(t=>{
+
+        const d = new Date(t.createdAt);
+
+        return d >= start;
+
+    });
+
+    if(isIncome){
+        data = data.filter(t=>t.type=="income");
+    }
+
+    if(isExpense){
+        data = data.filter(t=>t.type=="expense");
+    }
+
+    if(!data.length){
+
+        return addAIMessage(
+            "Belum ada transaksi pada periode tersebut 😊"
+        );
+
+    }
+
+    let total = 0;
+
+    let html = "";
+
+    data.forEach(t=>{
+
+        total += Number(t.amount);
+
+        const bank = banks.find(
+            b=>b.id==t.bankId
+        );
+
+        html += `
+
+💰 Rp ${formatRupiah(t.amount)}
+
+<br>
+
+🏦 ${bank?.name || "-"}
+
+<br>
+
+📝 ${t.note}
+
+<br><br>
+
+`;
+
+    });
+
+    let title = "";
+
+    if(period=="today"){
+        title = "Hari Ini";
+    }
+
+    if(period=="week"){
+        title = "7 Hari Terakhir";
+    }
+
+    if(period=="month"){
+        title = "Bulan Ini";
+    }
+
+    let judul = "Semua Transaksi";
+
+    if(isIncome){
+        judul = "Pemasukan";
+    }
+
+    if(isExpense){
+        judul = "Pengeluaran";
+    }
+
+    addAIMessage(`
+
+📊 <b>${judul} ${title}</b>
+
+<br><br>
+
+Jumlah transaksi
+
+<b>${data.length}</b>
+
+<br>
+
+Total
+
+<b>Rp ${formatRupiah(total)}</b>
+
+<br><br>
+
+<hr>
+
+<br>
+
+${html}
+
+`);
 
 }
