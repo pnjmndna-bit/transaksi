@@ -2801,3 +2801,40 @@ ${html}
 `);
 
 }
+
+function adjustChatHeight(){
+
+    const vv = window.visualViewport;
+
+    if(!vv) return;
+
+    document.querySelector(".chat-page").style.height =
+    vv.height + "px";
+
+    scrollBottom();
+
+}
+
+if(window.visualViewport){
+
+    visualViewport.addEventListener(
+        "resize",
+        adjustChatHeight
+    );
+
+    visualViewport.addEventListener(
+        "scroll",
+        adjustChatHeight
+    );
+
+}
+
+input.addEventListener("focus",()=>{
+
+    setTimeout(()=>{
+
+        scrollBottom();
+
+    },300);
+
+});
