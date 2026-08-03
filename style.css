@@ -3326,7 +3326,7 @@ button:focus {
 
 .transaction-page{
 
-    padding:14px 13px 92px;
+    padding:5px 5px 92px;
 
 }
 
@@ -4665,24 +4665,10 @@ align-items:stretch;
 /*======================================
             ADD PAGE
 ======================================*/
-
 #addPage{
 
-    width:100%;
-
-    min-height:100vh;
-
-    overflow-y:auto;
-
-    padding:10px 10px 90px;
-
-    background:
-    linear-gradient(
-        180deg,
-        #fcfcfd 0%,
-        #f5f6fa 100%
-    );
-
+padding:5px 5px 92px;
+  
 }
 
 /*======================================
@@ -6458,24 +6444,16 @@ transform:translateX(3px);
 ==============================*/
 
 .insight-page{
-
-    padding:12px 12px 100px;
+  
+    padding:5px 5px 92px;
 
     display:flex;
 
     flex-direction:column;
 
-    gap:6px;
-
-    background:
-    linear-gradient(
-        180deg,
-        #fcfcfc 0%,
-        #f6f7fb 100%
-    );
+    gap:5px;
 
 }
-
 /*==============================
         INSIGHT HEADER
 ==============================*/
@@ -6655,7 +6633,7 @@ justify-content:space-between;
 
 gap:5px;
 
-margin:0px 0 0px;
+margin:7px 0 7px;
 
 padding:0;
 
@@ -8148,21 +8126,7 @@ transform:scale(.96);
 
 .profile-page{
 
-position:relative;
-
-overflow:hidden;
-
-min-height:100vh;
-
-padding:16px 8px 120px;
-
-background:
-linear-gradient(
-180deg,
-#fafbff 0%,
-#f5f7fb 40%,
-#eef2f8 100%
-);
+padding:5px 5px 92px;
 
 }
 
