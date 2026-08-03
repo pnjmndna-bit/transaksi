@@ -5,7 +5,7 @@ const navs = document.querySelectorAll(".bottom-nav a:not(.fab)");
 // API
 // ===========================
 
-const API_URL = "https://transaksi-production.up.railway.app";
+const API_URL = "https://NAMA-APP-RAILWAY.up.railway.app";
 
 let authToken =
 localStorage.getItem("token") || "";
@@ -7267,44 +7267,120 @@ loginSubmit.onclick = async function(){
 
 };
 
-resetStartOfDay();
+/*======================================
+        LOAD USER FROM SERVER
+======================================*/
 
-if(currentUser){
+async function loadUser(){
 
-    banks = currentUser.banks || [];
+    if(!authToken) return;
 
-    transactions = currentUser.transactions || [];
+    try{
 
-    categories = currentUser.categories || {
+        const res = await fetch(
 
-        income: [],
+            API_URL + "/me",
 
-        expense: []
+            {
 
-    };
+                headers:{
+
+                    Authorization:authToken
+
+                }
+
+            }
+
+        );
+
+        const data = await res.json();
+
+        if(!data.success){
+
+            localStorage.removeItem("token");
+
+            authToken="";
+
+            return;
+
+        }
+
+        currentUser = data.user;
+
+        banks = currentUser.banks || [];
+
+        transactions = currentUser.transactions || [];
+
+        categories = currentUser.categories || {
+
+            income:[],
+
+            expense:[]
+
+        };
+
+        renderBanks();
+
+        updateTotalBalance();
+
+        renderSummary();
+
+        renderIncomeAnalysis();
+
+        renderAnalysis();
+
+        renderTransactions();
+
+        updateTransactionFilterUI();
+
+        renderCategoryList();
+
+        updateSummaryDate();
+
+        updateLastUpdate();
+
+        renderInsight();
+
+        renderProfile();
+
+    }catch(err){
+
+        console.log(err);
+
+    }
 
 }
 
-renderBanks();
+/*======================================
+        INIT APP
+======================================*/
 
-updateTotalBalance();
+loadUser().then(()=>{
 
-renderSummary();
+    resetStartOfDay();
 
-renderIncomeAnalysis();
+    renderBanks();
 
-renderAnalysis();
+    updateTotalBalance();
 
-renderTransactions();
+    renderSummary();
 
-updateTransactionFilterUI();
+    renderIncomeAnalysis();
 
-renderCategoryList();
+    renderAnalysis();
 
-updateSummaryDate();
+    renderTransactions();
 
-updateLastUpdate();
+    updateTransactionFilterUI();
 
-renderInsight();
+    renderCategoryList();
 
-renderProfile();
+    updateSummaryDate();
+
+    updateLastUpdate();
+
+    renderInsight();
+
+    renderProfile();
+
+});
