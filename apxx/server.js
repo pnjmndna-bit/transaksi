@@ -4,6 +4,42 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
+function auth(req, res, next){
+
+    const token = req.headers.authorization;
+
+    if(!token){
+
+        return res.status(401).json({
+            success:false,
+            message:"Token tidak ada."
+        });
+
+    }
+
+    try{
+
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        req.userId = decoded.id;
+
+        next();
+
+    }catch{
+
+        return res.status(401).json({
+            success:false,
+            message:"Token tidak valid."
+        });
+
+    }
+
+}
+
 const cors = require("cors");
 
 const User = require("./models/User");
@@ -253,6 +289,88 @@ app.post("/login", async (req, res) => {
             success: false,
 
             message: err.message
+
+        });
+
+    }
+
+});
+
+app.get("/me", auth, async(req,res)=>{
+
+    try{
+
+        const user = await User.findById(req.userId);
+
+        if(!user){
+
+            return res.json({
+                success:false
+            });
+
+        }
+
+        res.json({
+            success:true,
+            user
+        });
+
+    }catch(err){
+
+        res.status(500).json({
+            success:false,
+            message:err.message
+        });
+
+    }
+
+});
+
+app.post("/save", auth, async(req,res)=>{
+
+    try{
+
+        const {
+
+            banks,
+
+            transactions,
+
+            categories
+
+        } = req.body;
+
+        await User.findByIdAndUpdate(
+
+            req.userId,
+
+            {
+
+                banks,
+
+                transactions,
+
+                categories
+
+            }
+
+        );
+
+        res.json({
+
+            success:true,
+
+            message:"Data berhasil disimpan."
+
+        });
+
+    }catch(err){
+
+        res.status(500).json({
+
+            success:false,
+
+            message:err.message
 
         });
 
