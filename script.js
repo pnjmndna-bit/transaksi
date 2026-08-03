@@ -101,6 +101,9 @@ let banks = JSON.parse(localStorage.getItem("banks")) || [
 
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+
 let balanceHidden = false;
 
 let categories = JSON.parse(localStorage.getItem("categories")) || {
@@ -3118,6 +3121,46 @@ function saveData(){
         "categories",
         JSON.stringify(categories)
     );
+
+  localStorage.setItem(
+    "users",
+    JSON.stringify(users)
+);
+
+localStorage.setItem(
+    "currentUser",
+    JSON.stringify(currentUser)
+);
+
+  if(currentUser){
+
+    currentUser.banks = banks;
+
+    currentUser.transactions = transactions;
+
+    currentUser.categories = categories;
+
+    const index = users.findIndex(
+        user => user.id === currentUser.id
+    );
+
+    if(index > -1){
+
+        users[index] = currentUser;
+
+    }
+
+    localStorage.setItem(
+        "users",
+        JSON.stringify(users)
+    );
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(currentUser)
+    );
+
+}
 
 }
 
@@ -6652,6 +6695,182 @@ if(insightBox){
 }
 
 /*======================================
+            AUTH
+======================================*/
+
+function registerUser(username, email, password){
+
+    const exist = users.find(user=>
+
+        user.email.toLowerCase()===email.toLowerCase()
+
+    );
+
+    if(exist){
+
+        showToast(
+            "warning",
+            "Email sudah digunakan."
+        );
+
+        return false;
+
+    }
+
+    users.push({
+
+    id: generateId(),
+
+    username,
+
+    email,
+
+    password,
+
+    banks: [],
+
+    transactions: [],
+
+    categories: {
+
+        income: [
+
+            {
+                id: generateId(),
+                name: "Gaji",
+                icon: "fa-solid fa-wallet"
+            },
+
+            {
+                id: generateId(),
+                name: "Tarik Tunai",
+                icon: "fa-solid fa-money-bill-wave"
+            }
+
+        ],
+
+        expense: [
+
+            {
+                id: generateId(),
+                name: "Makan",
+                icon: "fa-solid fa-utensils"
+            },
+
+            {
+                id: generateId(),
+                name: "Belanja",
+                icon: "fa-solid fa-cart-shopping"
+            }
+
+        ]
+
+    }
+
+});
+
+    saveData();
+
+    return true;
+
+}
+
+function loginUser(email,password){
+
+    const user = users.find(item=>
+
+        item.email.toLowerCase()===email.toLowerCase()
+
+        &&
+
+        item.password===password
+
+    );
+
+    if(!user){
+
+        showToast(
+            "error",
+            "Email atau password salah."
+        );
+
+        return false;
+
+    }
+
+    currentUser = user;
+
+  loadUserData();
+
+    saveData();
+
+    return true;
+
+}
+
+function logoutUser(){
+
+    currentUser = null;
+
+    saveData();
+
+    location.reload();
+
+}
+
+function checkLogin(){
+
+    if(currentUser){
+
+        return true;
+
+    }
+
+    return false;
+
+}
+
+function loadUserData(){
+
+    if(!currentUser) return;
+
+    banks = currentUser.banks || [];
+
+    transactions = currentUser.transactions || [];
+
+    categories = currentUser.categories || {
+
+        income:[
+            {
+                id:generateId(),
+                name:"Gaji",
+                icon:"fa-solid fa-wallet"
+            },
+            {
+                id:generateId(),
+                name:"Tarik Tunai",
+                icon:"fa-solid fa-money-bill-wave"
+            }
+        ],
+
+        expense:[
+            {
+                id:generateId(),
+                name:"Makan",
+                icon:"fa-solid fa-utensils"
+            },
+            {
+                id:generateId(),
+                name:"Belanja",
+                icon:"fa-solid fa-cart-shopping"
+            }
+        ]
+
+    };
+
+}
+
+/*======================================
             INIT APP
 ======================================*/
 
@@ -6697,27 +6916,32 @@ formatInputRupiah(transferAmount);
 formatInputRupiah(transferFee);
 
 // ===== SAMPAI SINI =====
-resetStartOfDay();
-renderBanks();
+if(checkLogin()){
 
-updateTotalBalance();
+    resetStartOfDay();
 
-renderSummary();
+    renderBanks();
 
-renderIncomeAnalysis();
+    updateTotalBalance();
 
-renderAnalysis();
+    renderSummary();
 
-renderTransactions();
+    renderIncomeAnalysis();
 
-updateTransactionFilterUI();
+    renderAnalysis();
 
-renderCategoryList();
+    renderTransactions();
 
-updateSummaryDate();
+    updateTransactionFilterUI();
 
-updateLastUpdate();
+    renderCategoryList();
 
-renderInsight();
+    updateSummaryDate();
 
-renderProfile();
+    updateLastUpdate();
+
+    renderInsight();
+
+    renderProfile();
+
+}
