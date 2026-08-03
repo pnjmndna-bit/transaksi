@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 function auth(req, res, next){
 
@@ -48,6 +49,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 /* ===========================
    CONNECT MONGODB
@@ -66,10 +68,11 @@ mongoose.connect(process.env.MONGODB_URI)
 =========================== */
 
 app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "Orange Finance API"
-    });
+    res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/chat", (req, res) => {
+    res.sendFile(path.join(__dirname, "chat.html"));
 });
 
 /* ===========================
