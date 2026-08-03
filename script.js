@@ -5,7 +5,7 @@ const navs = document.querySelectorAll(".bottom-nav a:not(.fab)");
 // API
 // ===========================
 
-const API_URL = "https://NAMA-APP-RAILWAY.up.railway.app";
+const API_URL = "https://transaksi-production.up.railway.app";
 
 let authToken =
 localStorage.getItem("token") || "";
