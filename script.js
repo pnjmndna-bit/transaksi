@@ -1,6 +1,17 @@
 const pages = document.querySelectorAll(".page");
 const navs = document.querySelectorAll(".bottom-nav a:not(.fab)");
 
+// ===========================
+// API
+// ===========================
+
+const API_URL = "https://NAMA-APP-RAILWAY.up.railway.app";
+
+let authToken =
+localStorage.getItem("token") || "";
+
+// ===========================
+
 let dragBankId = null;
 
 let dragElement = null;
@@ -6996,13 +7007,13 @@ document.getElementById("loginPassword");
 const loginSubmit =
 document.getElementById("loginSubmit");
 
-registerSubmit.onclick=function(){
+registerSubmit.onclick = async function(){
 
     const name =
     registerName.value.trim();
 
     const username =
-    registerUsername.value.trim().toLowerCase();
+    registerUsername.value.trim();
 
     const password =
     registerPassword.value;
@@ -7018,224 +7029,187 @@ registerSubmit.onclick=function(){
 
     }
 
-if(users.find(u=>u.username===username)){
+    try{
 
-        showToast(
-            "error",
-            "Username sudah digunakan."
+        const res = await fetch(
+
+            API_URL + "/register",
+
+            {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    name,
+
+                    username,
+
+                    password
+
+                })
+
+            }
+
         );
 
-        return;
+        const data = await res.json();
 
-    }
+        if(!data.success){
 
-    users.push({
+            showToast("error",data.message);
 
-    id: generateId(),
+            return;
 
-    name,
-
-    username,
-
-    password,
-
-    banks: [
-
-        {
-            id: generateId(),
-            name: "Cash",
-            balance: 0,
-            startOfDay: 0
-        },
-
-        {
-            id: generateId(),
-            name: "Jago",
-            balance: 0,
-            startOfDay: 0
         }
 
-    ],
+        showToast(
 
-    transactions: [],
+            "success",
 
-    categories: {
+            "Register berhasil."
 
-        income: [
+        );
 
-            {
-                id: generateId(),
-                name: "Gaji",
-                icon: "fa-solid fa-wallet"
-            },
+        loginTab.click();
 
-            {
-                id: generateId(),
-                name: "Tarik Tunai",
-                icon: "fa-solid fa-money-bill-wave"
-            }
+    }catch(err){
 
-        ],
+        showToast(
 
-        expense: [
+            "error",
 
-            {
-                id: generateId(),
-                name: "Makan",
-                icon: "fa-solid fa-utensils"
-            },
+            "Server tidak dapat dihubungi."
 
-            {
-                id: generateId(),
-                name: "Belanja",
-                icon: "fa-solid fa-cart-shopping"
-            }
-
-        ]
+        );
 
     }
-
-});
-
-    localStorage.setItem(
-        "users",
-        JSON.stringify(users)
-    );
-
-    showToast(
-        "success",
-        "Akun berhasil dibuat."
-    );
-
-  currentUser = users.at(-1);
-
-localStorage.setItem(
-    "currentUser",
-    JSON.stringify(currentUser)
-);
-
-banks = currentUser.banks;
-
-transactions = currentUser.transactions;
-
-categories = currentUser.categories;
-
-saveData();
-
-resetStartOfDay();
-
-renderBanks();
-
-updateTotalBalance();
-
-renderSummary();
-
-renderIncomeAnalysis();
-
-renderAnalysis();
-
-renderTransactions();
-
-updateTransactionFilterUI();
-
-renderCategoryList();
-
-updateSummaryDate();
-
-updateLastUpdate();
-
-renderInsight();
-
-renderProfile();
-
-closeAuth();
-
-    registerName.value="";
-    registerUsername.value="";
-    registerPassword.value="";
-
-    loginTab.click();
 
 };
 
-loginSubmit.onclick = function(){
+loginSubmit.onclick = async function(){
 
     const username =
-    loginUsername.value.trim().toLowerCase();
+    loginUsername.value.trim();
 
     const password =
     loginPassword.value;
 
-    const user = users.find(u =>
+    try{
 
-        u.username === username &&
+        const res = await fetch(
 
-        u.password === password
+            API_URL + "/login",
 
-    );
+            {
 
-    if(!user){
+                method:"POST",
 
-        showToast(
-            "error",
-            "Username atau password salah."
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    username,
+
+                    password
+
+                })
+
+            }
+
         );
 
-        return;
+        const data = await res.json();
+
+        if(!data.success){
+
+            showToast(
+
+                "error",
+
+                data.message
+
+            );
+
+            return;
+
+        }
+
+        authToken = data.token;
+
+        localStorage.setItem(
+
+            "token",
+
+            authToken
+
+        );
+
+        currentUser = data.user;
+
+        banks = currentUser.banks || [];
+
+        transactions = currentUser.transactions || [];
+
+        categories = currentUser.categories || {
+
+            income:[],
+
+            expense:[]
+
+        };
+
+        renderBanks();
+
+        updateTotalBalance();
+
+        renderSummary();
+
+        renderIncomeAnalysis();
+
+        renderAnalysis();
+
+        renderTransactions();
+
+        updateTransactionFilterUI();
+
+        renderCategoryList();
+
+        updateSummaryDate();
+
+        updateLastUpdate();
+
+        renderInsight();
+
+        renderProfile();
+
+        closeAuth();
+
+        showToast(
+
+            "success",
+
+            "Login berhasil."
+
+        );
+
+    }catch(err){
+
+        showToast(
+
+            "error",
+
+            "Server tidak dapat dihubungi."
+
+        );
 
     }
-
-    currentUser = user;
-
-    localStorage.setItem(
-        "currentUser",
-        JSON.stringify(currentUser)
-    );
-
-    banks = currentUser.banks ?? [];
-
-transactions = currentUser.transactions ?? [];
-
-categories = currentUser.categories ?? {
-
-    income: [],
-
-    expense: []
-
-};
-
-    resetStartOfDay();
-
-    renderBanks();
-
-    updateTotalBalance();
-
-    renderSummary();
-
-    renderIncomeAnalysis();
-
-    renderAnalysis();
-
-    renderTransactions();
-
-    updateTransactionFilterUI();
-
-    renderCategoryList();
-
-    updateSummaryDate();
-
-    updateLastUpdate();
-
-    renderInsight();
-
-    renderProfile();
-
-    closeAuth();
-
-    showToast(
-        "success",
-        "Login berhasil."
-    );
 
 };
 
