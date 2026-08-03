@@ -1238,41 +1238,51 @@ Belum ada data
 
     <div class="profile-header">
 
+    <div id="profileHeaderLeft">
+
         <h2>Profil</h2>
 
-        <button class="profile-setting">
+    </div>
 
-            <i class="fa-solid fa-gear"></i>
+    <div id="profileHeaderRight"></div>
+
+</div>
+
+    <!-- PROFILE CARD -->
+
+    <div class="profile-card" id="profileCard">
+
+    <img
+    src="assets/avatar.png"
+    class="profile-avatar"
+    id="profileAvatar">
+
+    <div class="profile-info">
+
+        <h3 id="profileName">
+
+            Belum Login
+
+        </h3>
+
+        <span id="profileStatus">
+
+            Sinkronkan data agar tidak hilang.
+
+        </span>
+
+        <button
+        id="authButton"
+        class="primary-btn"
+        style="margin-top:12px;">
+
+            Masuk / Daftar
 
         </button>
 
     </div>
 
-    <!-- PROFILE CARD -->
-
-    <div class="profile-card">
-
-        <img
-        src="assets/avatar.png"
-        class="profile-avatar">
-
-        <div class="profile-info">
-
-            <h3 id="profileName">
-
-                April Saputra
-
-            </h3>
-
-            <span>
-
-                Personal Finance Tracker
-
-            </span>
-
-        </div>
-
-    </div>
+</div>
 
 <div class="asset-card">
 
@@ -1845,6 +1855,124 @@ Terapkan
         <h4 id="toastTitle"></h4>
         <p id="toastMessage"></p>
     </div>
+</div>
+
+<!-- ========================= -->
+<!-- AUTH MODAL -->
+<!-- ========================= -->
+
+<div class="modal-overlay" id="authOverlay">
+
+    <div class="modal-sheet">
+
+        <div class="modal-handle"></div>
+
+        <div class="auth-tab">
+
+            <button
+            id="loginTab"
+            class="active">
+
+                Login
+
+            </button>
+
+            <button
+            id="registerTab">
+
+                Daftar
+
+            </button>
+
+        </div>
+
+        <!-- LOGIN -->
+
+        <div id="loginForm">
+
+            <div class="form-group">
+
+                <label>Username</label>
+
+<input
+type="text"
+id="loginUsername"
+placeholder="Masukkan username">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Password</label>
+
+                <input
+                type="password"
+                id="loginPassword"
+                placeholder="Masukkan password">
+
+            </div>
+
+            <button
+            id="loginSubmit"
+            class="primary-btn">
+
+                Login
+
+            </button>
+
+        </div>
+
+        <!-- REGISTER -->
+
+        <div
+        id="registerForm"
+        style="display:none;">
+
+            <div class="form-group">
+
+                <label>Nama</label>
+
+                <input
+                type="text"
+                id="registerName"
+                placeholder="Nama lengkap">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Username</label>
+
+<input
+type="text"
+id="registerUsername"
+placeholder="Username">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Password</label>
+
+                <input
+                type="password"
+                id="registerPassword"
+                placeholder="Password">
+
+            </div>
+
+            <button
+            id="registerSubmit"
+            class="primary-btn">
+
+                Daftar
+
+            </button>
+
+        </div>
+
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
