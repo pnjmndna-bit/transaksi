@@ -3116,6 +3116,54 @@ minute:"2-digit"
 }
 
 /*======================================
+        SYNC CLOUD
+======================================*/
+
+async function syncCloud(){
+
+    if(!authToken) return;
+
+    try{
+
+        await fetch(
+
+            API_URL + "/save",
+
+            {
+
+                method:"POST",
+
+                headers:{
+
+                    "Content-Type":"application/json",
+
+                    Authorization:authToken
+
+                },
+
+                body:JSON.stringify({
+
+                    banks,
+
+                    transactions,
+
+                    categories
+
+                })
+
+            }
+
+        );
+
+    }catch(err){
+
+        console.log("Sync gagal",err);
+
+    }
+
+}
+
+/*======================================
         SAVE DATABASE
 ======================================*/
 
@@ -3175,6 +3223,8 @@ localStorage.setItem(
     );
 
 }
+
+  syncCloud();
 
 }
 
@@ -6584,6 +6634,10 @@ categories = JSON.parse(localStorage.getItem("categories")) || {
 };
 
 localStorage.removeItem("currentUser");
+
+      localStorage.removeItem("token");
+
+authToken = "";
 
 renderBanks();
 updateTotalBalance();
