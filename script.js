@@ -101,8 +101,11 @@ let banks = JSON.parse(localStorage.getItem("banks")) || [
 
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+let currentUser =
+JSON.parse(localStorage.getItem("currentUser"));
 
 let balanceHidden = false;
 
@@ -6504,6 +6507,100 @@ document.getElementById("seeAllTransaction").onclick = function(){
 
 function renderProfile(){
 
+  const profileHeaderLeft =
+document.getElementById("profileHeaderLeft");
+
+const profileHeaderRight =
+document.getElementById("profileHeaderRight");
+
+if(currentUser){
+
+    profileHeaderLeft.innerHTML = `
+
+        <h2>${currentUser.name}</h2>
+
+        <small>@${currentUser.username}</small>
+
+    `;
+
+    profileHeaderRight.innerHTML = `
+
+        <button
+        id="logoutButton"
+        class="profile-setting">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+        </button>
+
+    `;
+
+    document
+    .getElementById("logoutButton")
+    .onclick = function(){
+
+        currentUser = null;
+
+banks = [];
+
+transactions = [];
+
+categories = JSON.parse(localStorage.getItem("categories")) || {
+    income: [
+        {
+            id: generateId(),
+            name: "Gaji",
+            icon: "fa-solid fa-wallet"
+        },
+        {
+            id: generateId(),
+            name: "Tarik Tunai",
+            icon: "fa-solid fa-money-bill-wave"
+        }
+    ],
+    expense: [
+        {
+            id: generateId(),
+            name: "Makan",
+            icon: "fa-solid fa-utensils"
+        },
+        {
+            id: generateId(),
+            name: "Belanja",
+            icon: "fa-solid fa-cart-shopping"
+        }
+    ]
+};
+
+localStorage.removeItem("currentUser");
+
+renderBanks();
+updateTotalBalance();
+renderSummary();
+renderIncomeAnalysis();
+renderAnalysis();
+renderTransactions();
+renderInsight();
+renderProfile();
+
+    };
+
+}else{
+
+    profileHeaderLeft.innerHTML = `
+        <h2>Profil</h2>
+    `;
+
+    profileHeaderRight.innerHTML = "";
+
+    const authBtn = document.getElementById("authButton");
+
+if (authBtn) {
+    authBtn.onclick = openAuth;
+}
+
+}
+
     // Total saldo semua bank
     const saldo = banks.reduce(
         (sum, bank) => sum + bank.balance,
@@ -6624,6 +6721,37 @@ if(growthText){
     document.getElementById("profileBank").textContent =
         banks.length;
 
+  const profileName =
+document.getElementById("profileName");
+
+const profileStatus =
+document.getElementById("profileStatus");
+
+const authButton =
+document.getElementById("authButton");
+
+if(currentUser){
+
+    profileName.textContent =
+    currentUser.name;
+
+    profileStatus.textContent =
+    "Data tersinkron dengan perangkat.";
+
+    authButton.style.display = "none";
+
+}else{
+
+    profileName.textContent =
+    "Belum Login";
+
+    profileStatus.textContent =
+    "Sinkronkan data agar tidak hilang.";
+
+    authButton.style.display = "block";
+
+}
+
   const insightBox =
 document.getElementById("profileInsightList");
 
@@ -6695,182 +6823,6 @@ if(insightBox){
 }
 
 /*======================================
-            AUTH
-======================================*/
-
-function registerUser(username, email, password){
-
-    const exist = users.find(user=>
-
-        user.email.toLowerCase()===email.toLowerCase()
-
-    );
-
-    if(exist){
-
-        showToast(
-            "warning",
-            "Email sudah digunakan."
-        );
-
-        return false;
-
-    }
-
-    users.push({
-
-    id: generateId(),
-
-    username,
-
-    email,
-
-    password,
-
-    banks: [],
-
-    transactions: [],
-
-    categories: {
-
-        income: [
-
-            {
-                id: generateId(),
-                name: "Gaji",
-                icon: "fa-solid fa-wallet"
-            },
-
-            {
-                id: generateId(),
-                name: "Tarik Tunai",
-                icon: "fa-solid fa-money-bill-wave"
-            }
-
-        ],
-
-        expense: [
-
-            {
-                id: generateId(),
-                name: "Makan",
-                icon: "fa-solid fa-utensils"
-            },
-
-            {
-                id: generateId(),
-                name: "Belanja",
-                icon: "fa-solid fa-cart-shopping"
-            }
-
-        ]
-
-    }
-
-});
-
-    saveData();
-
-    return true;
-
-}
-
-function loginUser(email,password){
-
-    const user = users.find(item=>
-
-        item.email.toLowerCase()===email.toLowerCase()
-
-        &&
-
-        item.password===password
-
-    );
-
-    if(!user){
-
-        showToast(
-            "error",
-            "Email atau password salah."
-        );
-
-        return false;
-
-    }
-
-    currentUser = user;
-
-  loadUserData();
-
-    saveData();
-
-    return true;
-
-}
-
-function logoutUser(){
-
-    currentUser = null;
-
-    saveData();
-
-    location.reload();
-
-}
-
-function checkLogin(){
-
-    if(currentUser){
-
-        return true;
-
-    }
-
-    return false;
-
-}
-
-function loadUserData(){
-
-    if(!currentUser) return;
-
-    banks = currentUser.banks || [];
-
-    transactions = currentUser.transactions || [];
-
-    categories = currentUser.categories || {
-
-        income:[
-            {
-                id:generateId(),
-                name:"Gaji",
-                icon:"fa-solid fa-wallet"
-            },
-            {
-                id:generateId(),
-                name:"Tarik Tunai",
-                icon:"fa-solid fa-money-bill-wave"
-            }
-        ],
-
-        expense:[
-            {
-                id:generateId(),
-                name:"Makan",
-                icon:"fa-solid fa-utensils"
-            },
-            {
-                id:generateId(),
-                name:"Belanja",
-                icon:"fa-solid fa-cart-shopping"
-            }
-        ]
-
-    };
-
-}
-
-/*======================================
             INIT APP
 ======================================*/
 
@@ -6916,7 +6868,341 @@ formatInputRupiah(transferAmount);
 formatInputRupiah(transferFee);
 
 // ===== SAMPAI SINI =====
-if(checkLogin()){
+
+/*======================================
+            AUTH
+======================================*/
+
+const authOverlay =
+document.getElementById("authOverlay");
+
+const loginTab =
+document.getElementById("loginTab");
+
+const registerTab =
+document.getElementById("registerTab");
+
+const loginForm =
+document.getElementById("loginForm");
+
+const registerForm =
+document.getElementById("registerForm");
+
+const loginBtn =
+document.getElementById("loginButton");
+
+const registerBtn =
+document.getElementById("registerButton");
+
+const authButton =
+document.getElementById("authButton");
+
+function openAuth(){
+
+    authOverlay.classList.add("show");
+
+}
+
+function closeAuth(){
+
+    authOverlay.classList.remove("show");
+
+}
+
+authOverlay.onclick=function(e){
+
+    if(e.target===authOverlay){
+
+        closeAuth();
+
+    }
+
+};
+
+if(loginBtn){
+
+    loginBtn.onclick=openAuth;
+
+}
+
+if(registerBtn){
+
+    registerBtn.onclick=function(){
+
+        openAuth();
+
+        registerTab.click();
+
+    };
+
+}
+
+if(authButton){
+
+    authButton.onclick = function(){
+
+        openAuth();
+
+    };
+
+}
+
+loginTab.onclick=function(){
+
+    loginTab.classList.add("active");
+
+    registerTab.classList.remove("active");
+
+    loginForm.style.display="block";
+
+    registerForm.style.display="none";
+
+};
+
+registerTab.onclick=function(){
+
+    registerTab.classList.add("active");
+
+    loginTab.classList.remove("active");
+
+    registerForm.style.display="block";
+
+    loginForm.style.display="none";
+
+};
+
+/*======================================
+        REGISTER ACCOUNT
+======================================*/
+
+const registerName =
+document.getElementById("registerName");
+
+const registerUsername =
+document.getElementById("registerUsername");
+
+const registerPassword =
+document.getElementById("registerPassword");
+
+const registerSubmit =
+document.getElementById("registerSubmit");
+
+const loginUsername =
+document.getElementById("loginUsername");
+
+const loginPassword =
+document.getElementById("loginPassword");
+
+const loginSubmit =
+document.getElementById("loginSubmit");
+
+registerSubmit.onclick=function(){
+
+    const name =
+    registerName.value.trim();
+
+    const username =
+    registerUsername.value.trim().toLowerCase();
+
+    const password =
+    registerPassword.value;
+
+    if(!name || !username || !password){
+
+        showToast(
+            "warning",
+            "Lengkapi semua data."
+        );
+
+        return;
+
+    }
+
+if(users.find(u=>u.username===username)){
+
+        showToast(
+            "error",
+            "Username sudah digunakan."
+        );
+
+        return;
+
+    }
+
+    users.push({
+
+    id: generateId(),
+
+    name,
+
+    username,
+
+    password,
+
+    banks: [
+
+        {
+            id: generateId(),
+            name: "Cash",
+            balance: 0,
+            startOfDay: 0
+        },
+
+        {
+            id: generateId(),
+            name: "Jago",
+            balance: 0,
+            startOfDay: 0
+        }
+
+    ],
+
+    transactions: [],
+
+    categories: {
+
+        income: [
+
+            {
+                id: generateId(),
+                name: "Gaji",
+                icon: "fa-solid fa-wallet"
+            },
+
+            {
+                id: generateId(),
+                name: "Tarik Tunai",
+                icon: "fa-solid fa-money-bill-wave"
+            }
+
+        ],
+
+        expense: [
+
+            {
+                id: generateId(),
+                name: "Makan",
+                icon: "fa-solid fa-utensils"
+            },
+
+            {
+                id: generateId(),
+                name: "Belanja",
+                icon: "fa-solid fa-cart-shopping"
+            }
+
+        ]
+
+    }
+
+});
+
+    localStorage.setItem(
+        "users",
+        JSON.stringify(users)
+    );
+
+    showToast(
+        "success",
+        "Akun berhasil dibuat."
+    );
+
+  currentUser = users.at(-1);
+
+localStorage.setItem(
+    "currentUser",
+    JSON.stringify(currentUser)
+);
+
+banks = currentUser.banks;
+
+transactions = currentUser.transactions;
+
+categories = currentUser.categories;
+
+saveData();
+
+resetStartOfDay();
+
+renderBanks();
+
+updateTotalBalance();
+
+renderSummary();
+
+renderIncomeAnalysis();
+
+renderAnalysis();
+
+renderTransactions();
+
+updateTransactionFilterUI();
+
+renderCategoryList();
+
+updateSummaryDate();
+
+updateLastUpdate();
+
+renderInsight();
+
+renderProfile();
+
+closeAuth();
+
+    registerName.value="";
+    registerUsername.value="";
+    registerPassword.value="";
+
+    loginTab.click();
+
+};
+
+loginSubmit.onclick = function(){
+
+    const username =
+    loginUsername.value.trim().toLowerCase();
+
+    const password =
+    loginPassword.value;
+
+    const user = users.find(u =>
+
+        u.username === username &&
+
+        u.password === password
+
+    );
+
+    if(!user){
+
+        showToast(
+            "error",
+            "Username atau password salah."
+        );
+
+        return;
+
+    }
+
+    currentUser = user;
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(currentUser)
+    );
+
+    banks = currentUser.banks ?? [];
+
+transactions = currentUser.transactions ?? [];
+
+categories = currentUser.categories ?? {
+
+    income: [],
+
+    expense: []
+
+};
 
     resetStartOfDay();
 
@@ -6944,4 +7230,53 @@ if(checkLogin()){
 
     renderProfile();
 
+    closeAuth();
+
+    showToast(
+        "success",
+        "Login berhasil."
+    );
+
+};
+
+resetStartOfDay();
+
+if(currentUser){
+
+    banks = currentUser.banks || [];
+
+    transactions = currentUser.transactions || [];
+
+    categories = currentUser.categories || {
+
+        income: [],
+
+        expense: []
+
+    };
+
 }
+
+renderBanks();
+
+updateTotalBalance();
+
+renderSummary();
+
+renderIncomeAnalysis();
+
+renderAnalysis();
+
+renderTransactions();
+
+updateTransactionFilterUI();
+
+renderCategoryList();
+
+updateSummaryDate();
+
+updateLastUpdate();
+
+renderInsight();
+
+renderProfile();
