@@ -7524,51 +7524,57 @@ loadUser().then(()=>{
 
 });
 
-if("serviceWorker" in navigator){
+if ("serviceWorker" in navigator) {
 
-    window.addEventListener("load",()=>{
+    window.addEventListener("load", async () => {
 
-        navigator.serviceWorker.register("sw.js");
+        const reg = await navigator.serviceWorker.register("sw.js");
+
+        reg.addEventListener("updatefound", () => {
+
+            const newWorker = reg.installing;
+
+            newWorker.addEventListener("statechange", () => {
+
+                if (
+                    newWorker.state === "installed" &&
+                    navigator.serviceWorker.controller
+                ) {
+
+                    document.getElementById("updateBtn").style.display = "flex";
+
+                }
+
+            });
+
+        });
 
     });
 
 }
 
-let deferredPrompt;
+const updateBtn =
+document.getElementById("updateBtn");
 
-const installBtn =
-document.getElementById("installBtn");
+updateBtn.onclick = async () => {
 
-window.addEventListener(
-"beforeinstallprompt",
-(e)=>{
+    const reg =
+    await navigator.serviceWorker.getRegistration();
 
-    e.preventDefault();
+    if(reg && reg.waiting){
 
-    deferredPrompt = e;
+        reg.waiting.postMessage({
+            type:"SKIP_WAITING"
+        });
 
-    installBtn.style.display="flex";
-
-});
-
-installBtn.onclick = async()=>{
-
-    if(!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-
-    await deferredPrompt.userChoice;
-
-    deferredPrompt = null;
-
-    installBtn.style.display="none";
+    }
 
 };
 
-window.addEventListener(
-"appinstalled",
+navigator.serviceWorker.addEventListener(
+"controllerchange",
 ()=>{
 
-    installBtn.style.display="none";
+    window.location.reload();
 
 });
