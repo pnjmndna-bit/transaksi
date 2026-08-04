@@ -7705,11 +7705,11 @@ buyTokenBtn.onclick = async () => {
 
     try{
 
-        fetch(API_URL + "/buy-token",{
-    method:"POST"
+        const res = await fetch(API_URL + "/buy-token", {
+    method: "POST"
 });
 
-        const data = await res.json();
+const data = await res.json();
 
         requestId = data.requestId;
 
