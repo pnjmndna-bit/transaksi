@@ -476,6 +476,18 @@ app.post("/payment-confirm", async (req,res)=>{
 
         } = req.body;
 
+        if(!requestId || !bank || !name){
+
+    return res.json({
+
+        success:false,
+
+        message:"Bank dan nama wajib diisi."
+
+    });
+
+}
+
         if(!pendingRequests[requestId]){
 
     return res.json({
