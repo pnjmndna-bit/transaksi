@@ -258,6 +258,42 @@ background:#ff7a00;
 
 }
 
+.update-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    padding:8px 12px;
+
+    border:none;
+    border-radius:999px;
+
+    background:#ff7a00;
+    color:#fff;
+
+    font-size:13px;
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.update-btn i{
+    font-size:14px;
+}
+
+.update-btn i{
+    animation:spinUpdate 1.2s linear infinite;
+}
+
+@keyframes spinUpdate{
+    from{
+        transform:rotate(0deg);
+    }
+    to{
+        transform:rotate(360deg);
+    }
+}
+
 /*======================================
         ULTRA PREMIUM MINI BALANCE CARD
 ======================================*/
