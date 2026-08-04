@@ -1395,7 +1395,9 @@ Belum ada data
     class="quick-item"
     onclick="window.location.href='chat.html'">
 
-    <i class="fa-solid fa-robot"></i>
+    <img
+    src="assets/apxx-ai-icon.png"
+    class="quick-icon">
 
     <span>Apxx AI</span>
 
@@ -1412,7 +1414,7 @@ Belum ada data
 
                 <i class="fa-solid fa-handshake"></i>
 
-                <span>Hutang Piutang</span>
+                <span>Hutang</span>
 
               <i class="fa-solid fa-screwdriver-wrench feature-lock"></i>
 
@@ -1903,12 +1905,13 @@ Terapkan
 
             </button>
 
-            <button
-            id="registerTab">
+            <button id="registerTab">
 
-                Daftar
+    <i class="fa-solid fa-lock"></i>
 
-            </button>
+    Daftar
+
+</button>
 
         </div>
 
@@ -1949,51 +1952,265 @@ placeholder="Masukkan username">
         </div>
 
         <!-- REGISTER -->
+            <!-- REGISTER -->
+<div id="registerForm" style="display:none;">
 
-        <div
-        id="registerForm"
-        style="display:none;">
+<div class="form-group">
+<label>Nama</label>
+<input
+type="text"
+id="registerName"
+placeholder="Masukkan nama">
+</div>
 
-            <div class="form-group">
-
-                <label>Nama</label>
-
-                <input
-                type="text"
-                id="registerName"
-                placeholder="Nama lengkap">
-
-            </div>
-
-            <div class="form-group">
-
-                <label>Username</label>
-
+<div class="form-group">
+<label>Username</label>
 <input
 type="text"
 id="registerUsername"
-placeholder="Username">
+placeholder="Masukkan username">
+</div>
 
-            </div>
+<div class="form-group">
+<label>Password</label>
+<input
+type="password"
+id="registerPassword"
+placeholder="Masukkan password">
+</div>
 
-            <div class="form-group">
+<button
+id="registerSubmit"
+class="primary-btn">
 
-                <label>Password</label>
+Daftar
 
-                <input
-                type="password"
-                id="registerPassword"
-                placeholder="Password">
+</button>
 
-            </div>
+</div>
 
-            <button
-            id="registerSubmit"
-            class="primary-btn">
+</div>
 
-                Daftar
+</div>
 
-            </button>
+<!-- PREMIUM REGISTER -->
+
+<div class="modal-overlay" id="premiumOverlay">
+
+<div class="modal-sheet">
+
+<div class="modal-handle"></div>
+
+<i class="fa-solid fa-lock lock-icon"></i>
+
+<h3>Registrasi Token</h3>
+
+<p>
+
+Untuk membuat akun ApxxWallet,<br>
+kamu harus membeli Token Registrasi.
+
+</p>
+
+<div class="price-box">
+
+    <span class="price-badge">HEMAT 55%</span>
+
+    <small>Harga</small>
+
+    <h5><del>Rp109.000</del></h5>
+
+    <h2>Rp49.000</h2>
+
+</div>
+
+<div class="premium-btn">
+
+<button
+id="laterBtn"
+class="cancel-btn">
+
+Nanti Saja
+
+</button>
+
+<button
+id="buyTokenBtn"
+class="primary-btn">
+
+Beli Token
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+      
+<div class="modal-overlay" id="buyTokenOverlay">
+
+    <div class="modal-sheet">
+
+        <div class="modal-handle"></div>
+
+        <h3>Token Registrasi</h3>
+
+        <p>
+            Scan QRIS berikut untuk membeli Token Registrasi.
+        </p>
+
+        <img
+        src="assets/qris.png"
+        class="qris-image">
+
+        <h2>Rp49.000</h2>
+
+        <button
+        id="alreadyPaidBtn"
+        class="primary-btn">
+
+            Saya Sudah Bayar
+
+        </button>
+
+    </div>
+
+</div>
+
+       <div class="modal-overlay" id="paymentConfirmOverlay">
+
+    <div class="modal-sheet">
+
+        <div class="modal-handle"></div>
+
+        <h3>Konfirmasi Pengirim</h3>
+
+        <div class="form-group">
+
+            <label>Nama Bank</label>
+
+            <input
+            id="paymentBank"
+            placeholder="Contoh : SeaBank">
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Atas Nama</label>
+
+            <input
+            id="paymentName"
+            placeholder="Nama Pengirim">
+
+        </div>
+
+        <button
+        id="sendPaymentBtn"
+        class="primary-btn">
+
+            Kirim
+
+        </button>
+
+    </div>
+
+</div>
+
+              <div class="modal-overlay" id="waitingOverlay">
+
+    <div class="modal-sheet">
+
+        <div class="modal-handle"></div>
+
+        <i class="fa-solid fa-clock"
+        style="font-size:55px;color:#ff7a00;"></i>
+
+        <h3>Pembayaran Sedang Dicek</h3>
+
+        <p>
+            Mohon tunggu ya bestie 🥰 <br>
+            Admin sedang memverifikasi pembayaran kamu.
+        </p>
+
+    </div>
+
+</div>
+
+  <!-- CONFIRM REGISTER -->
+
+<div
+class="modal-overlay"
+id="confirmRegisterOverlay">
+
+<div class="modal-sheet">
+
+<div class="modal-handle"></div>
+
+<h3>
+
+Konfirmasi
+
+</h3>
+
+<p>
+
+Pastikan Username dan Password
+sudah kamu simpan ya Bestie 🥰
+
+<br><br>
+
+Token Registrasi hanya dapat digunakan
+1 kali.
+
+</p>
+
+<div class="modal-footer">
+
+<button
+id="editRegister"
+class="cancel-btn">
+
+Edit
+
+</button>
+
+<button
+id="confirmRegister"
+class="save-btn">
+
+Lanjut
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+
+    <div class="loading-card">
+
+        <div class="loading-ring">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+
+        <h3 id="loadingTitle">
+            Memproses
+        </h3>
+
+        <p id="loadingText">
+            Mohon tunggu sebentar...
+        </p>
+
+        <div class="loading-dot">
+
+            <span></span>
+            <span></span>
+            <span></span>
 
         </div>
 
