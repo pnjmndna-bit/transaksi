@@ -7822,3 +7822,36 @@ async function startWaitingCheck(){
 clearInterval(waitingInterval);
 
 waitingInterval = null;
+
+let deferredPrompt;
+
+const installBtn = document.getElementById("installBtn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+
+    deferredPrompt = e;
+
+    installBtn.style.display = "flex";
+});
+
+installBtn.onclick = async () => {
+
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+
+    await deferredPrompt.userChoice;
+
+    deferredPrompt = null;
+
+    installBtn.style.display = "none";
+};
+
+window.addEventListener("appinstalled", () => {
+
+    installBtn.style.display = "none";
+
+    deferredPrompt = null;
+
+});
