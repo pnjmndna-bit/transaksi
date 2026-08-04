@@ -3741,6 +3741,7 @@ renderSummary();
 renderIncomeAnalysis();
 renderAnalysis();
 renderProfile();
+renderHomeHeader();
 
 closeModal();
   
@@ -3764,6 +3765,7 @@ deleteConfirm.onclick = function(){
         renderIncomeAnalysis();
         renderAnalysis();
         renderProfile();
+        renderHomeHeader();
         renderTransactions();
 
     }else if(deleteTransactionId !== null){
@@ -4965,6 +4967,7 @@ renderSummary();
 renderIncomeAnalysis();
 renderAnalysis();
 renderProfile();
+renderHomeHeader();
 
 renderTransactions();
 
@@ -5157,6 +5160,7 @@ function deleteTransaction(id){
     renderIncomeAnalysis();
     renderAnalysis();
     renderProfile();
+    renderHomeHeader();
 
     renderTransactions();
 
@@ -6086,6 +6090,7 @@ renderSummary();
 renderIncomeAnalysis();
 renderAnalysis();
 renderProfile();
+renderHomeHeader();
 
 renderTransactions();
 
@@ -6563,6 +6568,61 @@ document.getElementById("seeAllTransaction").onclick = function(){
 };
 
 /*======================================
+        HOME HEADER
+======================================*/
+
+function renderHomeHeader(){
+
+    const greeting =
+    document.getElementById("homeGreeting");
+
+    const username =
+    document.getElementById("homeUsername");
+
+    if(!greeting || !username) return;
+
+    if(!currentUser){
+
+        greeting.textContent =
+        "Selamat Datang Bestie👋";
+
+        username.textContent = "Guest";
+
+        return;
+
+    }
+
+    const hour = new Date().getHours();
+
+    let text = "";
+
+    if(hour >= 5 && hour < 11){
+
+        text = "Selamat Pagi";
+
+    }else if(hour >= 11 && hour < 15){
+
+        text = "Selamat Siang";
+
+    }else if(hour >= 15 && hour < 18){
+
+        text = "Selamat Sore";
+
+    }else{
+
+        text = "Selamat Malam";
+
+    }
+
+    greeting.textContent =
+    text + " Bestie 👋";
+
+    username.textContent =
+    currentUser.name;
+
+}
+
+/*======================================
         PROFILE
 ======================================*/
 
@@ -6647,6 +6707,7 @@ renderAnalysis();
 renderTransactions();
 renderInsight();
 renderProfile();
+renderHomeHeader();
 
     };
 
@@ -7243,6 +7304,8 @@ loginSubmit.onclick = async function(){
 
         renderProfile();
 
+        renderHomeHeader();
+
         closeAuth();
 
         showToast(
@@ -7343,6 +7406,8 @@ async function loadUser(){
 
         renderProfile();
 
+        renderHomeHeader();
+
     }catch(err){
 
         console.log(err);
@@ -7382,5 +7447,7 @@ loadUser().then(()=>{
     renderInsight();
 
     renderProfile();
+
+    renderHomeHeader();
 
 });
