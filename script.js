@@ -7705,9 +7705,9 @@ buyTokenBtn.onclick = async () => {
 
     try{
 
-        const res = await fetch(API_URL + "/request-token",{
-            method:"POST"
-        });
+        fetch(API_URL + "/buy-token",{
+    method:"POST"
+});
 
         const data = await res.json();
 
@@ -7760,7 +7760,7 @@ sendPaymentBtn.onclick = async () => {
 
     try{
 
-        const res = await fetch(API_URL + "/confirm-payment",{
+        const res = await fetch(API_URL + "/payment-confirm",{
 
             method:"POST",
 
@@ -7768,9 +7768,15 @@ sendPaymentBtn.onclick = async () => {
                 "Content-Type":"application/json"
             },
 
-            body:JSON.stringify({
-                requestId
-            })
+            body: JSON.stringify({
+
+    requestId,
+
+    bank: document.getElementById("paymentBank").value,
+
+    name: document.getElementById("paymentName").value
+
+})
 
         });
 
@@ -7846,10 +7852,10 @@ async function startWaitingCheck(){
         try{
 
             const res = await fetch(
-
-                API_URL + "/check-register"
-
-            );
+    API_URL +
+    "/check-register?requestId=" +
+    requestId
+);
 
             const data = await res.json();
 
