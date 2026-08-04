@@ -46,14 +46,14 @@ const cors = require("cors");
 
 const User = require("./models/User");
 
-const PaymentRequest = require("./models/PaymentRequest");
-
 const bot = new TelegramBot(
     process.env.BOT_TOKEN,
     {
         polling: true
     }
 );
+
+const pendingRequests = {};
 
 const app = express();
 
@@ -405,6 +405,17 @@ app.post("/buy-token", async (req, res) => {
         .substring(2,8)
         .toUpperCase();
 
+        pendingRequests[requestId] = {
+
+    approved:false,
+
+    token:Math.random()
+    .toString(36)
+    .substring(2,12)
+    .toUpperCase()
+
+};
+
         const waktu = new Date().toLocaleString("id-ID",{
 
             day:"2-digit",
@@ -465,23 +476,21 @@ app.post("/payment-confirm", async (req,res)=>{
 
         } = req.body;
 
-        const token =
-        Math.random()
-        .toString(36)
-        .substring(2,12)
-        .toUpperCase();
+        if(!pendingRequests[requestId]){
 
-        await PaymentRequest.create({
+    return res.json({
 
-            requestId,
+        success:false,
 
-            bank,
+        message:"Request tidak ditemukan."
 
-            name,
+    });
 
-            token
+}
 
-        });
+pendingRequests[requestId].bank = bank;
+
+pendingRequests[requestId].name = name;
 
         await bot.sendMessage(
 
@@ -558,6 +567,153 @@ ${name}
         });
 
     }
+
+});
+
+/* ===========================
+   TELEGRAM CALLBACK
+=========================== */
+
+bot.on("callback_query", async (query)=>{
+
+    const data = query.data;
+
+    if(data.startsWith("approve_")){
+
+        const requestId = data.replace("approve_","");
+
+        if(!pendingRequests[requestId]){
+
+            return bot.answerCallbackQuery(
+                query.id,
+                {
+                    text:"Request tidak ditemukan."
+                }
+            );
+
+        }
+
+        pendingRequests[requestId].approved = true;
+
+        await bot.editMessageReplyMarkup(
+
+            { inline_keyboard:[] },
+
+            {
+
+                chat_id:query.message.chat.id,
+
+                message_id:query.message.message_id
+
+            }
+
+        );
+
+        await bot.sendMessage(
+
+            query.message.chat.id,
+
+`✅ Token berhasil disetujui
+
+ID : ${requestId}`
+
+        );
+
+        return bot.answerCallbackQuery(
+
+            query.id,
+
+            {
+
+                text:"Berhasil."
+
+            }
+
+        );
+
+    }
+
+    if(data.startsWith("reject_")){
+
+        const requestId = data.replace("reject_","");
+
+        delete pendingRequests[requestId];
+
+        await bot.editMessageReplyMarkup(
+
+            { inline_keyboard:[] },
+
+            {
+
+                chat_id:query.message.chat.id,
+
+                message_id:query.message.message_id
+
+            }
+
+        );
+
+        await bot.sendMessage(
+
+            query.message.chat.id,
+
+`❌ Permintaan ditolak
+
+ID : ${requestId}`
+
+        );
+
+        return bot.answerCallbackQuery(
+
+            query.id,
+
+            {
+
+                text:"Ditolak."
+
+            }
+
+        );
+
+    }
+
+});
+
+/* ===========================
+   CHECK REGISTER
+=========================== */
+
+app.get("/check-register",(req,res)=>{
+
+    const requestId = req.query.requestId;
+
+    const request = pendingRequests[requestId];
+
+    if(!request){
+
+        return res.json({
+            success:false
+        });
+
+    }
+
+    if(!request.approved){
+
+        return res.json({
+            success:false
+        });
+
+    }
+
+    res.json({
+
+        success:true,
+
+        token:request.token
+
+    });
+
+    delete pendingRequests[requestId];
 
 });
 
