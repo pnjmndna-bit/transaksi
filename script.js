@@ -13,6 +13,7 @@ localStorage.getItem("token") || "";
 let registerUnlocked = false;
 let registerToken = "";
 let waitingInterval = null;
+let requestId = "";
 
 // ===========================
 
@@ -7695,26 +7696,6 @@ function hideLoading(){
 
 buyTokenBtn.onclick = async () => {
 
-    try{
-
-        await fetch(
-
-            API_URL + "/buy-token",
-
-            {
-
-                method:"POST"
-
-            }
-
-        );
-
-    }catch(err){
-
-        console.log(err);
-
-    }
-
     premiumOverlay.classList.remove("show");
 
     showLoading(
@@ -7722,13 +7703,30 @@ buyTokenBtn.onclick = async () => {
         "Membuat QRIS..."
     );
 
-    setTimeout(()=>{
+    try{
+
+        const res = await fetch(API_URL + "/request-token",{
+            method:"POST"
+        });
+
+        const data = await res.json();
+
+        requestId = data.requestId;
 
         hideLoading();
 
         buyTokenOverlay.classList.add("show");
 
-    },900);
+    }catch{
+
+        hideLoading();
+
+        showToast(
+            "error",
+            "Server tidak dapat dihubungi."
+        );
+
+    }
 
 };
 
@@ -7751,7 +7749,7 @@ alreadyPaidBtn.onclick = () => {
 
 };
 
-sendPaymentBtn.onclick = () => {
+sendPaymentBtn.onclick = async () => {
 
     paymentConfirmOverlay.classList.remove("show");
 
@@ -7760,15 +7758,51 @@ sendPaymentBtn.onclick = () => {
         "Mohon tunggu sebentar..."
     );
 
-    setTimeout(()=>{
+    try{
+
+        const res = await fetch(API_URL + "/confirm-payment",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                requestId
+            })
+
+        });
+
+        const data = await res.json();
 
         hideLoading();
+
+        if(!data.success){
+
+            showToast(
+                "error",
+                data.message || "Gagal mengirim data."
+            );
+
+            return;
+
+        }
 
         waitingOverlay.classList.add("show");
 
         startWaitingCheck();
 
-    },1200);
+    }catch(err){
+
+        hideLoading();
+
+        showToast(
+            "error",
+            "Server tidak dapat dihubungi."
+        );
+
+    }
 
 };
 
