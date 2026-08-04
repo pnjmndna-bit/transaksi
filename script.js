@@ -10,6 +10,10 @@ const API_URL = "https://transaksi-production.up.railway.app";
 let authToken =
 localStorage.getItem("token") || "";
 
+let registerUnlocked = false;
+let registerToken = "";
+let waitingInterval = null;
+
 // ===========================
 
 let dragBankId = null;
@@ -7089,11 +7093,11 @@ document.getElementById("registerForm");
 const loginBtn =
 document.getElementById("loginButton");
 
-const registerBtn =
-document.getElementById("registerButton");
-
 const authButton =
 document.getElementById("authButton");
+
+const premiumOverlay =
+document.getElementById("premiumOverlay");
 
 function openAuth(){
 
@@ -7123,18 +7127,6 @@ if(loginBtn){
 
 }
 
-if(registerBtn){
-
-    registerBtn.onclick=function(){
-
-        openAuth();
-
-        registerTab.click();
-
-    };
-
-}
-
 if(authButton){
 
     authButton.onclick = function(){
@@ -7157,7 +7149,17 @@ loginTab.onclick=function(){
 
 };
 
-registerTab.onclick=function(){
+registerTab.onclick = function(){
+
+    if(!registerUnlocked){
+
+        authOverlay.classList.remove("show");
+
+        premiumOverlay.classList.add("show");
+
+        return;
+
+    }
 
     registerTab.classList.add("active");
 
@@ -7173,6 +7175,15 @@ registerTab.onclick=function(){
         REGISTER ACCOUNT
 ======================================*/
 
+const loginUsername =
+document.getElementById("loginUsername");
+
+const loginPassword =
+document.getElementById("loginPassword");
+
+const loginSubmit =
+document.getElementById("loginSubmit");
+
 const registerName =
 document.getElementById("registerName");
 
@@ -7185,25 +7196,20 @@ document.getElementById("registerPassword");
 const registerSubmit =
 document.getElementById("registerSubmit");
 
-const loginUsername =
-document.getElementById("loginUsername");
+const confirmRegisterOverlay =
+document.getElementById("confirmRegisterOverlay");
 
-const loginPassword =
-document.getElementById("loginPassword");
+const editRegister =
+document.getElementById("editRegister");
 
-const loginSubmit =
-document.getElementById("loginSubmit");
+const confirmRegister =
+document.getElementById("confirmRegister");
 
-registerSubmit.onclick = async function(){
+registerSubmit.onclick = () => {
 
-    const name =
-    registerName.value.trim();
-
-    const username =
-    registerUsername.value.trim();
-
-    const password =
-    registerPassword.value;
+    const name = registerName.value.trim();
+    const username = registerUsername.value.trim();
+    const password = registerPassword.value;
 
     if(!name || !username || !password){
 
@@ -7215,6 +7221,22 @@ registerSubmit.onclick = async function(){
         return;
 
     }
+
+    confirmRegisterOverlay.classList.add("show");
+
+};
+
+editRegister.onclick = () => {
+
+    confirmRegisterOverlay.classList.remove("show");
+
+};
+
+confirmRegister.onclick = async () => {
+
+    const name = registerName.value.trim();
+    const username = registerUsername.value.trim();
+    const password = registerPassword.value;
 
     try{
 
@@ -7233,9 +7255,7 @@ registerSubmit.onclick = async function(){
                 body:JSON.stringify({
 
                     name,
-
                     username,
-
                     password
 
                 })
@@ -7248,35 +7268,62 @@ registerSubmit.onclick = async function(){
 
         if(!data.success){
 
-            showToast("error",data.message);
+            showToast(
+                "error",
+                data.message
+            );
 
             return;
 
         }
 
-        showToast(
+        confirmRegisterOverlay.classList.remove("show");
 
-            "success",
+        registerUnlocked = false;
 
-            "Register berhasil."
-
-        );
+        registerTab.innerHTML = `
+        <i class="fa-solid fa-lock"></i>
+        Daftar
+        `;
 
         loginTab.click();
+
+        registerName.value = "";
+        registerUsername.value = "";
+        registerPassword.value = "";
+
+        showToast(
+            "success",
+            "Akun berhasil dibuat."
+        );
 
     }catch(err){
 
         showToast(
-
             "error",
-
             "Server tidak dapat dihubungi."
-
         );
 
     }
 
 };
+
+confirmRegisterOverlay.onclick = function(e){
+
+    if(e.target===confirmRegisterOverlay){
+
+        confirmRegisterOverlay.classList.remove("show");
+
+    }
+
+};
+
+registerUnlocked = false;
+
+registerTab.innerHTML = `
+<i class="fa-solid fa-lock"></i>
+Daftar
+`;
 
 loginSubmit.onclick = async function(){
 
@@ -7285,6 +7332,11 @@ loginSubmit.onclick = async function(){
 
     const password =
     loginPassword.value;
+
+  showLoading(
+    "Masuk ke Akun",
+    "Memverifikasi data..."
+);
 
     try{
 
@@ -7378,6 +7430,8 @@ loginSubmit.onclick = async function(){
 
         renderHomeHeader();
 
+        hideLoading();
+
         closeAuth();
 
         showToast(
@@ -7389,6 +7443,8 @@ loginSubmit.onclick = async function(){
         );
 
     }catch(err){
+
+      hideLoading();
 
         showToast(
 
@@ -7435,6 +7491,13 @@ async function loadUser(){
             localStorage.removeItem("token");
 
             authToken="";
+
+          registerUnlocked = false;
+
+registerTab.innerHTML = `
+<i class="fa-solid fa-lock"></i>
+Daftar
+`;
 
             return;
 
@@ -7592,3 +7655,170 @@ document.querySelectorAll(".coming-soon").forEach(btn=>{
     };
 
 });
+
+const buyTokenBtn = document.getElementById("buyTokenBtn");
+
+const buyTokenOverlay = document.getElementById("buyTokenOverlay");
+
+const alreadyPaidBtn = document.getElementById("alreadyPaidBtn");
+const paymentConfirmOverlay = document.getElementById("paymentConfirmOverlay");
+
+const waitingOverlay = document.getElementById("waitingOverlay");
+
+const sendPaymentBtn = document.getElementById("sendPaymentBtn");
+
+const laterBtn = document.getElementById("laterBtn");
+
+const loadingOverlay =
+document.getElementById("loadingOverlay");
+
+const loadingTitle =
+document.getElementById("loadingTitle");
+
+const loadingText =
+document.getElementById("loadingText");
+
+function showLoading(title,text){
+
+    loadingTitle.textContent = title;
+    loadingText.textContent = text;
+
+    loadingOverlay.classList.add("show");
+
+}
+
+function hideLoading(){
+
+    loadingOverlay.classList.remove("show");
+
+}
+
+buyTokenBtn.onclick = () => {
+
+    premiumOverlay.classList.remove("show");
+
+    showLoading(
+        "Menyiapkan Pembayaran",
+        "Membuat QRIS..."
+    );
+
+    setTimeout(()=>{
+
+        hideLoading();
+
+        buyTokenOverlay.classList.add("show");
+
+    },900);
+
+};
+
+alreadyPaidBtn.onclick = () => {
+
+    buyTokenOverlay.classList.remove("show");
+
+    showLoading(
+        "Memverifikasi",
+        "Menyiapkan formulir..."
+    );
+
+    setTimeout(()=>{
+
+        hideLoading();
+
+        paymentConfirmOverlay.classList.add("show");
+
+    },900);
+
+};
+
+sendPaymentBtn.onclick = () => {
+
+    paymentConfirmOverlay.classList.remove("show");
+
+    showLoading(
+        "Mengirim Data",
+        "Mohon tunggu sebentar..."
+    );
+
+    setTimeout(()=>{
+
+        hideLoading();
+
+        waitingOverlay.classList.add("show");
+
+        startWaitingCheck();
+
+    },1200);
+
+};
+
+laterBtn.onclick = () => {
+
+    premiumOverlay.classList.remove("show");
+
+};
+
+function unlockRegister(token){
+
+  window.unlockRegister = unlockRegister;
+
+    registerUnlocked = true;
+
+    registerToken = token;
+
+    waitingOverlay.classList.remove("show");
+
+    authOverlay.classList.add("show");
+
+    registerTab.innerHTML = "Daftar";
+
+    showToast(
+        "success",
+        "Token berhasil diaktifkan."
+    );
+
+}
+
+async function startWaitingCheck(){
+
+    if(waitingInterval){
+
+        clearInterval(waitingInterval);
+
+    }
+
+    waitingInterval = setInterval(async()=>{
+
+        try{
+
+            const res = await fetch(
+
+                API_URL + "/check-register"
+
+            );
+
+            const data = await res.json();
+
+            if(data.success){
+
+                clearInterval(waitingInterval);
+
+                waitingInterval = null;
+
+                unlockRegister(data.token);
+
+            }
+
+        }catch(err){
+
+            console.log(err);
+
+        }
+
+    },3000);
+
+}
+
+clearInterval(waitingInterval);
+
+waitingInterval = null;
