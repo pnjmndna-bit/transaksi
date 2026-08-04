@@ -46,6 +46,8 @@ const cors = require("cors");
 
 const User = require("./models/User");
 
+const PaymentRequest = require("./models/PaymentRequest");
+
 const bot = new TelegramBot(
     process.env.BOT_TOKEN,
     {
@@ -440,6 +442,116 @@ Waktu : ${waktu}
         console.log(err);
 
         res.status(500).json({
+
+            success:false
+
+        });
+
+    }
+
+});
+
+app.post("/payment-confirm", async (req,res)=>{
+
+    try{
+
+        const {
+
+            requestId,
+
+            bank,
+
+            name
+
+        } = req.body;
+
+        const token =
+        Math.random()
+        .toString(36)
+        .substring(2,12)
+        .toUpperCase();
+
+        await PaymentRequest.create({
+
+            requestId,
+
+            bank,
+
+            name,
+
+            token
+
+        });
+
+        await bot.sendMessage(
+
+            process.env.CHAT_ID,
+
+`💳 APXX Wallet
+━━━━━━━━━━━━━━
+Konfirmasi Pembayaran
+
+ID : ${requestId}
+
+Bank :
+${bank}
+
+Atas Nama :
+${name}
+
+━━━━━━━━━━━━━━`,
+
+            {
+
+                reply_markup:{
+
+                    inline_keyboard:[
+
+                        [
+
+                            {
+
+                                text:"✅ Berikan Akses",
+
+                                callback_data:
+                                "approve_"+requestId
+
+                            }
+
+                        ],
+
+                        [
+
+                            {
+
+                                text:"❌ Tolak",
+
+                                callback_data:
+                                "reject_"+requestId
+
+                            }
+
+                        ]
+
+                    ]
+
+                }
+
+            }
+
+        );
+
+        res.json({
+
+            success:true
+
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.json({
 
             success:false
 
