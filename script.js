@@ -7751,6 +7751,34 @@ alreadyPaidBtn.onclick = () => {
 
 sendPaymentBtn.onclick = async () => {
 
+            const bank =
+    document.getElementById("paymentBank").value.trim();
+
+    const name =
+    document.getElementById("paymentName").value.trim();
+
+    if(!bank){
+
+        showToast(
+            "warning",
+            "Silakan pilih bank."
+        );
+
+        return;
+
+    }
+
+    if(!name){
+
+        showToast(
+            "warning",
+            "Masukkan nama pemilik rekening."
+        );
+
+        return;
+
+    }
+
     paymentConfirmOverlay.classList.remove("show");
 
     showLoading(
