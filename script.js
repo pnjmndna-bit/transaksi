@@ -7578,3 +7578,17 @@ navigator.serviceWorker.addEventListener(
     window.location.reload();
 
 });
+
+document.querySelectorAll(".coming-soon").forEach(btn=>{
+
+    btn.onclick=()=>{
+
+        showToast(
+            "🚧 Coming Soon",
+            "Fitur ini sedang dalam perkembangan ya bestie 🥰",
+            "info"
+        );
+
+    };
+
+});
