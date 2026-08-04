@@ -9329,3 +9329,27 @@ color:#111827;
     background:#ececec;
     color:#333;
 }
+
+.quick-item{
+    position:relative;
+}
+
+.feature-lock{
+    position:absolute;
+    top:13px;
+    right:14px;
+
+    width:1px !important;
+    height:1px !important;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#fff;
+    color:#ff7a00;
+
+    font-size:12px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
