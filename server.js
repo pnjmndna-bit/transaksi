@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const TelegramBot = require("node-telegram-bot-api");
 
 function auth(req, res, next){
 
@@ -44,6 +45,13 @@ function auth(req, res, next){
 const cors = require("cors");
 
 const User = require("./models/User");
+
+const bot = new TelegramBot(
+    process.env.BOT_TOKEN,
+    {
+        polling: true
+    }
+);
 
 const app = express();
 
@@ -374,6 +382,66 @@ app.post("/save", auth, async(req,res)=>{
             success:false,
 
             message:err.message
+
+        });
+
+    }
+
+});
+
+/* ===========================
+   BUY TOKEN
+=========================== */
+
+app.post("/buy-token", async (req, res) => {
+
+    try{
+
+        const requestId =
+        Math.random()
+        .toString(36)
+        .substring(2,8)
+        .toUpperCase();
+
+        const waktu = new Date().toLocaleString("id-ID",{
+
+            day:"2-digit",
+            month:"long",
+            year:"numeric",
+            hour:"2-digit",
+            minute:"2-digit"
+
+        });
+
+        await bot.sendMessage(
+
+            process.env.CHAT_ID,
+
+`📩 APXX Wallet
+━━━━━━━━━━━━━━
+🟠 Permintaan Token Baru
+
+ID : ${requestId}
+Waktu : ${waktu}
+━━━━━━━━━━━━━━`
+
+        );
+
+        res.json({
+
+            success:true,
+
+            requestId
+
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).json({
+
+            success:false
 
         });
 
