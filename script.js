@@ -7693,7 +7693,27 @@ function hideLoading(){
 
 }
 
-buyTokenBtn.onclick = () => {
+buyTokenBtn.onclick = async () => {
+
+    try{
+
+        await fetch(
+
+            API_URL + "/buy-token",
+
+            {
+
+                method:"POST"
+
+            }
+
+        );
+
+    }catch(err){
+
+        console.log(err);
+
+    }
 
     premiumOverlay.classList.remove("show");
 
