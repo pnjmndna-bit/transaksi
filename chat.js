@@ -1,22 +1,47 @@
 
 "use strict";
 
-const banks = JSON.parse(
-localStorage.getItem("banks") || "[]"
-);
+const API_URL = "https://transaksi-production.up.railway.app";
+// atau URL Railway
 
-const categories = JSON.parse(
-localStorage.getItem("categories") || "{}"
-);
+let banks = [];
+let categories = {};
+let transactions = [];
 
-const transactions = JSON.parse(
-localStorage.getItem("transactions") || "[]"
-);
+async function loadUserData(){
 
-const allCategories = [
-...(categories.income || []),
-...(categories.expense || [])
-];
+    const token = localStorage.getItem("token");
+
+    if(!token) return;
+
+    const res = await fetch(API_URL + "/me",{
+
+        headers:{
+            Authorization:token
+        }
+
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+
+        banks = data.user.banks || [];
+        categories = data.user.categories || {};
+        transactions = data.user.transactions || [];
+
+    }
+
+}
+
+function getAllCategories(){
+
+    return [
+        ...(categories.income || []),
+        ...(categories.expense || [])
+    ];
+
+}
 
 let pendingTransactions = [];
 
@@ -202,7 +227,9 @@ typingBox = null;
 
 }
 
-window.onload = ()=>{
+window.onload = async ()=>{
+
+    await loadUserData();
 
 showTyping();  
 
@@ -583,7 +610,7 @@ switch(aiContext.field){
 
     case "category":  
 
-        trx.category = allCategories.find(c=>  
+        trx.category = getAllCategories().find(c=>  
 
             c.name.toLowerCase()==  
             text.toLowerCase()  
@@ -694,7 +721,7 @@ if(bank){
 
 }  
 
-const category = allCategories.find(c=>  
+const category = getAllCategories().find(c=>  
 
     msg.includes(  
 
@@ -749,7 +776,7 @@ switch(aiState.field){
     case "category":  
 
         data.category =  
-        allCategories.find(c=>  
+        getAllCategories().find(c=>  
 
             c.name  
             .toLowerCase()==  
@@ -883,13 +910,7 @@ Jumlah transaksi
 
 function showLastTransaction(){
 
-const data = JSON.parse(  
-
-    localStorage.getItem("transactions")  
-
-    ||"[]"  
-
-);  
+const data = transactions;
 
 if(!data.length){  
 
@@ -913,7 +934,7 @@ banks.find(
 
 const category =  
 
-allCategories.find(  
+getAllCategories().find(  
 
     c=>c.id==trx.categoryId  
 
@@ -937,15 +958,9 @@ addAIMessage(`
 
 }
 
-function undoLastTransaction(){
+async function undoLastTransaction(){
 
-let data = JSON.parse(  
-
-    localStorage.getItem("transactions")  
-
-    ||"[]"  
-
-);  
+let data = transactions;
 
 if(!data.length){  
 
@@ -959,13 +974,22 @@ if(!data.length){
 
 const trx = data.shift();  
 
-localStorage.setItem(  
+await fetch(API_URL+"/save",{
 
-    "transactions",  
+    method:"POST",
 
-    JSON.stringify(data)  
+    headers:{
+        "Content-Type":"application/json",
+        Authorization:localStorage.getItem("token")
+    },
 
-);  
+    body:JSON.stringify({
+        banks,
+        transactions,
+        categories
+    })
+
+});
 
 addAIMessage(`
 
@@ -979,22 +1003,12 @@ addAIMessage(`
 
 function showTransactionCount(){
 
-const data = JSON.parse(  
-
-    localStorage.getItem("transactions")  
-
-    ||"[]"  
-
-);  
+const data = transactions;
 
 addAIMessage(`
-
 📊 Saat ini terdapat
-
 <b>${data.length}</b>
-
-transaksi yang tersimpan.
-
+transaksi.
 `);
 
 }
@@ -1005,14 +1019,6 @@ keyword = keyword
     .replace("cari","")  
     .replace("search","")  
     .trim();  
-
-const transactions = JSON.parse(  
-
-    localStorage.getItem("transactions")  
-
-    || "[]"  
-
-);  
 
 let result = transactions.filter(t=>{  
 
@@ -1300,7 +1306,7 @@ detectSmartCategory(text);
 if(!category){
 
 category =  
-allCategories.find(c=>  
+getAllCategories().find(c=>  
 
     lower.includes(  
 
@@ -1428,10 +1434,6 @@ globalDate
 
 function detectCategoryFromHistory(text){
 
-const transactions =  
-JSON.parse(  
-    localStorage.getItem("transactions") || "[]"  
-);  
 
 if(!transactions.length)  
     return null;  
@@ -1466,7 +1468,7 @@ transactions.forEach(tr=>{
         bestScore = score;  
 
         bestCategory =  
-        allCategories.find(c=>  
+        getAllCategories().find(c=>  
 
             c.id == tr.categoryId  
 
@@ -1567,7 +1569,7 @@ for(const key in keyword){
 
         const cat=  
 
-        allCategories.find(c=>  
+        getAllCategories().find(c=>  
 
             c.name.toLowerCase()  
 
@@ -1785,7 +1787,7 @@ wrapper.innerHTML = `
                 Pilih kategori  
                 </option>  
 
-                ${allCategories.map(cat=>`  
+                ${getAllCategories().map(cat=>`  
 
                 <option  
 
@@ -1988,7 +1990,7 @@ bank.onchange=function(){
 category.onchange=function(){  
 
     data.category =  
-    allCategories.find(c=>  
+    getAllCategories().find(c=>  
 
         String(c.id)===this.value  
 
@@ -2078,21 +2080,11 @@ cancel.onclick=function(){
 
 }
 
-function saveTransactionFromAI(data){
+async function saveTransactionFromAI(data){
 
 /*==============================  
         AMBIL DATA  
 ==============================*/  
-
-const transactions =  
-JSON.parse(  
-
-    localStorage.getItem(  
-        "transactions"  
-    ) || "[]"  
-
-);  
-
 /*==============================  
         SIMPAN  
 ==============================*/  
@@ -2116,16 +2108,6 @@ transactions.unshift({
     .toISOString()  
 
 });  
-
-localStorage.setItem(  
-
-    "transactions",  
-
-    JSON.stringify(  
-        transactions  
-    )  
-
-);  
 
 /*==============================  
     UPDATE SALDO BANK  
@@ -2154,13 +2136,24 @@ if(data.bank){
 
         }  
 
-        localStorage.setItem(  
+         await fetch(API_URL + "/save",{
 
-            "banks",  
+    method:"POST",
 
-            JSON.stringify(banks)  
+    headers:{
+        "Content-Type":"application/json",
+        Authorization:localStorage.getItem("token")
+    },
 
-        );  
+    body:JSON.stringify({
+
+        banks,
+        transactions,
+        categories
+
+    })
+
+});
 
     }  
 
@@ -2265,10 +2258,6 @@ aiFollowUp(data);
 
 function showBalance(){
 
-const banks = JSON.parse(  
-    localStorage.getItem("banks") || "[]"  
-);  
-
 if(!banks.length){  
 
     return addAIMessage(  
@@ -2326,14 +2315,6 @@ addAIMessage(html);
 
 function todayExpense(){
 
-const transactions = JSON.parse(  
-
-    localStorage.getItem("transactions")  
-
-    || "[]"  
-
-);  
-
 const today =  
 new Date().toDateString();  
 
@@ -2382,14 +2363,6 @@ addAIMessage(`
 
 function todayIncome(){
 
-const transactions = JSON.parse(  
-
-    localStorage.getItem("transactions")  
-
-    || "[]"  
-
-);  
-
 const today =  
 new Date().toDateString();  
 
@@ -2437,14 +2410,6 @@ addAIMessage(`
 }
 
 function monthInsight(){
-
-const transactions = JSON.parse(  
-
-    localStorage.getItem("transactions")  
-
-    || "[]"  
-
-);  
 
 const now = new Date();  
 
@@ -2518,7 +2483,7 @@ Object.keys(categoryMap).forEach(id=>{
 
         topCategory =  
 
-        allCategories.find(c=>  
+        getAllCategories().find(c=>  
 
             String(c.id)==String(id)  
 
@@ -2667,10 +2632,6 @@ addAIMessage(
 }
 
 function showPeriodReport(period, msg){
-
-    const transactions = JSON.parse(
-        localStorage.getItem("transactions") || "[]"
-    );
 
     const now = new Date();
 
