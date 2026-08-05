@@ -7814,6 +7814,55 @@ Daftar
 }
 
 /*======================================
+        WELCOME POPUP
+======================================*/
+
+function showWelcomePopup(){
+
+    if(currentUser) return; // ✅ Sudah login = jangan tampilkan
+
+    document
+    .getElementById("welcomeOverlay")
+    .classList.add("show");
+
+}
+
+document.getElementById("welcomeClose").onclick = function(){
+
+    document
+    .getElementById("welcomeOverlay")
+    .classList.remove("show");
+
+};
+
+const apxxAiOverlay =
+document.getElementById("apxxAiOverlay");
+
+document.getElementById("openApxxAI").onclick=function(){
+
+    apxxAiOverlay.classList.add("show");
+
+};
+
+document.getElementById("apxxAiContinue").onclick=function(){
+
+    apxxAiOverlay.classList.remove("show");
+
+    window.location.href="chat.html";
+
+};
+
+apxxAiOverlay.onclick=function(e){
+
+    if(e.target===apxxAiOverlay){
+
+        apxxAiOverlay.classList.remove("show");
+
+    }
+
+};
+
+/*======================================
         INIT APP
 ======================================*/
 
@@ -7846,6 +7895,8 @@ loadUser().then(()=>{
     renderProfile();
 
     renderHomeHeader();
+
+    showWelcomePopup();
 
 });
 
