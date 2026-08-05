@@ -7862,6 +7862,41 @@ apxxAiOverlay.onclick=function(e){
 
 };
 
+document.getElementById("feedbackBtn").onclick=function(){
+
+    document
+    .getElementById("feedbackOverlay")
+    .classList.add("show");
+
+};
+
+document.getElementById("closeFeedback").onclick=function(){
+
+    document
+    .getElementById("feedbackOverlay")
+    .classList.remove("show");
+
+};
+
+document.getElementById("feedbackOverlay").onclick=function(e){
+
+    if(e.target===this){
+
+        this.classList.remove("show");
+
+    }
+
+};
+
+document.getElementById("openWhatsapp").onclick=function(){
+
+    window.open(
+        "https://wa.me/6287796942365",
+        "_blank"
+    );
+
+};
+
 /*======================================
         INIT APP
 ======================================*/
