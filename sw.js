@@ -1,4 +1,4 @@
-const CACHE = "orange-finance-v8.9";
+const CACHE = "orange-finance-v9";
 
 const FILES = [
     "./",
